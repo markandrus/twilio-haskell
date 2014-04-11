@@ -1,0 +1,27 @@
+name:                twilio
+version:             0.1.0.0
+synopsis:            Twilio library for Haskell
+description:         Twilio library for Haskell
+homepage:            https://github.com/markandrus/twiml-haskell
+license:             BSD3
+license-file:        LICENSE
+author:              Mark Andrus Roberts
+maintainer:          markandrusroberts@gmail.com
+category:            Network APIs, Web
+build-type:          Simple
+cabal-version:       >=1.8
+
+source-repository head
+  type: git
+  location: https://github.com/markandrus/twilio-haskell
+
+library:
+  exposed-modules:     Twilio
+  hs-source-dirs:      src
+  build-depends:       base ==4.6.*, network >=2.4, twiml ==0.1.*
+
+test-suite Tests
+  hs-source-dirs:      test
+  main-is:             Test.hs
+  Type:                exitcode-stdio-1.0
+  build-depends:       base ==4.6.*, Cabal >=1.16.0, twiml ==0.1.*
