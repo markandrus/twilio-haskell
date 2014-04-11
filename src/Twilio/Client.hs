@@ -1,4 +1,4 @@
-module Client
+module Twilio.Client
   ( Client(..)
   , client
   , AuthToken(getAuthToken)
@@ -8,8 +8,8 @@ module Client
   , asClient
   ) where
 
-import Account
-import Types
+import Twilio.Account
+import Twilio.Types
 
 import Control.Monad
 import qualified Data.ByteString.Char8 as C

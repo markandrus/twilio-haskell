@@ -1,8 +1,8 @@
-module PhoneNumber
+module Twilio.PhoneNumber
   ( PhoneNumberSID
   ) where
 
-import Types
+import Twilio.Types
 
 import Control.Monad (mzero)
 import Control.Applicative (Const(..))

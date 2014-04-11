@@ -1,8 +1,8 @@
-module Account
+module Twilio.Account
   ( AccountSID
   ) where
 
-import Types
+import Twilio.Types
 
 import Control.Monad (mzero)
 import Control.Applicative (Const(..))

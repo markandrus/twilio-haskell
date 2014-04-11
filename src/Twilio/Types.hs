@@ -3,7 +3,7 @@
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ScopedTypeVariables #-}
 
-module Types
+module Twilio.Types
   ( SID(..)
   , List(..)
   , PagingInformation(..)

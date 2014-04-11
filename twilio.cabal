@@ -15,13 +15,33 @@ source-repository head
   type: git
   location: https://github.com/markandrus/twilio-haskell
 
-library:
-  exposed-modules:     Twilio
+library
+  exposed-modules:     Twilio,
+                       Twilio.Account,
+                       Twilio.Call,
+                       Twilio.Client,
+                       Twilio.PhoneNumber,
+                       Twilio.Types
   hs-source-dirs:      src
-  build-depends:       base ==4.6.*, network >=2.4, twiml ==0.1.*
+  build-depends:       aeson ==0.7.*,
+                       base ==4.6.*,
+                       bytestring ==0.10.*,
+                       http-client ==0.2.*,
+                       http-client-tls ==0.2.*,
+                       network >=2.4,
+                       text ==0.11.*,
+                       twiml ==0.1.*
 
 test-suite Tests
   hs-source-dirs:      test
   main-is:             Test.hs
   Type:                exitcode-stdio-1.0
-  build-depends:       base ==4.6.*, Cabal >=1.16.0, twiml ==0.1.*
+  build-depends:       aeson ==0.7.*,
+                       base ==4.6.*,
+                       bytestring ==0.10.*,
+                       Cabal >=1.16.0,
+                       http-client ==0.2.*,
+                       http-client-tls ==0.2.*,
+                       text ==0.11.*,
+                       twilio,
+                       twiml ==0.1.*

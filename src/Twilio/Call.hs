@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Call
+module Twilio.Call
   ( calls
   , Call(..)
   , CallSID
   ) where
 
-import Account
-import Client
-import PhoneNumber
-import Types
+import Twilio.Account
+import Twilio.Client as Client
+import Twilio.PhoneNumber
+import Twilio.Types
 
 import Control.Monad (mzero)
 import Control.Applicative ((<$>), (<*>), Const(..))
