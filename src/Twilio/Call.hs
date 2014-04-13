@@ -1,9 +1,12 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE InstanceSigs #-}
+{-#LANGUAGE MultiParamTypeClasses #-}
+{-#LANGUAGE OverloadedStrings #-}
 
 module Twilio.Call
   ( calls
   , Call(..)
   , CallSID
+  , Calls(..)
   ) where
 
 import Twilio.Account
@@ -14,6 +17,7 @@ import Twilio.Types
 import Control.Monad (mzero)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
+import Data.Aeson.Types (Parser)
 import Data.Char (isLower, isNumber)
 import Data.Maybe
 import Data.Text (unpack)
@@ -31,13 +35,15 @@ calls client = fromJust $ do
 
 data Call = Call
   { sid            :: !CallSID
-  , parentCallSID  :: !CallSID
+  , parentCallSID  :: !(Maybe CallSID)
   , dateCreated    :: !String
   , dateUpdated    :: !String
   , accountSID     :: !AccountSID
+  -- NOTE: Sometimes Twilio sends "" instead of `null`.
   , to             :: !String
   , from           :: !String
-  , phoneNumberSID :: !(Maybe PhoneNumberSID)
+  -- NOTE: Sometimes Twilio sends "" instead of `null`.
+  , phoneNumberSID :: !String -- !(Maybe PhoneNumberSID)
   } deriving (Show, Eq)
 
 instance FromJSON Call where
@@ -64,3 +70,18 @@ instance SID CallSID where
 
 instance FromJSON CallSID where
   parseJSON = parseJSONToSID
+
+data Calls = Calls
+  { callsPagingInformation :: PagingInformation
+  , callList :: [Call]
+  } deriving (Show, Eq)
+
+instance List Calls Call where
+  getListWrapper = wrap Calls
+  getPagingInformation = callsPagingInformation
+  getItems = callList
+  getPlural = Const "calls"
+
+instance FromJSON Calls where
+  parseJSON :: Value -> Parser Calls
+  parseJSON = parseJSONToList

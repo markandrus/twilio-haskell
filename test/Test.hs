@@ -24,8 +24,9 @@ calls' = do
   manager <- newManager tlsManagerSettings
   withResponse request manager $ \response -> do
     let bodyReader = responseBody response
-    bs <- brConsume bodyReader
-    let json = (decode $ LBS.fromChunks bs) :: Maybe Object
+    bs <- LBS.fromChunks <$> brConsume bodyReader
+    print bs
+    let json = decode bs :: Maybe Calls
     print json
     return ()
 

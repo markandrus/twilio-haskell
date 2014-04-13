@@ -1,3 +1,5 @@
+{-#LANGUAGE PatternGuards #-}
+
 module Twilio.Client
   ( Client(..)
   , client

@@ -1,6 +1,8 @@
 {-#LANGUAGE FlexibleInstances #-}
+{-#LANGUAGE FunctionalDependencies #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE PatternGuards #-}
 {-#LANGUAGE ScopedTypeVariables #-}
 
 module Twilio.Types
@@ -17,6 +19,7 @@ import Data.Aeson
 import Data.Aeson.Types (Parser)
 import Data.Char (isLower, isNumber)
 import Data.Text (pack, unpack)
+import Debug.Trace (trace)
 import Network.URI (URI, parseURI)
 
 -- | 'SID's are 34 characters long and begin with two capital letters.
@@ -49,7 +52,7 @@ class SID a where
     Nothing  -> mzero
   parseJSONToSID _ = mzero
 
-class FromJSON b => List a b where
+class FromJSON b => List a b | a -> b where
 
   -- | Get the 'wrap'-ed constructor of the 'List'.
   getListWrapper :: Wrapper (PagingInformation -> [b] -> a)
@@ -69,7 +72,7 @@ class FromJSON b => List a b where
     =  unwrap (getListWrapper :: Wrapper (PagingInformation -> [b] -> a))
    <$> (parseJSON o :: Parser PagingInformation)
    <*> (v .: pack (getConst (getPlural :: Const String (a, b))) :: Parser [b])
-  parseJSONToList _ = mzero
+  parseJSONToList v = trace (show v) mzero
 
 data PagingInformation = PagingInformation
   { -- | The current page number. Zero-indexed, so the first page is 0.
@@ -85,31 +88,31 @@ data PagingInformation = PagingInformation
     -- | The position in the overall list of the last item in this page.
   , end :: !Integer
     -- | The 'URI' of the current page.
-  , pageURI :: !URI
+  , pageURI :: !String
     -- | The 'URI' for the first page of this list.
-  , firstPageURI :: !URI
+  , firstPageURI :: !String
     -- | The 'URI' for the next page of this list.
-  , nextPageURI :: !URI
+  , nextPageURI :: !(Maybe String)
     -- | The 'URI' for the previous page of this list.
-  , previousPageURI :: !URI
+  , previousPageURI :: !(Maybe String)
     -- | The 'URI' for the last page of this list.
-  , lastPageURI :: !URI
+  , lastPageURI :: !String
   } deriving (Show, Eq)
 
 instance FromJSON PagingInformation where
   parseJSON (Object v)
     =  PagingInformation
    <$> v .: "page"
-   <*> v .: "numpages"
-   <*> v .: "pagesize"
+   <*> v .: "num_pages"
+   <*> v .: "page_size"
    <*> v .: "total"
    <*> v .: "start"
    <*> v .: "end"
-   <*> v .: "Uri"
-   <*> v .: "Firstpageuri"
-   <*> v .: "Nextpageuri"
-   <*> v .: "Previouspageuri"
-   <*> v .: "Lastpageuri"
+   <*> v .: "uri"
+   <*> v .: "first_page_uri"
+   <*> v .: "next_page_uri"
+   <*> v .: "previous_page_uri"
+   <*> v .: "last_page_uri"
   parseJSON _ = mzero
 
 instance FromJSON URI where
@@ -123,4 +126,3 @@ newtype Wrapper a = Wrapper { unwrap :: a }
 -- | 'wrap's a value so as not to break encapsulation.
 wrap :: a -> Wrapper a
 wrap = Wrapper
-
