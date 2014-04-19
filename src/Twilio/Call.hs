@@ -21,6 +21,7 @@ import Data.Aeson.Types (Parser)
 import Data.Char (isLower, isNumber)
 import Data.Maybe
 import Data.Text (unpack)
+import Data.Time.Clock (UTCTime)
 import Network.HTTP.Client
 
 calls :: Client -> Request
@@ -36,27 +37,26 @@ calls client = fromJust $ do
 data Call = Call
   { sid            :: !CallSID
   , parentCallSID  :: !(Maybe CallSID)
-  , dateCreated    :: !String
-  , dateUpdated    :: !String
+  , dateCreated    :: !UTCTime
+  , dateUpdated    :: !UTCTime
   , accountSID     :: !AccountSID
-  -- NOTE: Sometimes Twilio sends "" instead of `null`.
-  , to             :: !String
+  , to             :: !(Maybe String)
   , from           :: !String
-  -- NOTE: Sometimes Twilio sends "" instead of `null`.
-  , phoneNumberSID :: !String -- !(Maybe PhoneNumberSID)
+  , phoneNumberSID :: !(Maybe PhoneNumberSID)
   } deriving (Show, Eq)
 
 instance FromJSON Call where
   parseJSON (Object v)
     =  Call
-   <$> v .: "sid"
-   <*> v .: "parent_call_sid"
-   <*> v .: "date_created"
-   <*> v .: "date_updated"
-   <*> v .: "account_sid"
-   <*> v .: "to"
-   <*> v .: "from"
-   <*> v .: "phone_number_sid"
+   <$>  v .: "sid"
+   <*>  v .: "parent_call_sid"
+   <*> (v .: "date_created"     >>= parseDateTime)
+   <*> (v .: "date_updated"     >>= parseDateTime)
+   <*>  v .: "account_sid"
+   <*>  v .: "to"               <&> filterEmpty
+   <*>  v .: "from"
+   <*>  v .: "phone_number_sid" <&> filterEmpty
+                                <&> (\ms -> ms >>= parseStringToSID)
   parseJSON _ = mzero
 
 -- | Call 'SID's are 34 characters long and begin with \"CA\".

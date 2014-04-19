@@ -11,16 +11,22 @@ module Twilio.Types
   , PagingInformation(..)
   , Wrapper
   , wrap
+  , (<&>)
+  , filterEmpty
+  , parseDateTime
   ) where
 
-import Control.Monad (mzero)
+import Control.Monad (MonadPlus, mzero)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
 import Data.Aeson.Types (Parser)
 import Data.Char (isLower, isNumber)
 import Data.Text (pack, unpack)
+import Data.Time.Format (parseTime)
+import Data.Time.Clock (UTCTime)
 import Debug.Trace (trace)
 import Network.URI (URI, parseURI)
+import System.Locale (defaultTimeLocale)
 
 -- | 'SID's are 34 characters long and begin with two capital letters.
 class SID a where
@@ -126,3 +132,16 @@ newtype Wrapper a = Wrapper { unwrap :: a }
 -- | 'wrap's a value so as not to break encapsulation.
 wrap :: a -> Wrapper a
 wrap = Wrapper
+
+(<&>) :: Functor f => f a -> (a -> b) -> f b
+(<&>) = flip fmap
+
+filterEmpty :: String -> Maybe String
+filterEmpty "" = Nothing
+filterEmpty s = Just s
+
+parseDateTime :: (Monad m, MonadPlus m) => String -> m UTCTime
+parseDateTime s =
+  case parseTime defaultTimeLocale "%a, %d %b %Y %T %z" s of
+    Just dateTime -> return dateTime
+    Nothing       -> mzero
