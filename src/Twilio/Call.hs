@@ -36,27 +36,49 @@ calls client = fromJust $ do
 
 data Call = Call
   { sid            :: !CallSID
-  , parentCallSID  :: !(Maybe CallSID)
   , dateCreated    :: !UTCTime
   , dateUpdated    :: !UTCTime
+  , parentCallSID  :: !(Maybe CallSID)
   , accountSID     :: !AccountSID
   , to             :: !(Maybe String)
   , from           :: !String
   , phoneNumberSID :: !(Maybe PhoneNumberSID)
+  , status         :: !String
+  , startTime      :: !UTCTime
+  , endTime        :: !(Maybe UTCTime)
+  , duration       :: !Integer
+  , price          :: !Double
+  , direction      :: !String
+  , answeredBy     :: !(Maybe String)
+  , apiVersion     :: !String
+  , forwardedFrom  :: !(Maybe String)
+  , callerName     :: !(Maybe String)
+  , uri            :: !String
   } deriving (Show, Eq)
 
 instance FromJSON Call where
   parseJSON (Object v)
     =  Call
    <$>  v .: "sid"
-   <*>  v .: "parent_call_sid"
    <*> (v .: "date_created"     >>= parseDateTime)
    <*> (v .: "date_updated"     >>= parseDateTime)
+   <*>  v .: "parent_call_sid"
    <*>  v .: "account_sid"
    <*>  v .: "to"               <&> filterEmpty
    <*>  v .: "from"
-   <*>  v .: "phone_number_sid" <&> filterEmpty
-                                <&> (\ms -> ms >>= parseStringToSID)
+   <*> (v .: "phone_number_sid" <&> filterEmpty
+                                <&> (=<<) parseStringToSID)
+   <*>  v .: "status"
+   <*> (v .: "start_time"       >>= parseDateTime)
+   <*> (v .: "end_time"         <&> (=<<) parseDateTime)
+   <*> (v .: "duration"         >>= safeRead)
+   <*> (v .: "price"            >>= safeRead)
+   <*>  v .: "direction"
+   <*>  v .: "answered_by"
+   <*>  v .: "api_version"
+   <*>  v .: "forwarded_from"   <&> filterEmpty
+   <*>  v .: "caller_name"
+   <*>  v .: "uri"
   parseJSON _ = mzero
 
 -- | Call 'SID's are 34 characters long and begin with \"CA\".

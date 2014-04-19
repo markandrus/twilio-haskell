@@ -14,6 +14,7 @@ module Twilio.Types
   , (<&>)
   , filterEmpty
   , parseDateTime
+  , safeRead
   ) where
 
 import Control.Monad (MonadPlus, mzero)
@@ -145,3 +146,8 @@ parseDateTime s =
   case parseTime defaultTimeLocale "%a, %d %b %Y %T %z" s of
     Just dateTime -> return dateTime
     Nothing       -> mzero
+
+safeRead :: (Monad m, MonadPlus m, Read a) => String -> m a
+safeRead s = case reads s of
+  [(a, "")] -> return a
+  _         -> mzero
