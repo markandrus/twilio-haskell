@@ -1,34 +1,18 @@
 module Main where
 
-import Twilio.Client as Client
-import Twilio.Account
-import Twilio.Call
+import qualified Twilio.Client as Client
+import qualified Twilio.Call as Call
 
-import Control.Applicative
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.ByteString.Lazy.Char8 as C
-import Data.Aeson
-import Data.Maybe
-import Network.HTTP.Client
-import Network.HTTP.Client.TLS
+import Data.Maybe (fromJust)
 import System.Environment (getEnv)
 
-client :: IO Client
+client :: IO Client.Client
 client = do
   accountSID <- getEnv "ACCOUNT_SID"
   authToken  <- getEnv "AUTH_TOKEN"
   return . fromJust $ Client.client accountSID authToken
 
-calls' :: IO ()
-calls' = do
-  request <- fmap calls Main.client
-  manager <- newManager tlsManagerSettings
-  withResponse request manager $ \response -> do
-    let bodyReader = responseBody response
-    bs <- LBS.fromChunks <$> brConsume bodyReader
-    -- putStrLn $ C.unpack bs
-    let json = decode bs :: Maybe Calls
-    print json
-    return ()
-
-main = calls'
+main :: IO ()
+main = do
+  calls <- Call.calls =<< client
+  print calls

@@ -1,4 +1,3 @@
-{-#LANGUAGE InstanceSigs #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
@@ -25,15 +24,8 @@ import Data.Time.Clock (UTCTime)
 import Network.HTTP.Client
 import Network.URI (URI, parseRelativeReference)
 
-calls :: Client -> Request
-calls client = fromJust $ do
-  let accountSID = Client.accountSID client
-      authToken  = getAuthToken $ Client.authToken client
-  req <- parseUrl $ accountBaseURL accountSID ++ "/Calls.json"
-  return $ asClient client req
-
--- call :: Client -> SID -> Request Call
--- call = undefined
+calls :: Client -> IO Calls
+calls client = runRequest client "/Calls.json"
 
 data Call = Call
   { sid            :: !CallSID
@@ -111,5 +103,4 @@ instance List Calls Call where
   getPlural = Const "calls"
 
 instance FromJSON Calls where
-  parseJSON :: Value -> Parser Calls
   parseJSON = parseJSONToList

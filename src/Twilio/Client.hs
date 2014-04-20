@@ -8,15 +8,22 @@ module Twilio.Client
   , baseURL
   , accountBaseURL
   , asClient
+  , runRequest
   ) where
 
 import Twilio.Account
 import Twilio.Types
 
+import Control.Applicative ((<$>))
 import Control.Monad
+import Data.Aeson (FromJSON, decode)
 import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isLower, isNumber)
-import Network.HTTP.Client
+import Data.Maybe (fromJust)
+import Network.HTTP.Client (Request, applyBasicAuth, brConsume, newManager,
+  parseUrl, responseBody, withResponse)
+import Network.HTTP.Client.TLS (tlsManagerSettings)
 
 data Client = Client
   { accountSID :: !AccountSID
@@ -50,3 +57,14 @@ asClient client =
   let user = C.pack . getSID       $ accountSID client
       pass = C.pack . getAuthToken $ authToken  client
   in  applyBasicAuth user pass
+
+runRequest :: FromJSON a => Client -> String -> IO a
+runRequest client resourceURL = do
+    manager <- newManager tlsManagerSettings
+    withResponse request manager $ \response -> do
+      bs <- LBS.fromChunks <$> brConsume (responseBody response)
+      return . fromJust $ decode bs
+  where
+    request = fromJust $ do
+      req <- parseUrl $ accountBaseURL (accountSID client) ++ "/Calls.json"
+      return $ asClient client req
