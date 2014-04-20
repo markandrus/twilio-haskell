@@ -6,6 +6,7 @@ import Twilio.Call
 
 import Control.Applicative
 import qualified Data.ByteString.Lazy as LBS
+import qualified Data.ByteString.Lazy.Char8 as C
 import Data.Aeson
 import Data.Maybe
 import Network.HTTP.Client
@@ -25,7 +26,7 @@ calls' = do
   withResponse request manager $ \response -> do
     let bodyReader = responseBody response
     bs <- LBS.fromChunks <$> brConsume bodyReader
-    print bs
+    -- putStrLn $ C.unpack bs
     let json = decode bs :: Maybe Calls
     print json
     return ()

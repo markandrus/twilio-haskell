@@ -9,12 +9,19 @@ module Twilio.Types
   ( SID(..)
   , List(..)
   , PagingInformation(..)
+  , AnsweredBy
+  , APIVersion
+  , Direction
+  , Status
+  , PriceUnit
   , Wrapper
   , wrap
   , (<&>)
   , filterEmpty
   , parseDateTime
   , safeRead
+  , maybeReturn
+  , maybeReturn'
   ) where
 
 import Control.Monad (MonadPlus, mzero)
@@ -26,7 +33,7 @@ import Data.Text (pack, unpack)
 import Data.Time.Format (parseTime)
 import Data.Time.Clock (UTCTime)
 import Debug.Trace (trace)
-import Network.URI (URI, parseURI)
+import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
 
 -- | 'SID's are 34 characters long and begin with two capital letters.
@@ -95,37 +102,143 @@ data PagingInformation = PagingInformation
     -- | The position in the overall list of the last item in this page.
   , end :: !Integer
     -- | The 'URI' of the current page.
-  , pageURI :: !String
+  , pageURI :: !URI
     -- | The 'URI' for the first page of this list.
-  , firstPageURI :: !String
+  , firstPageURI :: !URI
     -- | The 'URI' for the next page of this list.
-  , nextPageURI :: !(Maybe String)
+  , nextPageURI :: !(Maybe URI)
     -- | The 'URI' for the previous page of this list.
-  , previousPageURI :: !(Maybe String)
+  , previousPageURI :: !(Maybe URI)
     -- | The 'URI' for the last page of this list.
-  , lastPageURI :: !String
+  , lastPageURI :: !URI
   } deriving (Show, Eq)
 
 instance FromJSON PagingInformation where
   parseJSON (Object v)
     =  PagingInformation
-   <$> v .: "page"
-   <*> v .: "num_pages"
-   <*> v .: "page_size"
-   <*> v .: "total"
-   <*> v .: "start"
-   <*> v .: "end"
-   <*> v .: "uri"
-   <*> v .: "first_page_uri"
-   <*> v .: "next_page_uri"
-   <*> v .: "previous_page_uri"
-   <*> v .: "last_page_uri"
+   <$>  v .: "page"
+   <*>  v .: "num_pages"
+   <*>  v .: "page_size"
+   <*>  v .: "total"
+   <*>  v .: "start"
+   <*>  v .: "end"
+   <*> (v .: "uri"               <&> parseRelativeReference
+                                 >>= maybeReturn)
+   <*> (v .: "first_page_uri"    <&> parseRelativeReference
+                                 >>= maybeReturn)
+   <*> (v .: "next_page_uri"     <&> fmap parseRelativeReference
+                                 >>= maybeReturn')
+   <*> (v .: "previous_page_uri" <&> fmap parseRelativeReference
+                                 >>= maybeReturn')
+   <*> (v .: "last_page_uri"     <&> parseRelativeReference
+                                 >>= maybeReturn)
   parseJSON _ = mzero
 
-instance FromJSON URI where
-  parseJSON (String v) = case parseURI (unpack v) of
-    Just sid -> return sid
-    Nothing  -> mzero
+maybeReturn' :: Maybe (Maybe a) -> Parser (Maybe a)
+maybeReturn' Nothing = return Nothing
+maybeReturn' (Just Nothing) = mzero
+maybeReturn' (Just ma) = return ma
+
+-- NOTE(markandrus): Types used by Calls. If any of these end up being Calls-
+-- specific, move them. APIVersion probably is not.
+
+data PriceUnit
+  = USD
+  | EUR
+  | JPY
+  | OtherPriceUnit !String
+  deriving Eq
+
+-- NOTE(markandrus): This should be all ISO 4217 currencies. Maybe make a
+-- separate library for these.
+instance Show PriceUnit where
+  show USD = "USD"
+  show EUR = "EUR"
+  show JPY = "JPY"
+  show (OtherPriceUnit pu) = pu
+
+instance FromJSON PriceUnit where
+  parseJSON (String "USD") = return USD
+  parseJSON (String "EUR") = return EUR
+  parseJSON (String "JPY") = return JPY
+  parseJSON (String t) = return . OtherPriceUnit $ unpack t
+  parseJSON _ = mzero
+
+data APIVersion
+  = API20100401
+  | API20080801
+  deriving Eq
+
+instance Show APIVersion where
+  show API20100401 = "2010-04-01"
+  show API20080801 = "2008-08-01"
+
+instance FromJSON APIVersion where
+  parseJSON (String "2010-04-01") = return API20100401
+  parseJSON (String "2008-08-01") = return API20080801
+  parseJSON _ = mzero
+
+data Status
+  = Queued
+  | Ringing
+  | InProgress
+  | Canceled
+  | Completed
+  | Failed
+  | Busy
+  | NoAnswer
+  deriving Eq
+
+instance Show Status where
+  show Queued     = "queued"
+  show Ringing    = "ringing"
+  show InProgress = "in-progress"
+  show Canceled   = "canceled"
+  show Completed  = "completed"
+  show Failed     = "failed"
+  show Busy       = "busy"
+  show NoAnswer   = "no-answer"
+
+instance FromJSON Status where
+  parseJSON (String "queued")      = return Queued
+  parseJSON (String "ringing")     = return Ringing
+  parseJSON (String "in-progress") = return InProgress
+  parseJSON (String "canceled")    = return Canceled
+  parseJSON (String "completed")   = return Completed
+  parseJSON (String "failed")      = return Failed
+  parseJSON (String "busy")        = return Busy
+  parseJSON (String "no-answer")   = return NoAnswer
+  parseJSON _ = mzero
+
+data Direction
+  = Inbound
+  | OutboundAPI
+  | OutboundDial
+  deriving Eq
+
+instance Show Direction where
+  show Inbound      = "inbound"
+  show OutboundAPI  = "outbound-api"
+  show OutboundDial = "outbound-dial"
+
+instance FromJSON Direction where
+  parseJSON (String "inbound")       = return Inbound
+  parseJSON (String "outbound-api")  = return OutboundAPI
+  parseJSON (String "outbound-dial") = return OutboundDial
+  parseJSON _ = mzero
+
+data AnsweredBy
+  = Human
+  | Machine
+  deriving Eq
+
+instance Show AnsweredBy where
+  show Human   = "human"
+  show Machine = "machine"
+
+instance FromJSON AnsweredBy where
+  parseJSON (String "human")   = return Human
+  parseJSON (String "machine") = return Machine
   parseJSON _ = mzero
 
 newtype Wrapper a = Wrapper { unwrap :: a }
@@ -151,3 +264,7 @@ safeRead :: (Monad m, MonadPlus m, Read a) => String -> m a
 safeRead s = case reads s of
   [(a, "")] -> return a
   _         -> mzero
+
+maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
+maybeReturn (Just a) = return a
+maybeReturn Nothing  = mzero

@@ -23,6 +23,7 @@ import Data.Maybe
 import Data.Text (unpack)
 import Data.Time.Clock (UTCTime)
 import Network.HTTP.Client
+import Network.URI (URI, parseRelativeReference)
 
 calls :: Client -> Request
 calls client = fromJust $ do
@@ -36,33 +37,34 @@ calls client = fromJust $ do
 
 data Call = Call
   { sid            :: !CallSID
+  , parentCallSID  :: !(Maybe CallSID)
   , dateCreated    :: !UTCTime
   , dateUpdated    :: !UTCTime
-  , parentCallSID  :: !(Maybe CallSID)
   , accountSID     :: !AccountSID
   , to             :: !(Maybe String)
   , from           :: !String
   , phoneNumberSID :: !(Maybe PhoneNumberSID)
-  , status         :: !String
+  , status         :: !Status
   , startTime      :: !UTCTime
   , endTime        :: !(Maybe UTCTime)
-  , duration       :: !Integer
-  , price          :: !Double
-  , direction      :: !String
-  , answeredBy     :: !(Maybe String)
-  , apiVersion     :: !String
+  , duration       :: !(Maybe Int)
+  , price          :: !(Maybe Double)
+  , priceUnit      :: !(Maybe PriceUnit)
+  , direction      :: !Direction
+  , answeredBy     :: !(Maybe AnsweredBy)
   , forwardedFrom  :: !(Maybe String)
   , callerName     :: !(Maybe String)
-  , uri            :: !String
+  , uri            :: !URI
+  , apiVersion     :: !APIVersion
   } deriving (Show, Eq)
 
 instance FromJSON Call where
   parseJSON (Object v)
     =  Call
    <$>  v .: "sid"
+   <*>  v .: "parent_call_sid"
    <*> (v .: "date_created"     >>= parseDateTime)
    <*> (v .: "date_updated"     >>= parseDateTime)
-   <*>  v .: "parent_call_sid"
    <*>  v .: "account_sid"
    <*>  v .: "to"               <&> filterEmpty
    <*>  v .: "from"
@@ -71,14 +73,18 @@ instance FromJSON Call where
    <*>  v .: "status"
    <*> (v .: "start_time"       >>= parseDateTime)
    <*> (v .: "end_time"         <&> (=<<) parseDateTime)
-   <*> (v .: "duration"         >>= safeRead)
-   <*> (v .: "price"            >>= safeRead)
+   <*> (v .: "duration"         <&> fmap safeRead
+                                >>= maybeReturn')
+   <*> (v .: "price"            <&> fmap safeRead
+                                >>= maybeReturn')
+   <*>  v .: "price_unit"
    <*>  v .: "direction"
    <*>  v .: "answered_by"
-   <*>  v .: "api_version"
    <*>  v .: "forwarded_from"   <&> filterEmpty
    <*>  v .: "caller_name"
-   <*>  v .: "uri"
+   <*> (v .: "uri"              <&> parseRelativeReference
+                                >>= maybeReturn)
+   <*>  v .: "api_version"
   parseJSON _ = mzero
 
 -- | Call 'SID's are 34 characters long and begin with \"CA\".
