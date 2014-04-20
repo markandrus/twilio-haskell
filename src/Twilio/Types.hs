@@ -9,11 +9,11 @@ module Twilio.Types
   ( SID(..)
   , List(..)
   , PagingInformation(..)
-  , AnsweredBy
-  , APIVersion
-  , Direction
-  , Status
-  , PriceUnit
+  , AnsweredBy(..)
+  , APIVersion(..)
+  , Direction(..)
+  , Status(..)
+  , PriceUnit(..)
   , Wrapper
   , wrap
   , (<&>)
@@ -69,10 +69,10 @@ class SID a where
 class FromJSON b => List a b | a -> b where
 
   -- | Get the 'wrap'-ed constructor of the 'List'.
-  getListWrapper :: Wrapper (PagingInformation -> [b] -> a)
+  getListWrapper :: Wrapper (Maybe PagingInformation -> [b] -> a)
 
   -- | The 'PagingInformation' for the 'List'.
-  getPagingInformation :: a -> PagingInformation
+  -- getPagingInformation :: a -> PagingInformation
 
   -- | The items in the 'List'.
   getList :: a -> [b]
@@ -83,8 +83,8 @@ class FromJSON b => List a b | a -> b where
   -- | Parse a 'JSON' 'Value' to an instance of the 'List'.
   parseJSONToList :: Value -> Parser a
   parseJSONToList o@(Object v)
-    =  unwrap (getListWrapper :: Wrapper (PagingInformation -> [b] -> a))
-   <$> (parseJSON o :: Parser PagingInformation)
+    =  unwrap (getListWrapper :: Wrapper (Maybe PagingInformation -> [b] -> a))
+   <$> return Nothing -- (parseJSON o :: Parser (Maybe PagingInformation))
    <*> (v .: pack (getConst (getPlural :: Const String (a, b))) :: Parser [b])
   parseJSONToList v = trace (show v) mzero
 

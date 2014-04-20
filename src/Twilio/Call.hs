@@ -51,8 +51,7 @@ data Call = Call
   } deriving (Show, Eq)
 
 instance FromJSON Call where
-  parseJSON (Object v)
-    =  Call
+  parseJSON (Object v) =  Call
    <$>  v .: "sid"
    <*>  v .: "parent_call_sid"
    <*> (v .: "date_created"     >>= parseDateTime)
@@ -97,8 +96,7 @@ data Calls = Calls
   } deriving (Show, Eq)
 
 instance List Calls Call where
-  getListWrapper = wrap Calls
-  getPagingInformation = callsPagingInformation
+  getListWrapper = wrap (Calls . fromJust)
   getList = callList
   getPlural = Const "calls"
 

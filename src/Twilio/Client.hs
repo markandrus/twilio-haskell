@@ -63,8 +63,9 @@ runRequest client resourceURL = do
     manager <- newManager tlsManagerSettings
     withResponse request manager $ \response -> do
       bs <- LBS.fromChunks <$> brConsume (responseBody response)
+      print bs
       return . fromJust $ decode bs
   where
     request = fromJust $ do
-      req <- parseUrl $ accountBaseURL (accountSID client) ++ "/Calls.json"
+      req <- parseUrl $ accountBaseURL (accountSID client) ++ resourceURL
       return $ asClient client req
