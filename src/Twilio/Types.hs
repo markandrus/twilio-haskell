@@ -83,9 +83,13 @@ class FromJSON b => List a b | a -> b where
   -- | Parse a 'JSON' 'Value' to an instance of the 'List'.
   parseJSONToList :: Value -> Parser a
   parseJSONToList o@(Object v)
-    =  unwrap (getListWrapper :: Wrapper (Maybe PagingInformation -> [b] -> a))
-   <$> return Nothing -- (parseJSON o :: Parser (Maybe PagingInformation))
-   <*> (v .: pack (getConst (getPlural :: Const String (a, b))) :: Parser [b])
+      =  unwrap (getListWrapper :: Wrapper (Maybe PagingInformation -> [b] -> a))
+     <$> maybePagingInformation
+     <*> (v .: pack (getConst (getPlural :: Const String (a, b))) :: Parser [b])
+    where
+      maybePagingInformation = case fromJSON o of
+        Success pagingInformation -> return $ Just pagingInformation
+        _ -> return Nothing
   parseJSONToList v = trace (show v) mzero
 
 data PagingInformation = PagingInformation
