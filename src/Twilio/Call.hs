@@ -99,7 +99,7 @@ data Calls = Calls
 instance List Calls Call where
   getListWrapper = wrap Calls
   getPagingInformation = callsPagingInformation
-  getItems = callList
+  getList = callList
   getPlural = Const "calls"
 
 instance FromJSON Calls where

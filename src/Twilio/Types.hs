@@ -75,7 +75,7 @@ class FromJSON b => List a b | a -> b where
   getPagingInformation :: a -> PagingInformation
 
   -- | The items in the 'List'.
-  getItems :: a -> [b]
+  getList :: a -> [b]
 
   -- | The plural name for the items in the 'List'.
   getPlural :: Const String (a, b)
