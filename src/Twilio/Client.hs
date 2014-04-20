@@ -63,7 +63,7 @@ runRequest client resourceURL = do
     manager <- newManager tlsManagerSettings
     withResponse request manager $ \response -> do
       bs <- LBS.fromChunks <$> brConsume (responseBody response)
-      print bs
+      putStrLn . C.unpack $ LBS.toStrict bs
       return . fromJust $ decode bs
   where
     request = fromJust $ do

@@ -32,12 +32,12 @@ instance FromJSON PhoneNumberSID where
 data PhoneNumber = PhoneNumber
   { friendlyName :: !String
   , phoneNumber  :: !String
---  , lata         :: !Integer
+  , lata         :: !Integer
   , rateCenter   :: !String
---  , latitude     :: !String
---  , longitude    :: !String
+  , latitude     :: !(Maybe Double)
+  , longitude    :: !(Maybe Double)
   , region       :: !String
---  , postalCode   :: !String
+  , postalCode   :: !(Maybe Integer)
   , isoCountry   :: !String
   } deriving (Eq, Show)
 
@@ -45,12 +45,15 @@ instance FromJSON PhoneNumber where
   parseJSON (Object v) = PhoneNumber
     <$>  v .: "friendly_name"
     <*>  v .: "phone_number"
---    <*> (v .: "lata"         >>= safeRead)
+    <*> (v .: "lata"         >>= safeRead)
     <*>  v .: "rate_center"
---    <*> (v .: "latitude"     >>= safeRead)
---    <*> (v .: "longitude"    >>= safeRead)
+    <*> (v .: "latitude"     <&> (=<<) safeRead
+                             >>= maybeReturn')
+    <*> (v .: "longitude"    <&> (=<<) safeRead
+                             >>= maybeReturn')
     <*>  v .: "region"
---    <*> (v .: "postal_code"  >>= safeRead)
+    <*> (v .: "postal_code"  <&> (=<<) safeRead
+                             >>= maybeReturn')
     <*>  v .: "iso_country"
   parseJSON _ = mzero
 
