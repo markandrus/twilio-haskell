@@ -16,19 +16,15 @@ You can create a REST API client and fetch the calls resources as follows
 ```hs
 import qualified Twilio.Client as Client
 import qualified Twilio.Call as Call
+import Data.Maybe
+import System.Environment
 
-import Data.Maybe (fromJust)
-import System.Environment (getEnv)
-
--- | Construct a REST API client using credentials passed in via environment
--- variables.
 client :: IO Client.Client
 client = do
   accountSID <- getEnv "ACCOUNT_SID"
   authToken  <- getEnv "AUTH_TOKEN"
   return . fromJust $ Client.client accuntSID authToken
 
--- | Now, fetch the calls resource.
 main :: IO ()
 main = do
   accounts <- Call.calls =<< client
