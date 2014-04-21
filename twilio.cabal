@@ -21,7 +21,8 @@ library
                        Twilio.Call,
                        Twilio.Client,
                        Twilio.PhoneNumber,
-                       Twilio.Types
+                       Twilio.Types,
+                       Twilio.Usage
   hs-source-dirs:      src
   build-depends:       aeson ==0.7.*,
                        base ==4.6.*,

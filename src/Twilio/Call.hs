@@ -25,7 +25,8 @@ import Network.HTTP.Client
 import Network.URI (URI, parseRelativeReference)
 
 calls :: Client -> IO Calls
-calls client = runRequest client "/Calls.json"
+calls client = runRequest client $
+  (Client.accountBaseURL $ Client.accountSID client) ++ "/Calls.json"
 
 data Call = Call
   { sid            :: !CallSID
@@ -36,7 +37,7 @@ data Call = Call
   , to             :: !(Maybe String)
   , from           :: !String
   , phoneNumberSID :: !(Maybe PhoneNumberSID)
-  , status         :: !Status
+  , status         :: !CallStatus
   , startTime      :: !UTCTime
   , endTime        :: !(Maybe UTCTime)
   , duration       :: !(Maybe Int)

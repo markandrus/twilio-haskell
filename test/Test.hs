@@ -1,5 +1,6 @@
 module Main where
 
+import qualified Twilio.Account as Account
 import qualified Twilio.Client as Client
 import qualified Twilio.Call as Call
 import qualified Twilio.PhoneNumber as PhoneNumber
@@ -17,5 +18,7 @@ main :: IO ()
 main = do
   -- calls <- Call.calls =<< client
   -- print calls
-  phoneNumbers <- PhoneNumber.phoneNumbers =<< client
-  print phoneNumbers
+  -- phoneNumbers <- PhoneNumber.phoneNumbers =<< client
+  -- print phoneNumbers
+  accounts <- Account.accounts =<< client
+  print accounts

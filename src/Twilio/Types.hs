@@ -12,7 +12,7 @@ module Twilio.Types
   , AnsweredBy(..)
   , APIVersion(..)
   , Direction(..)
-  , Status(..)
+  , CallStatus(..)
   , PriceUnit(..)
   , Wrapper
   , wrap
@@ -22,6 +22,9 @@ module Twilio.Types
   , safeRead
   , maybeReturn
   , maybeReturn'
+  , AccountSID
+  , AuthToken(getAuthToken)
+  , parseAuthToken
   ) where
 
 import Control.Monad (MonadPlus, mzero)
@@ -182,7 +185,7 @@ instance FromJSON APIVersion where
   parseJSON (String "2008-08-01") = return API20080801
   parseJSON _ = mzero
 
-data Status
+data CallStatus
   = Queued
   | Ringing
   | InProgress
@@ -193,7 +196,7 @@ data Status
   | NoAnswer
   deriving Eq
 
-instance Show Status where
+instance Show CallStatus where
   show Queued     = "queued"
   show Ringing    = "ringing"
   show InProgress = "in-progress"
@@ -203,7 +206,7 @@ instance Show Status where
   show Busy       = "busy"
   show NoAnswer   = "no-answer"
 
-instance FromJSON Status where
+instance FromJSON CallStatus where
   parseJSON (String "queued")      = return Queued
   parseJSON (String "ringing")     = return Ringing
   parseJSON (String "in-progress") = return InProgress
@@ -272,3 +275,31 @@ safeRead s = case reads s of
 maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
 maybeReturn (Just a) = return a
 maybeReturn Nothing  = mzero
+
+-- | Account 'SID's are 34 characters long and begin with \"AC\".
+newtype AccountSID = AccountSID { getAccountSID :: String }
+  deriving (Show, Eq)
+
+instance SID AccountSID where
+  getSIDWrapper = wrap AccountSID
+  getPrefix = Const ('A', 'C')
+  getSID = getAccountSID
+
+instance FromJSON AccountSID where
+  parseJSON = parseJSONToSID
+
+newtype AuthToken = AuthToken { getAuthToken :: String }
+  deriving (Show, Eq)
+
+parseAuthToken :: String -> Maybe AuthToken
+parseAuthToken token
+  | length token == 32
+  , all (\x -> isLower x || isNumber x) token
+  = Just $ AuthToken token
+  | otherwise
+  = Nothing
+
+instance FromJSON AuthToken where
+  parseJSON (String v) = maybeReturn . parseAuthToken $ unpack v
+  parseJSON _ = mzero
+

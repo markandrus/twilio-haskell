@@ -8,7 +8,7 @@ module Twilio.PhoneNumber
   , phoneNumbers
   ) where
 
-import qualified Twilio.Client as Client
+import Twilio.Client (Client(accountSID), accountBaseURL, runRequest)
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(..))
@@ -57,8 +57,9 @@ instance FromJSON PhoneNumber where
     <*>  v .: "iso_country"
   parseJSON _ = mzero
 
-phoneNumbers :: Client.Client -> IO PhoneNumbers
-phoneNumbers client = Client.runRequest client "/AvailablePhoneNumbers/US/Local.json" 
+phoneNumbers :: Client -> IO PhoneNumbers
+phoneNumbers client = runRequest client ((accountBaseURL $ accountSID client)
+  ++ "/AvailablePhoneNumbers/US/Local.json")
 
 data PhoneNumbers = PhoneNumbers
   { phoneNumberList :: [PhoneNumber]
