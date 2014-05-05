@@ -16,6 +16,7 @@ source-repository head
   location: https://github.com/markandrus/twilio-haskell
 
 library
+  ghc-options:         -Wall -fno-warn-name-shadowing -O2
   exposed-modules:     Twilio,
                        Twilio.Account,
                        Twilio.Call,

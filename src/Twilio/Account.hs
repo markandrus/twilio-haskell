@@ -10,15 +10,13 @@ module Twilio.Account
   , accounts
   ) where
 
-import Twilio.Client (Client(accountSID), baseURL, runRequest)
+import Twilio.Client (Client, baseURL, runRequest)
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Control.Monad (mzero)
 import Data.Aeson
-import Data.Char (isLower, isNumber)
 import Data.Maybe (fromJust)
-import Data.Text (unpack)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
@@ -47,6 +45,7 @@ data Type
 instance FromJSON Type where
   parseJSON (String "Full")  = return Full
   parseJSON (String "Trial") = return Trial
+  parseJSON _ = mzero
 
 data Account = Account
   { sid             :: !AccountSID

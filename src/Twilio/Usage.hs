@@ -3,7 +3,7 @@
 
 module Twilio.Usage where
 
-import Twilio.Client (Client, accountBaseURL, runRequest)
+import qualified Twilio.Client as Client
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(Const))
@@ -58,8 +58,6 @@ instance List UsageRecords UsageRecord where
 instance FromJSON UsageRecords where
   parseJSON = parseJSONToList
 
-{-
-usageRecords :: Client -> IO UsageRecords
-usageRecords client = runRequest client $
-  (accountBaseURL $ accountSID client) ++ "/Usage/Records.json"
--}
+usageRecords :: Client.Client -> IO UsageRecords
+usageRecords client = Client.runRequest client $
+  Client.accountBaseURL (Client.accountSID client) ++ "/Usage/Records.json"

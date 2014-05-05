@@ -14,8 +14,6 @@ import Twilio.Types
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Control.Monad (mzero)
 import Data.Aeson
-import Data.Char (isLower, isNumber)
-import Data.Text (unpack)
 
 -- | Phone number 'SID's are 34 characters long and begin with \"PN\".
 newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: String }
@@ -58,8 +56,8 @@ instance FromJSON PhoneNumber where
   parseJSON _ = mzero
 
 phoneNumbers :: Client -> IO PhoneNumbers
-phoneNumbers client = runRequest client ((accountBaseURL $ accountSID client)
-  ++ "/AvailablePhoneNumbers/US/Local.json")
+phoneNumbers client = runRequest client $ accountBaseURL (accountSID client)
+  ++ "/AvailablePhoneNumbers/US/Local.json"
 
 data PhoneNumbers = PhoneNumbers
   { phoneNumberList :: [PhoneNumber]

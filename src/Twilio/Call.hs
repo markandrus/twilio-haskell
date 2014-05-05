@@ -16,17 +16,13 @@ import Twilio.Types
 import Control.Monad (mzero)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
-import Data.Aeson.Types (Parser)
-import Data.Char (isLower, isNumber)
 import Data.Maybe
-import Data.Text (unpack)
 import Data.Time.Clock (UTCTime)
-import Network.HTTP.Client
 import Network.URI (URI, parseRelativeReference)
 
 calls :: Client -> IO Calls
 calls client = runRequest client $
-  (Client.accountBaseURL $ Client.accountSID client) ++ "/Calls.json"
+  Client.accountBaseURL (Client.accountSID client) ++ "/Calls.json"
 
 data Call = Call
   { sid            :: !CallSID

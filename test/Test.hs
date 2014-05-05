@@ -2,8 +2,8 @@ module Main where
 
 import qualified Twilio.Account as Account
 import qualified Twilio.Client as Client
-import qualified Twilio.Call as Call
-import qualified Twilio.PhoneNumber as PhoneNumber
+-- import qualified Twilio.Call as Call
+-- import qualified Twilio.PhoneNumber as PhoneNumber
 
 import Data.Maybe (fromJust)
 import System.Environment (getEnv)

@@ -1,5 +1,3 @@
-{-#LANGUAGE PatternGuards #-}
-
 module Twilio.Client
   ( Client(..)
   , client
@@ -16,9 +14,7 @@ import Control.Monad
 import Data.Aeson
 import qualified Data.ByteString.Char8 as C
 import qualified Data.ByteString.Lazy as LBS
-import Data.Char (isLower, isNumber)
 import Data.Maybe (fromJust)
-import Data.Text (unpack)
 import Network.HTTP.Client (Request, applyBasicAuth, brConsume, newManager,
   parseUrl, responseBody, withResponse)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
