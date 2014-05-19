@@ -4,6 +4,7 @@ import qualified Twilio.Account as Account
 import qualified Twilio.Client as Client
 -- import qualified Twilio.Call as Call
 -- import qualified Twilio.PhoneNumber as PhoneNumber
+import qualified Twilio.Message as Message
 
 import Data.Maybe (fromJust)
 import System.Environment (getEnv)
@@ -20,5 +21,7 @@ main = do
   -- print calls
   -- phoneNumbers <- PhoneNumber.phoneNumbers =<< client
   -- print phoneNumbers
-  accounts <- Account.accounts =<< client
-  print accounts
+  -- accounts <- Account.accounts =<< client
+  -- print accounts
+  messages <- Message.messages =<< client
+  print messages

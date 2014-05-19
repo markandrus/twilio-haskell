@@ -21,6 +21,7 @@ library
                        Twilio.Account,
                        Twilio.Call,
                        Twilio.Client,
+                       Twilio.Message,
                        Twilio.PhoneNumber,
                        Twilio.Types,
                        Twilio.Usage

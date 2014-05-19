@@ -11,7 +11,7 @@ module Twilio.Types
   , PagingInformation(..)
   , AnsweredBy(..)
   , APIVersion(..)
-  , Direction(..)
+  , CallDirection(..)
   , CallStatus(..)
   , PriceUnit(..)
   , Wrapper
@@ -217,18 +217,18 @@ instance FromJSON CallStatus where
   parseJSON (String "no-answer")   = return NoAnswer
   parseJSON _ = mzero
 
-data Direction
+data CallDirection
   = Inbound
   | OutboundAPI
   | OutboundDial
   deriving Eq
 
-instance Show Direction where
+instance Show CallDirection where
   show Inbound      = "inbound"
   show OutboundAPI  = "outbound-api"
   show OutboundDial = "outbound-dial"
 
-instance FromJSON Direction where
+instance FromJSON CallDirection where
   parseJSON (String "inbound")       = return Inbound
   parseJSON (String "outbound-api")  = return OutboundAPI
   parseJSON (String "outbound-dial") = return OutboundDial
