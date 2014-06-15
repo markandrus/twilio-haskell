@@ -19,6 +19,7 @@ library
   ghc-options:         -Wall -fno-warn-name-shadowing -O2
   exposed-modules:     Twilio,
                        Twilio.Account,
+                       Twilio.Application,
                        Twilio.Call,
                        Twilio.Client,
                        Twilio.Message,

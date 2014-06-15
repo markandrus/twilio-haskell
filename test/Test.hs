@@ -1,9 +1,10 @@
 module Main where
 
 import qualified Twilio.Account as Account
+import qualified Twilio.Application as Application
 import qualified Twilio.Client as Client
--- import qualified Twilio.Call as Call
--- import qualified Twilio.PhoneNumber as PhoneNumber
+import qualified Twilio.Call as Call
+import qualified Twilio.PhoneNumber as PhoneNumber
 import qualified Twilio.Message as Message
 
 import Data.Maybe (fromJust)
@@ -23,5 +24,7 @@ main = do
   -- print phoneNumbers
   -- accounts <- Account.accounts =<< client
   -- print accounts
-  messages <- Message.messages =<< client
-  print messages
+  applications <- Application.applications =<< client
+  print applications
+  -- messages <- Message.messages =<< client
+  -- print messages

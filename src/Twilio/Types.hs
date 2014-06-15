@@ -22,6 +22,7 @@ module Twilio.Types
   , safeRead
   , maybeReturn
   , maybeReturn'
+  , maybeReturn''
   , AccountSID
   , AuthToken(getAuthToken)
   , parseAuthToken
@@ -145,6 +146,12 @@ maybeReturn' :: Maybe (Maybe a) -> Parser (Maybe a)
 maybeReturn' Nothing = return Nothing
 maybeReturn' (Just Nothing) = mzero
 maybeReturn' (Just ma) = return ma
+
+maybeReturn'' :: Maybe (Maybe (Maybe a)) -> Parser (Maybe a)
+maybeReturn'' Nothing = return Nothing
+maybeReturn'' (Just Nothing) = return Nothing
+maybeReturn'' (Just (Just Nothing)) = mzero
+maybeReturn'' (Just (Just ma)) = return ma
 
 -- NOTE(markandrus): Types used by Calls. If any of these end up being Calls-
 -- specific, move them. APIVersion probably is not.
