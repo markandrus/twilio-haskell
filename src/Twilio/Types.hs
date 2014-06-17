@@ -112,13 +112,13 @@ data PagingInformation = PagingInformation
     -- | The 'URI' of the current page.
   , pageURI :: !URI
     -- | The 'URI' for the first page of this list.
-  , firstPageURI :: !URI
+  , firstPageURI :: !(Maybe URI)
     -- | The 'URI' for the next page of this list.
   , nextPageURI :: !(Maybe URI)
     -- | The 'URI' for the previous page of this list.
   , previousPageURI :: !(Maybe URI)
     -- | The 'URI' for the last page of this list.
-  , lastPageURI :: !URI
+  , lastPageURI :: !(Maybe URI)
   } deriving (Show, Eq)
 
 instance FromJSON PagingInformation where
@@ -132,14 +132,14 @@ instance FromJSON PagingInformation where
    <*>  v .: "end"
    <*> (v .: "uri"               <&> parseRelativeReference
                                  >>= maybeReturn)
-   <*> (v .: "first_page_uri"    <&> parseRelativeReference
-                                 >>= maybeReturn)
+   <*> (v .: "first_page_uri"    <&> fmap parseRelativeReference
+                                 >>= maybeReturn')
    <*> (v .: "next_page_uri"     <&> fmap parseRelativeReference
                                  >>= maybeReturn')
    <*> (v .: "previous_page_uri" <&> fmap parseRelativeReference
                                  >>= maybeReturn')
-   <*> (v .: "last_page_uri"     <&> parseRelativeReference
-                                 >>= maybeReturn)
+   <*> (v .: "last_page_uri"     <&> fmap parseRelativeReference
+                                 >>= maybeReturn')
   parseJSON _ = mzero
 
 maybeReturn' :: Maybe (Maybe a) -> Parser (Maybe a)

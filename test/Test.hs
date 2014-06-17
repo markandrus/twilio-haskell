@@ -3,6 +3,7 @@ module Main where
 import qualified Twilio.Account as Account
 import qualified Twilio.Application as Application
 import qualified Twilio.Client as Client
+import qualified Twilio.ConnectApp as ConnectApp
 import qualified Twilio.Call as Call
 import qualified Twilio.Message as Message
 import qualified Twilio.OutgoingCallerID as OutgoingCallerID
@@ -27,7 +28,9 @@ main = do
   -- print accounts
   -- applications <- Application.applications =<< client
   -- print applications
-  outgoingCallerIDs <- OutgoingCallerID.outgoingCallerIDs =<< client
-  print outgoingCallerIDs
+  -- outgoingCallerIDs <- OutgoingCallerID.outgoingCallerIDs =<< client
+  -- print outgoingCallerIDs
+  connectApps <- ConnectApp.connectApps =<< client
+  print connectApps
   -- messages <- Message.messages =<< client
   -- print messages

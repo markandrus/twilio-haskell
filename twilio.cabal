@@ -22,6 +22,7 @@ library
                        Twilio.Application,
                        Twilio.Call,
                        Twilio.Client,
+                       Twilio.ConnectApp,
                        Twilio.Message,
                        Twilio.OutgoingCallerID,
                        Twilio.PhoneNumber,
