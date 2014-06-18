@@ -17,18 +17,6 @@ applications :: Client -> IO Applications
 applications client = runRequest client $
   accountBaseURL (Client.accountSID client) ++ "/Applications.json"
 
--- | Application 'SID's are 34 characters long and begin with \"AP\".
-newtype ApplicationSID = ApplicationSID { getApplicationSID :: String }
-  deriving (Show, Eq)
-
-instance SID ApplicationSID where
-  getSIDWrapper = wrap ApplicationSID
-  getPrefix = Const ('A', 'P')
-  getSID = getApplicationSID
-
-instance FromJSON ApplicationSID where
-  parseJSON = parseJSONToSID
-
 data Application = Application
   { sid                   :: !ApplicationSID
   , dateCreated           :: !UTCTime

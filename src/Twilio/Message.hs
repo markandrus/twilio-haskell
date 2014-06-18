@@ -57,18 +57,6 @@ instance FromJSON Message where
                              >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Message 'SID's are 34 characters long ang begin with \"MM\".
-newtype MessageSID = MessageSID { getMessageSID :: String }
-  deriving (Show, Eq)
-
-instance SID MessageSID where
-  getSIDWrapper = wrap MessageSID
-  getPrefix = Const ('S', 'M')
-  getSID = getMessageSID
-
-instance FromJSON MessageSID where
-  parseJSON = parseJSONToSID
-
 data Messages = Messages
   { messagesPagingInformation :: PagingInformation
   , messageList :: [Message]

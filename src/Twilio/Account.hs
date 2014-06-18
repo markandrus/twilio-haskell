@@ -2,12 +2,13 @@
 {-#LANGUAGE OverloadedStrings #-}
 
 module Twilio.Account
-  ( AccountSID
-  , AuthToken(getAuthToken)
-  , parseAuthToken
-  , Account(..)
-  , Accounts
-  , accounts
+  ( -- * Resource
+    Account(..)
+    -- * List Resource
+  , Accounts(..)
+    -- * Types
+  , Status(..)
+  , Type(..)
   ) where
 
 import Twilio.Client (Client, baseURL, runRequest)
@@ -20,18 +21,20 @@ import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-data AccountStatus
+data Status
   = Active
   | Suspended
   | Closed
-  deriving Eq
+  deriving (Show, Read, Eq, Ord, Enum, Bounded)
 
-instance Show AccountStatus where
+{-
+instance Show Status where
   show Active    = "active"
   show Suspended = "suspended"
   show Closed    = "closed"
+-}
 
-instance FromJSON AccountStatus where
+instance FromJSON Status where
   parseJSON (String "active")    = return Active
   parseJSON (String "suspended") = return Suspended
   parseJSON (String "closed")    = return Closed
@@ -40,7 +43,7 @@ instance FromJSON AccountStatus where
 data Type
   = Full
   | Trial
-  deriving (Show, Read, Eq)
+  deriving (Show, Read, Eq, Ord, Enum, Bounded)
 
 instance FromJSON Type where
   parseJSON (String "Full")  = return Full
@@ -53,11 +56,11 @@ data Account = Account
   , dateUpdated     :: !UTCTime
   , friendlyName    :: !String
   , type'           :: !Type
-  , status          :: !AccountStatus
+  , status          :: !Status
   , authToken       :: !AuthToken
   , uri             :: !URI
   , ownerAccountSID :: !(Maybe AccountSID)
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Ord)
 
 instance FromJSON Account where
   parseJSON (Object v) = Account
@@ -74,13 +77,13 @@ instance FromJSON Account where
   parseJSON _ = mzero
 
 data Accounts = Accounts
-  { accountsPagingInformation :: PagingInformation
-  , accountList :: [Account]
-  } deriving (Show, Eq)
+  { pagingInformation :: !PagingInformation
+  , list              :: ![Account]
+  } deriving (Show, Eq, Ord)
 
 instance List Accounts Account where
   getListWrapper = wrap (Accounts . fromJust)
-  getList = accountList
+  getList = list
   getPlural = Const "accounts"
 
 instance FromJSON Accounts where

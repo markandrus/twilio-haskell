@@ -26,7 +26,7 @@ data Client = Client
 
 client :: String -> String -> Maybe Client
 client accountSID authToken = uncurry (liftM2 Client)
-  (parseStringToSID accountSID :: Maybe AccountSID, parseAuthToken authToken)
+  (parseSID accountSID :: Maybe AccountSID, parseAuthToken authToken)
 
 baseURL :: String
 baseURL = "https://api.twilio.com/2010-04-01"
@@ -37,8 +37,8 @@ accountBaseURL accountSID
 
 asClient :: Client -> Request -> Request
 asClient client =
-  let user = C.pack . getSID       $ accountSID client
-      pass = C.pack . getAuthToken $ authToken  client
+  let user = C.pack . getSID       $ Twilio.Client.accountSID client
+      pass = C.pack . getAuthToken $ Twilio.Client.authToken  client
   in  applyBasicAuth user pass
 
 runRequest :: FromJSON a => Client -> String -> IO a

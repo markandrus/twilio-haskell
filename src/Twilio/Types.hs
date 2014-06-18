@@ -1,12 +1,35 @@
+{-#LANGUAGE DeriveFunctor #-}
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE FunctionalDependencies #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE PatternGuards #-}
+{-#LANGUAGE Rank2Types #-}
 {-#LANGUAGE ScopedTypeVariables #-}
 
 module Twilio.Types
-  ( SID(..)
+  ( -- * Twilio Monad
+    Twilio
+  , runTwilio
+    -- * Twilio Monad Transformer
+  , TwilioT
+  , runTwilioT
+    -- * Credentials
+  , Credentials
+  , credentials
+    -- ** Authentication Token
+  , AuthToken
+  , getAuthToken
+  , parseAuthToken
+    -- * System Identifiers (SIDs)
+  , SID(getSID, parseSID)
+  , AccountSID
+  , ApplicationSID
+  , CallSID
+  , ConnectAppSID
+  , MessageSID
+  , PhoneNumberSID
+    -- * List Resources
   , List(..)
   , PagingInformation(..)
   , AnsweredBy(..)
@@ -23,12 +46,11 @@ module Twilio.Types
   , maybeReturn
   , maybeReturn'
   , maybeReturn''
-  , AccountSID
-  , AuthToken(getAuthToken)
-  , parseAuthToken
   ) where
 
-import Control.Monad (MonadPlus, mzero)
+import Control.Monad (MonadPlus, liftM2, mzero)
+import Control.Monad.IO.Class
+import Control.Monad.Trans.Class
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
 import Data.Aeson.Types (Parser)
@@ -39,6 +61,77 @@ import Data.Time.Clock (UTCTime)
 import Debug.Trace (trace)
 import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
+
+{- Twilio Monad and Monad Transformer -}
+
+-- | This monad allows you to make authenticated REST API requests to Twilio
+-- using your 'AccountSID' and 'AuthToken'.
+type Twilio = TwilioT IO
+
+-- | Run zero or more REST API requests to Twilio.
+runTwilio :: Twilio a -> Credentials -> IO a
+runTwilio = runTwilioT
+
+-- | This monad transformer allows you to make authenticated REST API requests
+-- to Twilio using your 'AccountSID' and 'AuthToken'.
+newtype TwilioT m a
+  = TwilioT { runTwilioT' :: MonadIO m => Credentials -> m a }
+  deriving Functor
+
+-- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
+-- @m@.
+runTwilioT :: MonadIO m => TwilioT m a -> Credentials -> m a
+runTwilioT = runTwilioT'
+
+instance Monad m => Monad (TwilioT m) where
+  return a = TwilioT (return . const a)
+  m >>= k = TwilioT $ \client -> do
+    a <- runTwilioT m client
+    runTwilioT (k a) client
+
+instance MonadTrans TwilioT where
+  lift m = TwilioT $ const m
+
+instance MonadIO m => MonadIO (TwilioT m) where
+  liftIO = lift . liftIO
+
+{- Credentials -}
+
+-- | Your 'AccountSID' and 'AuthToken' are used to make authenticated REST API
+-- requests to Twilio.
+type Credentials = (AccountSID, AuthToken)
+
+-- | Parse an account SID and authentication token to 'Credential's.
+credentials
+  :: String             -- ^ Account SID
+  -> String             -- ^ Authentication Token
+  -> Maybe Credentials
+credentials accountSID authToken = uncurry (liftM2 (,))
+  (parseSID accountSID :: Maybe AccountSID, parseAuthToken authToken)
+
+-- | Your authentication token is used to make authenticated REST API requests
+-- to your Twilio account.
+newtype AuthToken = AuthToken { getAuthToken' :: String }
+  deriving (Show, Eq, Ord)
+
+-- | Get the 'String' representation of an 'AuthToken'.
+getAuthToken :: AuthToken -> String
+getAuthToken = getAuthToken'
+
+-- | Parse a 'String' to an 'AuthToken'.
+parseAuthToken :: String -> Maybe AuthToken
+parseAuthToken token
+  | length token == 32
+  , all (\x -> isLower x || isNumber x) token
+  = Just $ AuthToken token
+  | otherwise
+  = Nothing
+
+instance FromJSON AuthToken where
+  parseJSON (String v) = maybeReturn . parseAuthToken $ unpack v
+  parseJSON _ = mzero
+
+{- System Identifiers (SIDs) -}
 
 -- | 'SID's are 34 characters long and begin with two capital letters.
 class SID a where
@@ -53,30 +146,104 @@ class SID a where
   getSID :: a -> String
 
   -- | Parse a 'String' to an instance of the 'SID'.
-  parseStringToSID :: String -> Maybe a
-  parseStringToSID sid@(a:b:xs)
+  parseSID :: String -> Maybe a
+  parseSID sid@(a:b:xs)
     | (a, b) == getConst (getPrefix :: Const (Char, Char) a)
     , length xs == 32
     , all (\x -> isLower x || isNumber x) xs
     = Just $ unwrap (getSIDWrapper :: Wrapper (String -> a)) sid
     | otherwise
     = Nothing
-  parseStringToSID _ = Nothing
+  parseSID _ = Nothing
 
   -- | Parse a 'JSON' 'Value' to an instance of the 'SID'.
   parseJSONToSID :: Value -> Parser a
-  parseJSONToSID (String v) = case parseStringToSID (unpack v) of
+  parseJSONToSID (String v) = case parseSID (unpack v) of
     Just sid -> return sid
     Nothing  -> mzero
   parseJSONToSID _ = mzero
+
+-- | Account 'SID's begin with \"AC\".
+newtype AccountSID = AccountSID { getAccountSID :: String }
+  deriving (Show, Eq, Ord)
+
+instance SID AccountSID where
+  getSIDWrapper = wrap AccountSID
+  getPrefix = Const ('A', 'C')
+  getSID = getAccountSID
+
+instance FromJSON AccountSID where
+  parseJSON = parseJSONToSID
+
+-- | Application 'SID's begin with \"AP\".
+newtype ApplicationSID = ApplicationSID { getApplicationSID :: String }
+  deriving (Show, Eq, Ord)
+
+instance SID ApplicationSID where
+  getSIDWrapper = wrap ApplicationSID
+  getPrefix = Const ('A', 'P')
+  getSID = getApplicationSID
+
+instance FromJSON ApplicationSID where
+  parseJSON = parseJSONToSID
+
+-- | Call 'SID's begin with \"CA\".
+newtype CallSID = CallSID { getCallSID :: String }
+  deriving (Show, Eq, Ord)
+
+instance SID CallSID where
+  getSIDWrapper = wrap CallSID
+  getPrefix = Const ('C', 'A')
+  getSID = getCallSID
+
+instance FromJSON CallSID where
+  parseJSON = parseJSONToSID
+
+-- | Connect App 'SID's begin with \"CN\".
+newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: String }
+  deriving (Show, Eq, Ord)
+
+instance SID ConnectAppSID where
+  getSIDWrapper = wrap ConnectAppSID
+  getPrefix = Const ('C', 'N')
+  getSID = getConnectAppSID
+
+instance FromJSON ConnectAppSID where
+  parseJSON = parseJSONToSID
+
+-- | Message 'SID's begin with \"MM\".
+newtype MessageSID = MessageSID { getMessageSID :: String }
+  deriving (Show, Eq, Ord)
+
+instance SID MessageSID where
+  getSIDWrapper = wrap MessageSID
+  getPrefix = Const ('S', 'M')
+  getSID = getMessageSID
+
+instance FromJSON MessageSID where
+  parseJSON = parseJSONToSID
+
+-- | Phone number 'SID's begin with \"PN\".
+newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: String }
+  deriving (Show, Eq, Ord)
+
+instance SID PhoneNumberSID where
+  getSIDWrapper = wrap PhoneNumberSID
+  getPrefix = Const ('P', 'N')
+  getSID = getPhoneNumberSID
+
+instance FromJSON PhoneNumberSID where
+  parseJSON = parseJSONToSID
+
+{- List Resources -}
 
 class FromJSON b => List a b | a -> b where
 
   -- | Get the 'wrap'-ed constructor of the 'List'.
   getListWrapper :: Wrapper (Maybe PagingInformation -> [b] -> a)
 
-  -- | The 'PagingInformation' for the 'List'.
-  -- getPagingInformation :: a -> PagingInformation
+  {--- | The 'PagingInformation' for the 'List'.
+  -- getPagingInformation :: a -> PagingInformation -}
 
   -- | The items in the 'List'.
   getList :: a -> [b]
@@ -119,7 +286,7 @@ data PagingInformation = PagingInformation
   , previousPageURI :: !(Maybe URI)
     -- | The 'URI' for the last page of this list.
   , lastPageURI :: !(Maybe URI)
-  } deriving (Show, Eq)
+  } deriving (Show, Eq, Ord)
 
 instance FromJSON PagingInformation where
   parseJSON (Object v)
@@ -282,31 +449,4 @@ safeRead s = case reads s of
 maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
 maybeReturn (Just a) = return a
 maybeReturn Nothing  = mzero
-
--- | Account 'SID's are 34 characters long and begin with \"AC\".
-newtype AccountSID = AccountSID { getAccountSID :: String }
-  deriving (Show, Eq)
-
-instance SID AccountSID where
-  getSIDWrapper = wrap AccountSID
-  getPrefix = Const ('A', 'C')
-  getSID = getAccountSID
-
-instance FromJSON AccountSID where
-  parseJSON = parseJSONToSID
-
-newtype AuthToken = AuthToken { getAuthToken :: String }
-  deriving (Show, Eq)
-
-parseAuthToken :: String -> Maybe AuthToken
-parseAuthToken token
-  | length token == 32
-  , all (\x -> isLower x || isNumber x) token
-  = Just $ AuthToken token
-  | otherwise
-  = Nothing
-
-instance FromJSON AuthToken where
-  parseJSON (String v) = maybeReturn . parseAuthToken $ unpack v
-  parseJSON _ = mzero
 

@@ -18,18 +18,6 @@ connectApps :: Client -> IO ConnectApps
 connectApps client = runRequest client $
   accountBaseURL (Client.accountSID client) ++ "/ConnectApps.json"
 
--- | Connect App 'SID's are 34 characters long and begin with \"CN\".
-newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: String }
-  deriving (Show, Eq)
-
-instance SID ConnectAppSID where
-  getSIDWrapper = wrap ConnectAppSID
-  getPrefix = Const ('C', 'N')
-  getSID = getConnectAppSID
-
-instance FromJSON ConnectAppSID where
-  parseJSON = parseJSONToSID
-
 data ConnectApp = ConnectApp
   { sid                       :: !ConnectAppSID
   , dateCreated               :: !UTCTime

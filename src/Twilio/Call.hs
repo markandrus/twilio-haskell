@@ -57,7 +57,7 @@ instance FromJSON Call where
     <*>  v .: "to"               <&> filterEmpty
     <*>  v .: "from"
     <*> (v .: "phone_number_sid" <&> filterEmpty
-                                 <&> (=<<) parseStringToSID)
+                                 <&> (=<<) parseSID)
     <*>  v .: "status"
     <*> (v .: "start_time"       >>= parseDateTime)
     <*> (v .: "end_time"         <&> (=<<) parseDateTime)
@@ -74,18 +74,6 @@ instance FromJSON Call where
                                  >>= maybeReturn)
     <*>  v .: "api_version"
   parseJSON _ = mzero
-
--- | Call 'SID's are 34 characters long and begin with \"CA\".
-newtype CallSID = CallSID { getCallSID :: String }
-  deriving (Show, Eq)
-
-instance SID CallSID where
-  getSIDWrapper = wrap CallSID
-  getPrefix = Const ('C', 'A')
-  getSID = getCallSID
-
-instance FromJSON CallSID where
-  parseJSON = parseJSONToSID
 
 data Calls = Calls
   { callsPagingInformation :: PagingInformation
