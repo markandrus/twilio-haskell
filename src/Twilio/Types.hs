@@ -1,4 +1,4 @@
-{-#LANGUAGE DeriveFunctor #-}
+{- LANGUAGE DeriveFunctor #-}
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE FunctionalDependencies #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
@@ -16,7 +16,7 @@ module Twilio.Types
   , runTwilioT
     -- * Credentials
   , Credentials
-  , credentials
+  , parseCredentials
     -- ** Authentication Token
   , AuthToken
   , getAuthToken
@@ -46,19 +46,27 @@ module Twilio.Types
   , maybeReturn
   , maybeReturn'
   , maybeReturn''
+  , request
   ) where
 
+import Control.Applicative
 import Control.Monad (MonadPlus, liftM2, mzero)
 import Control.Monad.IO.Class
+import Control.Monad.Reader.Class
 import Control.Monad.Trans.Class
-import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
 import Data.Aeson.Types (Parser)
+import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isLower, isNumber)
+import Data.Maybe (fromJust)
 import Data.Text (pack, unpack)
 import Data.Time.Format (parseTime)
 import Data.Time.Clock (UTCTime)
 import Debug.Trace (trace)
+import Network.HTTP.Client (Request, applyBasicAuth, brConsume, newManager,
+  parseUrl, responseBody, withResponse)
+import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
 
@@ -69,25 +77,45 @@ import System.Locale (defaultTimeLocale)
 type Twilio = TwilioT IO
 
 -- | Run zero or more REST API requests to Twilio.
-runTwilio :: Twilio a -> Credentials -> IO a
+runTwilio :: Credentials -> Twilio a -> IO a
 runTwilio = runTwilioT
 
 -- | This monad transformer allows you to make authenticated REST API requests
 -- to Twilio using your 'AccountSID' and 'AuthToken'.
 newtype TwilioT m a
   = TwilioT { runTwilioT' :: MonadIO m => Credentials -> m a }
-  deriving Functor
+--  deriving Functor
+
+instance Functor (TwilioT m) where
+  fmap f ma = TwilioT $ \credentials -> do
+    a <- runTwilioT' ma credentials
+    return $ f a
 
 -- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
 -- @m@.
-runTwilioT :: MonadIO m => TwilioT m a -> Credentials -> m a
-runTwilioT = runTwilioT'
+runTwilioT :: MonadIO m => Credentials -> TwilioT m a -> m a
+runTwilioT = flip runTwilioT'
 
 instance Monad m => Monad (TwilioT m) where
   return a = TwilioT (return . const a)
   m >>= k = TwilioT $ \client -> do
-    a <- runTwilioT m client
-    runTwilioT (k a) client
+    a <- runTwilioT' m client
+    runTwilioT' (k a) client
+
+liftTwilioT :: m a -> TwilioT m a
+liftTwilioT m = TwilioT (const m)
+
+instance Applicative m => Applicative (TwilioT m) where
+  pure = liftTwilioT . pure
+  f <*> v = TwilioT $ \r -> runTwilioT' f r <*> runTwilioT' v r
+
+instance Alternative m => Alternative (TwilioT m) where
+  empty = liftTwilioT empty
+  m <|> n = TwilioT $ \r -> runTwilioT' m r <|> runTwilioT' n r
+
+instance Monad m => MonadReader Credentials (TwilioT m) where
+  ask = TwilioT return
+  local f m = TwilioT $ runTwilioT' m . f
 
 instance MonadTrans TwilioT where
   lift m = TwilioT $ const m
@@ -102,11 +130,11 @@ instance MonadIO m => MonadIO (TwilioT m) where
 type Credentials = (AccountSID, AuthToken)
 
 -- | Parse an account SID and authentication token to 'Credential's.
-credentials
+parseCredentials
   :: String             -- ^ Account SID
   -> String             -- ^ Authentication Token
   -> Maybe Credentials
-credentials accountSID authToken = uncurry (liftM2 (,))
+parseCredentials accountSID authToken = uncurry (liftM2 (,))
   (parseSID accountSID :: Maybe AccountSID, parseAuthToken authToken)
 
 -- | Your authentication token is used to make authenticated REST API requests
@@ -450,3 +478,15 @@ maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
 maybeReturn (Just a) = return a
 maybeReturn Nothing  = mzero
 
+request :: (MonadIO m, FromJSON a) => String -> TwilioT m a
+request resourceURL = do
+    manager <- liftIO (newManager tlsManagerSettings)
+    (user, pass) <- ask
+    let request = fromJust $ do
+        req <- parseUrl resourceURL
+        return $ applyBasicAuth (C.pack $ getSID user)
+                                (C.pack $ getAuthToken pass) req
+    liftIO $ withResponse request manager $ \response -> do
+      bs <- LBS.fromChunks <$> brConsume (responseBody response)
+      putStrLn . C.unpack $ LBS.toStrict bs
+      return . fromJust $ decode bs

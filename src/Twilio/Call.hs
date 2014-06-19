@@ -3,6 +3,7 @@
 
 module Twilio.Call
   ( calls
+  , calls'
   , Call(..)
   , CallSID
   , Calls(..)
@@ -13,6 +14,8 @@ import Twilio.Client as Client
 import Twilio.PhoneNumber
 import Twilio.Types
 
+import Control.Monad.Trans
+import Control.Monad.Reader.Class
 import Control.Monad (mzero)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
@@ -23,6 +26,11 @@ import Network.URI (URI, parseRelativeReference)
 calls :: Client -> IO Calls
 calls client = runRequest client $
   Client.accountBaseURL (Client.accountSID client) ++ "/Calls.json"
+
+calls' :: Twilio Calls
+calls' = do
+  (accountSID, _) <- ask
+  request $ Client.accountBaseURL accountSID ++ "/Calls.json"
 
 data Call = Call
   { sid            :: !CallSID
