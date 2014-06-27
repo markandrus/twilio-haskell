@@ -2,12 +2,12 @@ module Twilio
   ( Twilio
   , runTwilio
   , Credentials
-  , credentials
+  , parseCredentials
   ) where
 
 import Twilio.Types
   ( Twilio
   , runTwilio
   , Credentials
-  , credentials
+  , parseCredentials
   )
