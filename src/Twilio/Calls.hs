@@ -23,7 +23,7 @@ import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
 get :: (MonadThrow m, MonadIO m) => TwilioT m Calls
-get = request "/Calls.json"
+get = requestForAccount "/Calls.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Calls
 get' = flip forSubAccount get

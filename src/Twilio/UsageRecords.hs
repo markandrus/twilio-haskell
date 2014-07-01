@@ -67,7 +67,7 @@ instance FromJSON UsageRecords where
   parseJSON = parseJSONToList
 
 get :: (MonadThrow m, MonadIO m) => TwilioT m UsageRecords
-get = request "/Usage/Records.json"
+get = requestForAccount "/Usage/Records.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m UsageRecords
 get' = flip forSubAccount get

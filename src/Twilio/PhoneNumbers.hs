@@ -50,7 +50,7 @@ instance FromJSON PhoneNumber where
   parseJSON _ = mzero
 
 get :: (MonadThrow m, MonadIO m) => TwilioT m PhoneNumbers
-get = request "/AvailablePhoneNumbers/US/Local.json"
+get = requestForAccount "/AvailablePhoneNumbers/US/Local.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m PhoneNumbers
 get' = flip forSubAccount get

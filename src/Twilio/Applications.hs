@@ -24,7 +24,7 @@ import Network.URI (URI, parseURI, parseRelativeReference)
 
 -- | Get the 'Applications' for your account.
 get :: (MonadThrow m, MonadIO m) => TwilioT m Applications
-get = request "/Applications.json"
+get = requestForAccount "/Applications.json"
 
 -- | Get the 'Applications' for a sub-account of your account.
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Applications

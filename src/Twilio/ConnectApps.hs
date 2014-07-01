@@ -23,7 +23,7 @@ import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseURI, parseRelativeReference)
 
 get :: (MonadThrow m, MonadIO m) => TwilioT m ConnectApps
-get = request "/ConnectApps.json"
+get = requestForAccount "/ConnectApps.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ConnectApps
 get' = flip forSubAccount get

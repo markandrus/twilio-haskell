@@ -93,4 +93,4 @@ instance FromJSON Accounts where
   parseJSON = parseJSONToList
 
 get :: (MonadThrow m, MonadIO m) => TwilioT m Accounts
-get = request' "/Accounts.json"
+get = request "/Accounts.json"
