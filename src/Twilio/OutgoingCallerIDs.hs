@@ -1,11 +1,16 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.OutgoingCallerID where
+module Twilio.OutgoingCallerIDs
+  ( -- * Resource
+    OutgoingCallerID(..)
+  , PhoneNumberSID
+    -- * List Resource
+  , OutgoingCallerIDs(..)
+  , get
+  ) where
 
-import Twilio.Account
 import Twilio.Client as Client
-import Twilio.PhoneNumber
 import Twilio.Types
 
 import Control.Monad (mzero)
@@ -15,8 +20,8 @@ import Data.Maybe
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-outgoingCallerIDs :: Client -> IO OutgoingCallerIDs
-outgoingCallerIDs client = runRequest client $
+get :: Client -> IO OutgoingCallerIDs
+get client = runRequest client $
   Client.accountBaseURL (Client.accountSID client) ++ "/OutgoingCallerIds.json"
 
 data OutgoingCallerID = OutgoingCallerID

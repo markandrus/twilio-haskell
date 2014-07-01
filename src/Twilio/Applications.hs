@@ -1,7 +1,14 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.Application where
+module Twilio.Applications
+  ( -- * Resource
+    Application(..)
+  , ApplicationSID
+    -- * List Resource
+  , Applications(..)
+  , get
+  ) where
 
 import Twilio.Client as Client
 import Twilio.Types
@@ -13,8 +20,8 @@ import Data.Maybe
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseURI, parseRelativeReference)
 
-applications :: Client -> IO Applications
-applications client = runRequest client $
+get :: Client -> IO Applications
+get client = runRequest client $
   accountBaseURL (Client.accountSID client) ++ "/Applications.json"
 
 data Application = Application

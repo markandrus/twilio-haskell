@@ -1,9 +1,15 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.ConnectApp where
+module Twilio.ConnectApps
+  ( -- * Resource
+    ConnectApp(..)
+  , ConnectAppSID
+    -- * List Resource
+  , ConnectApps(..)
+  , get
+  ) where
 
-import Twilio.Account
 import Twilio.Client as Client
 import Twilio.Types
 
@@ -14,8 +20,8 @@ import Data.Maybe
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseURI, parseRelativeReference)
 
-connectApps :: Client -> IO ConnectApps
-connectApps client = runRequest client $
+get :: Client -> IO ConnectApps
+get client = runRequest client $
   accountBaseURL (Client.accountSID client) ++ "/ConnectApps.json"
 
 data ConnectApp = ConnectApp

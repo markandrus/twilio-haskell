@@ -1,11 +1,13 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.PhoneNumber
-  ( PhoneNumberSID
-  , PhoneNumber(..)
-  , PhoneNumbers
-  , phoneNumbers
+module Twilio.PhoneNumbers
+  ( -- * Resource
+    PhoneNumber(..)
+  , PhoneNumberSID
+    -- * List Resource
+  , PhoneNumbers(..)
+  , get
   ) where
 
 import Twilio.Client (Client(accountSID), accountBaseURL, runRequest)
@@ -45,8 +47,8 @@ instance FromJSON PhoneNumber where
     <*>  v .: "iso_country"
   parseJSON _ = mzero
 
-phoneNumbers :: Client -> IO PhoneNumbers
-phoneNumbers client = runRequest client $ accountBaseURL (Twilio.Client.accountSID client)
+get :: Client -> IO PhoneNumbers
+get client = runRequest client $ accountBaseURL (Twilio.Client.accountSID client)
   ++ "/AvailablePhoneNumbers/US/Local.json"
 
 data PhoneNumbers = PhoneNumbers

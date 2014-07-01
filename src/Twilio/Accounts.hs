@@ -1,11 +1,13 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.Account
+module Twilio.Accounts
   ( -- * Resource
     Account(..)
+  , AccountSID
     -- * List Resource
   , Accounts(..)
+  , get
     -- * Types
   , Status(..)
   , Type(..)
@@ -89,5 +91,5 @@ instance List Accounts Account where
 instance FromJSON Accounts where
   parseJSON = parseJSONToList
 
-accounts :: Client -> IO Accounts
-accounts client = runRequest client $ baseURL ++ "/Accounts.json"
+get :: Client -> IO Accounts
+get client = runRequest client $ baseURL ++ "/Accounts.json"

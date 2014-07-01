@@ -2,15 +2,15 @@
 {-#LANGUAGE OverloadedStrings #-}
 
 module Twilio.Calls
-  ( get
-  , Call(..)
+  ( -- * Resource
+    Call(..)
   , CallSID
+    -- * List Resource
   , Calls(..)
+  , get
   ) where
 
-import Twilio.Account
 import Twilio.Client as Client
-import Twilio.PhoneNumber
 import Twilio.Types
 
 import Control.Monad.Trans

@@ -1,7 +1,14 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.Message where
+module Twilio.Messages
+  ( -- * Resource
+    Message(..)
+  , MessageSID
+    -- * List Resource
+  , Messages(..)
+  , get
+  ) where
 
 import Twilio.Client as Client
 import Twilio.Types hiding (CallStatus(..), CallDirection(..))
@@ -13,8 +20,8 @@ import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-messages :: Client -> IO Messages
-messages client = runRequest client $
+get :: Client -> IO Messages
+get client = runRequest client $
   Client.accountBaseURL (Client.accountSID client) ++ "/Messages.json"
 
 data Message = Message

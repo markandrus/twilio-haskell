@@ -1,7 +1,13 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.Usage where
+module Twilio.UsageRecords
+  ( -- * Resource
+    UsageRecord(..)
+    -- * List Resource
+  , UsageRecords(..)
+  , get
+  ) where
 
 import qualified Twilio.Client as Client
 import Twilio.Types
@@ -58,6 +64,6 @@ instance List UsageRecords UsageRecord where
 instance FromJSON UsageRecords where
   parseJSON = parseJSONToList
 
-usageRecords :: Client.Client -> IO UsageRecords
-usageRecords client = Client.runRequest client $
+get :: Client.Client -> IO UsageRecords
+get client = Client.runRequest client $
   Client.accountBaseURL (Client.accountSID client) ++ "/Usage/Records.json"
