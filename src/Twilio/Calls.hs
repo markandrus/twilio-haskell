@@ -26,7 +26,7 @@ get :: (MonadThrow m, MonadIO m) => TwilioT m Calls
 get = requestForAccount "/Calls.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Calls
-get' = flip forSubAccount get
+get' = flip forAccount get
 
 data Call = Call
   { sid            :: !CallSID

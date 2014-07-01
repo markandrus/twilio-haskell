@@ -1,3 +1,4 @@
+{-#LANGUAGE NamedFieldPuns #-}
 module Main where
 
 import Twilio.Types
@@ -11,20 +12,25 @@ import Twilio.OutgoingCallerIDs as OutgoingCallerIDs
 import Twilio.PhoneNumbers      as PhoneNumbers
 import Twilio.UsageRecords      as UsageRecords
 
-import Control.Monad (sequence_)
+import Control.Monad (forM_)
+-- import Control.Monad (sequence_)
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getEnv)
 
--- | Print calls.
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
-                  (getEnv "AUTH_TOKEN")
-     $ sequence_
-       [ Accounts.get          >>= liftIO . print
-       , Applications.get      >>= liftIO . print
-       , Calls.get             >>= liftIO . print
-       , ConnectApps.get       >>= liftIO . print
-       , Messages.get          >>= liftIO . print
-       , OutgoingCallerIDs.get >>= liftIO . print
-       , PhoneNumbers.get      >>= liftIO . print
-       , UsageRecords.get      >>= liftIO . print ]
+                  (getEnv "AUTH_TOKEN") $ sequence_
+  [ Accounts.get          >>= liftIO . print
+  , Applications.get      >>= liftIO . print
+  , Calls.get             >>= liftIO . print
+  , ConnectApps.get       >>= liftIO . print
+  , Messages.get          >>= liftIO . print
+  , OutgoingCallerIDs.get >>= liftIO . print
+  , PhoneNumbers.get      >>= liftIO . print
+  , UsageRecords.get      >>= liftIO . print ]
+
+niam = runTwilio' (getEnv "ACCOUNT_SID")
+                  (getEnv "AUTH_TOKEN") $ do
+  subAccounts <- fmap getList Accounts.get
+  forM_ subAccounts $ \Account {Accounts.sid=subAccountSID} ->
+    forAccount subAccountSID Calls.get >>= liftIO . print

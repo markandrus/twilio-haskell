@@ -26,7 +26,7 @@ get :: (MonadThrow m, MonadIO m) => TwilioT m ConnectApps
 get = requestForAccount "/ConnectApps.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ConnectApps
-get' = flip forSubAccount get
+get' = flip forAccount get
 
 data ConnectApp = ConnectApp
   { sid                       :: !ConnectAppSID

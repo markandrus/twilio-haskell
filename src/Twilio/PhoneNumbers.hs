@@ -53,7 +53,7 @@ get :: (MonadThrow m, MonadIO m) => TwilioT m PhoneNumbers
 get = requestForAccount "/AvailablePhoneNumbers/US/Local.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m PhoneNumbers
-get' = flip forSubAccount get
+get' = flip forAccount get
 
 data PhoneNumbers = PhoneNumbers
   { phoneNumberList :: [PhoneNumber]

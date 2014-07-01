@@ -19,7 +19,7 @@ module Twilio.Types
   , runTwilioT'
     -- * Making Requests
     -- $makingRequests
-  , forSubAccount
+  , forAccount
   , request
   , requestForAccount
     -- * Twilio Exceptions
@@ -123,7 +123,7 @@ runTwilio = runTwilioT
 {- | Parse an account SID and authentication token before running zero or more
 REST API requests to Twilio.
 
-For example, you can fetch the 'Calls' resource in the 'IO' monad as follows
+For example, you can fetch the 'Calls' resource in the 'IO' monad as follows:
 
 >module Main where
 >
@@ -207,12 +207,34 @@ instance MonadIO m => MonadIO (TwilioT m) where
 
 {- Making Requests -}
 
--- | Run zero or more Twilio REST API requests for a sub-account.
-forSubAccount :: (MonadThrow m, MonadIO m)
-              => AccountSID   -- ^ Sub-Account SID
-              -> TwilioT m a  -- ^ Zero or more Twilio REST API requests
-              -> TwilioT m a
-forSubAccount subAccountSID twilio = do
+{- | Run zero or more Twilio REST API requests for an account that is a
+sub-account of your own.
+
+For example, you can fetch the 'Calls' resource for each of your account's
+sub-accounts as follows:
+
+>module Main where
+>
+>import Control.Monad (forM_)
+>import Control.Monad.IO.Class (liftIO)
+>import System.Environment (getEnv)
+>import Twilio.Accounts as Accounts
+>import Twilio.Calls as Calls
+>import Twilio.Types
+>
+>-- | Print calls for each sub-account.
+>main :: IO ()
+>main = runTwilio' (getEnv "ACCOUNT_SID")
+>                  (getEnv "AUTH_TOKEN") $ do
+>  subAccounts <- fmap getList Accounts.get
+>  forM_ subAccounts $ \Account {Accounts.sid = subAccountSID} ->
+>    forAccount subAccountSID Calls.get >>= liftIO . print
+-}
+forAccount :: (MonadThrow m, MonadIO m)
+           => AccountSID   -- ^ Sub-Account SID
+           -> TwilioT m a  -- ^ Zero or more Twilio REST API requests
+           -> TwilioT m a
+forAccount subAccountSID twilio = do
   (credentials, _) <- ask
   local (const (credentials, subAccountSID)) twilio
 

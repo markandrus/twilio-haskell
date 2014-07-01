@@ -70,4 +70,4 @@ get :: (MonadThrow m, MonadIO m) => TwilioT m UsageRecords
 get = requestForAccount "/Usage/Records.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m UsageRecords
-get' = flip forSubAccount get
+get' = flip forAccount get

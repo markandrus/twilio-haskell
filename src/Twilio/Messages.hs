@@ -26,7 +26,7 @@ get :: (MonadThrow m, MonadIO m) => TwilioT m Messages
 get = requestForAccount "/Messages.json"
 
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Messages
-get' = flip forSubAccount get
+get' = flip forAccount get
 
 data Message = Message
   { sid :: !MessageSID
