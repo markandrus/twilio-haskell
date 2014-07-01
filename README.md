@@ -14,6 +14,8 @@ Example
 You can create a REST API client and fetch the calls resources as follows
 
 ```hs
+module Main where
+
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getEnv)
 import Twilio.Calls as Calls
