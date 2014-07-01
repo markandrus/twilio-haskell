@@ -21,7 +21,6 @@ library
                        Twilio.Accounts,
                        Twilio.Applications,
                        Twilio.Calls,
-                       Twilio.Client,
                        Twilio.ConnectApps,
                        Twilio.Messages,
                        Twilio.OutgoingCallerIDs,
