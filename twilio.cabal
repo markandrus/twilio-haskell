@@ -18,14 +18,22 @@ source-repository head
 library
   ghc-options:         -Wall -fno-warn-name-shadowing -O2
   exposed-modules:     Twilio,
+                       Twilio.Account,
                        Twilio.Accounts,
+                       Twilio.Application,
                        Twilio.Applications,
+                       Twilio.Call,
                        Twilio.Calls,
+                       Twilio.ConnectApp,
                        Twilio.ConnectApps,
+                       Twilio.Message,
                        Twilio.Messages,
+                       Twilio.OutgoingCallerID,
                        Twilio.OutgoingCallerIDs,
+                       Twilio.PhoneNumber,
                        Twilio.PhoneNumbers,
                        Twilio.Types,
+                       Twilio.UsageRecord
                        Twilio.UsageRecords
   hs-source-dirs:      src
   build-depends:       aeson ==0.7.*,

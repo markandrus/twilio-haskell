@@ -3,6 +3,7 @@ module Main where
 
 import Twilio.Types
 
+import Twilio.Account           as Account
 import Twilio.Accounts          as Accounts
 import Twilio.Applications      as Applications
 import Twilio.Calls             as Calls
@@ -32,5 +33,5 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
 niam = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do
   subAccounts <- fmap getList Accounts.get
-  forM_ subAccounts $ \Account {Accounts.sid=subAccountSID} ->
+  forM_ subAccounts $ \Account {Account.sid=subAccountSID} ->
     forAccount subAccountSID Calls.get >>= liftIO . print
