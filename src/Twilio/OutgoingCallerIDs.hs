@@ -8,21 +8,25 @@ module Twilio.OutgoingCallerIDs
     -- * List Resource
   , OutgoingCallerIDs(..)
   , get
+  , get'
   ) where
 
-import Twilio.Client as Client
 import Twilio.Types
 
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
-import Data.Maybe
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-get :: Client -> IO OutgoingCallerIDs
-get client = runRequest client $
-  Client.accountBaseURL (Client.accountSID client) ++ "/OutgoingCallerIds.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m OutgoingCallerIDs
+get = request "/OutgoingCallerIds.json"
+
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m OutgoingCallerIDs
+get' = flip forSubAccount get
 
 data OutgoingCallerID = OutgoingCallerID
   { sid          :: !PhoneNumberSID

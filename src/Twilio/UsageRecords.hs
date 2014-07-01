@@ -7,13 +7,15 @@ module Twilio.UsageRecords
     -- * List Resource
   , UsageRecords(..)
   , get
+  , get'
   ) where
 
-import qualified Twilio.Client as Client
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(Const))
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
@@ -64,6 +66,8 @@ instance List UsageRecords UsageRecord where
 instance FromJSON UsageRecords where
   parseJSON = parseJSONToList
 
-get :: Client.Client -> IO UsageRecords
-get client = Client.runRequest client $
-  Client.accountBaseURL (Client.accountSID client) ++ "/Usage/Records.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m UsageRecords
+get = request "/Usage/Records.json"
+
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m UsageRecords
+get' = flip forSubAccount get

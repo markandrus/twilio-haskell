@@ -8,21 +8,25 @@ module Twilio.ConnectApps
     -- * List Resource
   , ConnectApps(..)
   , get
+  , get'
   ) where
 
-import Twilio.Client as Client
 import Twilio.Types
 
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
-import Data.Maybe
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseURI, parseRelativeReference)
 
-get :: Client -> IO ConnectApps
-get client = runRequest client $
-  accountBaseURL (Client.accountSID client) ++ "/ConnectApps.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m ConnectApps
+get = request "/ConnectApps.json"
+
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ConnectApps
+get' = flip forSubAccount get
 
 data ConnectApp = ConnectApp
   { sid                       :: !ConnectAppSID

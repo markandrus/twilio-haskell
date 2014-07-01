@@ -13,11 +13,12 @@ module Twilio.Accounts
   , Type(..)
   ) where
 
-import Twilio.Client (Client, baseURL, runRequest)
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
@@ -91,5 +92,5 @@ instance List Accounts Account where
 instance FromJSON Accounts where
   parseJSON = parseJSONToList
 
-get :: Client -> IO Accounts
-get client = runRequest client $ baseURL ++ "/Accounts.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m Accounts
+get = request' "/Accounts.json"

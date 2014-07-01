@@ -8,21 +8,27 @@ module Twilio.Applications
     -- * List Resource
   , Applications(..)
   , get
+  , get'
   ) where
 
-import Twilio.Client as Client
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseURI, parseRelativeReference)
 
-get :: Client -> IO Applications
-get client = runRequest client $
-  accountBaseURL (Client.accountSID client) ++ "/Applications.json"
+-- | Get the 'Applications' for your account.
+get :: (MonadThrow m, MonadIO m) => TwilioT m Applications
+get = request "/Applications.json"
+
+-- | Get the 'Applications' for a sub-account of your account.
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Applications
+get' = flip forSubAccount get
 
 data Application = Application
   { sid                   :: !ApplicationSID

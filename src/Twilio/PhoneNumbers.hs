@@ -8,13 +8,15 @@ module Twilio.PhoneNumbers
     -- * List Resource
   , PhoneNumbers(..)
   , get
+  , get'
   ) where
 
-import Twilio.Client (Client(accountSID), accountBaseURL, runRequest)
 import Twilio.Types
 
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 
 data PhoneNumber = PhoneNumber
@@ -47,9 +49,11 @@ instance FromJSON PhoneNumber where
     <*>  v .: "iso_country"
   parseJSON _ = mzero
 
-get :: Client -> IO PhoneNumbers
-get client = runRequest client $ accountBaseURL (Twilio.Client.accountSID client)
-  ++ "/AvailablePhoneNumbers/US/Local.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m PhoneNumbers
+get = request "/AvailablePhoneNumbers/US/Local.json"
+
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m PhoneNumbers
+get' = flip forSubAccount get
 
 data PhoneNumbers = PhoneNumbers
   { phoneNumberList :: [PhoneNumber]

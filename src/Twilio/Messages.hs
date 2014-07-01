@@ -8,21 +8,25 @@ module Twilio.Messages
     -- * List Resource
   , Messages(..)
   , get
+  , get'
   ) where
 
-import Twilio.Client as Client
 import Twilio.Types hiding (CallStatus(..), CallDirection(..))
 
 import Control.Applicative ((<$>), (<*>), Const(Const))
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-get :: Client -> IO Messages
-get client = runRequest client $
-  Client.accountBaseURL (Client.accountSID client) ++ "/Messages.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m Messages
+get = request "/Messages.json"
+
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Messages
+get' = flip forSubAccount get
 
 data Message = Message
   { sid :: !MessageSID

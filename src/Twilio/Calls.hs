@@ -8,24 +8,25 @@ module Twilio.Calls
     -- * List Resource
   , Calls(..)
   , get
+  , get'
   ) where
 
-import Twilio.Client as Client
 import Twilio.Types
 
-import Control.Monad.Trans
-import Control.Monad.Reader.Class
 import Control.Monad (mzero)
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Applicative ((<$>), (<*>), Const(..))
 import Data.Aeson
-import Data.Maybe
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-get :: Twilio Calls
-get = do
-  (accountSID, _) <- ask
-  request $ Client.accountBaseURL accountSID ++ "/Calls.json"
+get :: (MonadThrow m, MonadIO m) => TwilioT m Calls
+get = request "/Calls.json"
+
+get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Calls
+get' = flip forSubAccount get
 
 data Call = Call
   { sid            :: !CallSID

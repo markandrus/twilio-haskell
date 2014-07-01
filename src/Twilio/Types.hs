@@ -70,15 +70,17 @@ module Twilio.Types
   , maybeReturn'
   , maybeReturn''
   , request
+  , request'
+  , forSubAccount
   ) where
 
 import Control.Applicative
-import Control.Exception
+import Control.Exception (Exception, throw)
 import Control.Monad (MonadPlus, liftM2, mzero)
-import Control.Monad.Catch
-import Control.Monad.IO.Class
-import Control.Monad.Reader.Class
-import Control.Monad.Trans.Class
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.IO.Class (MonadIO(liftIO))
+import Control.Monad.Reader.Class (MonadReader(ask, local))
+import Control.Monad.Trans.Class (MonadTrans(lift))
 import Data.Aeson
 import Data.Aeson.Types (Parser)
 import qualified Data.ByteString.Char8 as C
@@ -86,12 +88,12 @@ import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isLower, isNumber)
 import Data.Maybe (fromJust)
 import Data.Text (pack, unpack)
-import Data.Time.Format (parseTime)
 import Data.Time.Clock (UTCTime)
+import Data.Time.Format (parseTime)
+import Data.Typeable (Typeable)
 import Debug.Trace (trace)
-import Data.Typeable
-import Network.HTTP.Client (Request, applyBasicAuth, brConsume, newManager,
-  parseUrl, responseBody, withResponse)
+import Network.HTTP.Client (applyBasicAuth, brConsume, newManager, parseUrl,
+  responseBody, withResponse)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
@@ -143,13 +145,16 @@ runTwilio' = runTwilioT'
 
 -- | This monad transformer allows you to make authenticated REST API requests
 -- to Twilio using your 'AccountSID' and 'AuthToken'.
-newtype TwilioT m a
-  = TwilioT { _runTwilioT :: (MonadThrow m, MonadIO m) => Credentials -> m a }
+newtype TwilioT m a = TwilioT {
+    _runTwilioT :: (MonadThrow m, MonadIO m)
+                => (Credentials, AccountSID)
+                -> m a
+  }
 
 -- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
 -- @m@.
 runTwilioT :: (MonadThrow m, MonadIO m) => Credentials -> TwilioT m a -> m a
-runTwilioT = flip _runTwilioT
+runTwilioT credentials@(accountSID, _) = flip _runTwilioT (credentials, accountSID)
 
 -- | Parse an account SID and authentication token before running zero or more
 -- REST API requests to Twilio, unwrapping the inner monad @m@.
@@ -187,7 +192,7 @@ instance Monad m => Monad (TwilioT m) where
     a <- _runTwilioT m client
     _runTwilioT (k a) client
 
-instance Monad m => MonadReader Credentials (TwilioT m) where
+instance Monad m => MonadReader (Credentials, AccountSID) (TwilioT m) where
   ask = TwilioT return
   local f m = TwilioT $ _runTwilioT m . f
 
@@ -592,15 +597,40 @@ maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
 maybeReturn (Just a) = return a
 maybeReturn Nothing  = mzero
 
+baseURL :: String
+baseURL = "https://api.twilio.com/2010-04-01"
+
+accountBaseURL :: AccountSID -> String
+accountBaseURL accountSID
+  = baseURL ++ "/Accounts/" ++ getSID accountSID
+
 request :: (MonadIO m, FromJSON a) => String -> TwilioT m a
 request resourceURL = do
-    manager <- liftIO (newManager tlsManagerSettings)
-    (user, pass) <- ask
-    let request = fromJust $ do
-        req <- parseUrl resourceURL
-        return $ applyBasicAuth (C.pack $ getSID user)
-                                (C.pack $ getAuthToken pass) req
-    liftIO $ withResponse request manager $ \response -> do
-      bs <- LBS.fromChunks <$> brConsume (responseBody response)
-      putStrLn . C.unpack $ LBS.toStrict bs
-      return . fromJust $ decode bs
+  manager <- liftIO (newManager tlsManagerSettings)
+  ((accountSID, authToken), subAccountSID) <- ask
+  let request = fromJust $ do
+      req <- parseUrl (accountBaseURL subAccountSID ++ resourceURL)
+      return $ applyBasicAuth (C.pack $ getSID accountSID)
+                              (C.pack $ getAuthToken authToken) req
+  liftIO $ withResponse request manager $ \response -> do
+    bs <- LBS.fromChunks <$> brConsume (responseBody response)
+    putStrLn . C.unpack $ LBS.toStrict bs
+    return . fromJust $ decode bs
+
+request' :: (MonadIO m, FromJSON a) => String -> TwilioT m a
+request' resourceURL = do
+  manager <- liftIO (newManager tlsManagerSettings)
+  ((accountSID, authToken), _) <- ask
+  let request = fromJust $ do
+      req <- parseUrl (baseURL ++ resourceURL)
+      return $ applyBasicAuth (C.pack $ getSID accountSID)
+                              (C.pack $ getAuthToken authToken) req
+  liftIO $ withResponse request manager $ \response -> do
+    bs <- LBS.fromChunks <$> brConsume (responseBody response)
+    putStrLn . C.unpack $ LBS.toStrict bs
+    return . fromJust $ decode bs
+
+forSubAccount :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m a -> TwilioT m a
+forSubAccount subAccountSID twilio = do
+  (credentials, _) <- ask
+  local (const (credentials, subAccountSID)) twilio
