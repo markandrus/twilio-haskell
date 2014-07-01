@@ -23,8 +23,8 @@ import Twilio.Types
 
 -- | Print calls.
 main :: IO ()
-main = runTwilio (getEnv "ACCOUNT_SID")
-                 (getEnv "AUTH_TOKEN")
+main = runTwilio' (getEnv "ACCOUNT_SID")
+                  (getEnv "AUTH_TOKEN")
      $ Calls.get >>= liftIO . print
 ```
 

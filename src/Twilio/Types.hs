@@ -1,4 +1,3 @@
-{- LANGUAGE DeriveFunctor #-}
 {-#LANGUAGE DeriveDataTypeable #-}
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE FlexibleContexts #-}
@@ -23,18 +22,36 @@ module Twilio.Types
     -- * Credentials
   , Credentials
   , parseCredentials
+    -- ** Account SID
+  , AccountSID
+  , getAccountSID
+  , parseAccountSID
     -- ** Authentication Token
   , AuthToken
   , getAuthToken
   , parseAuthToken
     -- * System Identifiers (SIDs)
   , SID(getSID, parseSID)
-  , AccountSID
+    -- ** Application SID
   , ApplicationSID
+  , getApplicationSID
+  , parseApplicationSID
+    -- ** Call SID
   , CallSID
+  , getCallSID
+  , parseCallSID
+    -- ** Connect App SID
   , ConnectAppSID
+  , getConnectAppSID
+  , parseConnectAppSID
+    -- ** Message SID
   , MessageSID
+  , getMessageSID
+  , parseMessageSID
+    -- ** Phone Number SID
   , PhoneNumberSID
+  , getPhoneNumberSID
+  , parsePhoneNumberSID
     -- * List Resources
   , List(..)
   , PagingInformation(..)
@@ -82,7 +99,7 @@ import System.Locale (defaultTimeLocale)
 -- | The set of 'Exception's that may be thrown when attempting to make
 -- requests against Twilio's REST API.
 data TwilioException
-  = InvalidAccountSID  !String
+  = InvalidSID         !String
   | InvalidAuthToken   !String
   | InvalidCredentials !Credentials
   deriving (Show, Eq, Typeable)
@@ -99,8 +116,25 @@ type Twilio = TwilioT IO
 runTwilio :: Credentials -> Twilio a -> IO a
 runTwilio = runTwilioT
 
--- | Parse an account SID and authentication token before running zero or more
--- REST API requests to Twilio.
+{- | Parse an account SID and authentication token before running zero or more
+REST API requests to Twilio.
+
+For example, you can fetch the 'Calls' resource in the 'IO' monad as follows
+
+>module Main where
+>
+>import Control.Monad.IO.Class (liftIO)
+>import System.Environment (getEnv)
+>import Twilio.Calls as Calls
+>import Twilio.Types
+>
+>-- | Print calls.
+>main :: IO ()
+>main = runTwilio' (getEnv "ACCOUNT_SID")
+>                  (getEnv "AUTH_TOKEN")
+>     $ Calls.get >>= liftIO . print
+
+-}
 runTwilio' :: IO String  -- ^ Account SID
            -> IO String  -- ^ Authentication Token
            -> Twilio a
@@ -225,8 +259,8 @@ class SID a where
     , all (\x -> isLower x || isNumber x) xs
     = Right $ unwrap (getSIDWrapper :: Wrapper (String -> a)) sid
     | otherwise
-    = Left $ InvalidAccountSID sid
-  parseSID str = Left $ InvalidAccountSID str
+    = Left $ InvalidSID sid
+  parseSID str = Left $ InvalidSID str
 
   -- | Parse a 'JSON' 'Value' to an instance of the 'SID'.
   parseJSONToSID :: Value -> Parser a
@@ -236,73 +270,109 @@ class SID a where
   parseJSONToSID _ = mzero
 
 -- | Account 'SID's begin with \"AC\".
-newtype AccountSID = AccountSID { getAccountSID :: String }
-  deriving (Show, Eq, Ord)
+newtype AccountSID = AccountSID {
+    -- | Get the 'String' representation of an 'AccountSID'.
+    getAccountSID :: String
+  } deriving (Show, Eq, Ord)
 
 instance SID AccountSID where
   getSIDWrapper = wrap AccountSID
   getPrefix = Const ('A', 'C')
   getSID = getAccountSID
 
+-- | Parse a 'String' to an 'AccountSID'.
+parseAccountSID :: String -> Either TwilioException AccountSID
+parseAccountSID = parseSID
+
 instance FromJSON AccountSID where
   parseJSON = parseJSONToSID
 
 -- | Application 'SID's begin with \"AP\".
-newtype ApplicationSID = ApplicationSID { getApplicationSID :: String }
-  deriving (Show, Eq, Ord)
+newtype ApplicationSID = ApplicationSID {
+    -- | Get the 'String' representation of an 'ApplicationSID'.
+    getApplicationSID :: String
+  } deriving (Show, Eq, Ord)
 
 instance SID ApplicationSID where
   getSIDWrapper = wrap ApplicationSID
   getPrefix = Const ('A', 'P')
   getSID = getApplicationSID
 
+-- | Parse a 'String' to an 'ApplicationSID'.
+parseApplicationSID :: String -> Either TwilioException ApplicationSID
+parseApplicationSID = parseSID
+
 instance FromJSON ApplicationSID where
   parseJSON = parseJSONToSID
 
 -- | Call 'SID's begin with \"CA\".
-newtype CallSID = CallSID { getCallSID :: String }
-  deriving (Show, Eq, Ord)
+newtype CallSID = CallSID {
+    -- | Get the 'String' representation of a 'CallSID'.
+    getCallSID :: String
+  } deriving (Show, Eq, Ord)
 
 instance SID CallSID where
   getSIDWrapper = wrap CallSID
   getPrefix = Const ('C', 'A')
   getSID = getCallSID
 
+-- | Parse a 'String' to a 'CallSID'.
+parseCallSID :: String -> Either TwilioException CallSID
+parseCallSID = parseSID
+
 instance FromJSON CallSID where
   parseJSON = parseJSONToSID
 
 -- | Connect App 'SID's begin with \"CN\".
-newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: String }
-  deriving (Show, Eq, Ord)
+newtype ConnectAppSID = ConnectAppSID {
+    -- | Get the 'String' representation of a 'ConnectAppSID'.
+    getConnectAppSID :: String
+  } deriving (Show, Eq, Ord)
 
 instance SID ConnectAppSID where
   getSIDWrapper = wrap ConnectAppSID
   getPrefix = Const ('C', 'N')
   getSID = getConnectAppSID
 
+-- | Parse a 'String' to a 'ConnectAppSID'.
+parseConnectAppSID :: String -> Either TwilioException ConnectAppSID
+parseConnectAppSID = parseSID
+
 instance FromJSON ConnectAppSID where
   parseJSON = parseJSONToSID
 
 -- | Message 'SID's begin with \"MM\".
-newtype MessageSID = MessageSID { getMessageSID :: String }
-  deriving (Show, Eq, Ord)
+newtype MessageSID = MessageSID {
+    -- | Get the 'String' representation of a 'MessageSID'.
+    getMessageSID :: String
+  } deriving (Show, Eq, Ord)
 
 instance SID MessageSID where
   getSIDWrapper = wrap MessageSID
   getPrefix = Const ('S', 'M')
   getSID = getMessageSID
 
+-- | Parse a 'String' to a 'MessageSID'.
+parseMessageSID :: String -> Either TwilioException MessageSID
+parseMessageSID = parseSID
+
 instance FromJSON MessageSID where
   parseJSON = parseJSONToSID
 
 -- | Phone number 'SID's begin with \"PN\".
-newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: String }
-  deriving (Show, Eq, Ord)
+newtype PhoneNumberSID = PhoneNumberSID {
+    -- | Get the 'String' representation of a 'PhoneNumberSID'.
+    getPhoneNumberSID :: String
+  } deriving (Show, Eq, Ord)
 
 instance SID PhoneNumberSID where
   getSIDWrapper = wrap PhoneNumberSID
   getPrefix = Const ('P', 'N')
   getSID = getPhoneNumberSID
+
+-- | Parse a 'String' to a 'PhoneNumberSID'.
+parsePhoneNumberSID :: String -> Either TwilioException PhoneNumberSID
+parsePhoneNumberSID = parseSID
 
 instance FromJSON PhoneNumberSID where
   parseJSON = parseJSONToSID
@@ -418,17 +488,17 @@ instance FromJSON PriceUnit where
   parseJSON _ = mzero
 
 data APIVersion
-  = API20100401
-  | API20080801
+  = API_2010_04_01
+  | API_2008_08_01
   deriving Eq
 
 instance Show APIVersion where
-  show API20100401 = "2010-04-01"
-  show API20080801 = "2008-08-01"
+  show API_2010_04_01 = "2010-04-01"
+  show API_2008_08_01 = "2008-08-01"
 
 instance FromJSON APIVersion where
-  parseJSON (String "2010-04-01") = return API20100401
-  parseJSON (String "2008-08-01") = return API20080801
+  parseJSON (String "2010-04-01") = return API_2010_04_01
+  parseJSON (String "2008-08-01") = return API_2008_08_01
   parseJSON _ = mzero
 
 data CallStatus
