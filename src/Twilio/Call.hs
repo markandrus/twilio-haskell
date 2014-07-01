@@ -55,6 +55,10 @@ data Call = Call
   , apiVersion     :: !APIVersion
   } deriving (Show, Eq)
 
+maybeParseSID str = case parseSID str of
+  Left  _   -> Nothing
+  Right sid -> Just sid
+
 instance FromJSON Call where
   parseJSON (Object v) = Call
     <$>  v .: "sid"
@@ -65,7 +69,7 @@ instance FromJSON Call where
     <*>  v .: "to"               <&> filterEmpty
     <*>  v .: "from"
     <*> (v .: "phone_number_sid" <&> filterEmpty
-                                 <&> (=<<) parseSID)
+                                 <&> (=<<) maybeParseSID)
     <*>  v .: "status"
     <*> (v .: "start_time"       >>= parseDateTime)
     <*> (v .: "end_time"         <&> (=<<) parseDateTime)

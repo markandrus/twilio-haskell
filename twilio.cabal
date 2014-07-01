@@ -32,6 +32,7 @@ library
   build-depends:       aeson ==0.7.*,
                        base ==4.6.*,
                        bytestring ==0.10.*,
+                       exceptions ==0.6.*,
                        http-client ==0.2.*,
                        http-client-tls ==0.2.*,
                        mtl ==2.*,

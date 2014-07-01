@@ -14,17 +14,16 @@ Example
 You can create a REST API client and fetch the calls resources as follows
 
 ```hs
-import           System.Environment
-import qualified Twilio.Call        as Call
-import           Twilio.Types
+import Control.Monad.IO.Class (liftIO)
+import System.Environment (getEnv)
+import qualified Twilio.Call as Call
+import Twilio.Types
 
+-- | Print calls.
 main :: IO ()
-  accountSID <- getEnv "ACCOUNT_SID"
-  authToken  <- getEnv "AUTH_TOKEN"
-  let Just credentials = parseCredentials accountSID authToken
-  runTwilio credentials $ do
-    calls <- Call.calls
-    liftIO $ print calls
+main = runTwilio (getEnv "ACCOUNT_SID")
+                 (getEnv "AUTH_TOKEN")
+     $ Call.calls >>= liftIO . print
 ```
 
 TODO

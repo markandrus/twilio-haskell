@@ -24,9 +24,9 @@ data Client = Client
   , authToken  :: !AuthToken }
   deriving (Show, Eq)
 
-client :: String -> String -> Maybe Client
+client :: String -> String -> Either TwilioException Client
 client accountSID authToken = uncurry (liftM2 Client)
-  (parseSID accountSID :: Maybe AccountSID, parseAuthToken authToken)
+  (parseSID accountSID :: Either TwilioException AccountSID, parseAuthToken authToken)
 
 baseURL :: String
 baseURL = "https://api.twilio.com/2010-04-01"

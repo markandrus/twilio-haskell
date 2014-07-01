@@ -1,5 +1,7 @@
 {- LANGUAGE DeriveFunctor #-}
+{-#LANGUAGE DeriveDataTypeable #-}
 {-#LANGUAGE FlexibleInstances #-}
+{-#LANGUAGE FlexibleContexts #-}
 {-#LANGUAGE FunctionalDependencies #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
@@ -11,9 +13,13 @@ module Twilio.Types
   ( -- * Twilio Monad
     Twilio
   , runTwilio
+  , runTwilio'
     -- * Twilio Monad Transformer
   , TwilioT
   , runTwilioT
+  , runTwilioT'
+    -- * Twilio Exceptions
+  , TwilioException(..)
     -- * Credentials
   , Credentials
   , parseCredentials
@@ -50,7 +56,9 @@ module Twilio.Types
   ) where
 
 import Control.Applicative
+import Control.Exception
 import Control.Monad (MonadPlus, liftM2, mzero)
+import Control.Monad.Catch
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
 import Control.Monad.Trans.Class
@@ -64,11 +72,22 @@ import Data.Text (pack, unpack)
 import Data.Time.Format (parseTime)
 import Data.Time.Clock (UTCTime)
 import Debug.Trace (trace)
+import Data.Typeable
 import Network.HTTP.Client (Request, applyBasicAuth, brConsume, newManager,
   parseUrl, responseBody, withResponse)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
+
+-- | The set of 'Exception's that may be thrown when attempting to make
+-- requests against Twilio's REST API.
+data TwilioException
+  = InvalidAccountSID  !String
+  | InvalidAuthToken   !String
+  | InvalidCredentials !Credentials
+  deriving (Show, Eq, Typeable)
+
+instance Exception TwilioException
 
 {- Twilio Monad and Monad Transformer -}
 
@@ -80,42 +99,63 @@ type Twilio = TwilioT IO
 runTwilio :: Credentials -> Twilio a -> IO a
 runTwilio = runTwilioT
 
+-- | Parse an account SID and authentication token before running zero or more
+-- REST API requests to Twilio.
+runTwilio' :: IO String  -- ^ Account SID
+           -> IO String  -- ^ Authentication Token
+           -> Twilio a
+           -> IO a
+runTwilio' = runTwilioT'
+
 -- | This monad transformer allows you to make authenticated REST API requests
 -- to Twilio using your 'AccountSID' and 'AuthToken'.
 newtype TwilioT m a
-  = TwilioT { runTwilioT' :: MonadIO m => Credentials -> m a }
---  deriving Functor
-
-instance Functor (TwilioT m) where
-  fmap f ma = TwilioT $ \credentials -> do
-    a <- runTwilioT' ma credentials
-    return $ f a
+  = TwilioT { _runTwilioT :: (MonadThrow m, MonadIO m) => Credentials -> m a }
 
 -- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
 -- @m@.
-runTwilioT :: MonadIO m => Credentials -> TwilioT m a -> m a
-runTwilioT = flip runTwilioT'
+runTwilioT :: (MonadThrow m, MonadIO m) => Credentials -> TwilioT m a -> m a
+runTwilioT = flip _runTwilioT
 
-instance Monad m => Monad (TwilioT m) where
-  return a = TwilioT (return . const a)
-  m >>= k = TwilioT $ \client -> do
-    a <- runTwilioT' m client
-    runTwilioT' (k a) client
+-- | Parse an account SID and authentication token before running zero or more
+-- REST API requests to Twilio, unwrapping the inner monad @m@.
+runTwilioT' :: (MonadThrow m, MonadIO m)
+            => m String     -- ^ Account SID
+            -> m String     -- ^ Authentication Token
+            -> TwilioT m a
+            -> m a
+runTwilioT' getAccountSID getAuthToken twilio = do
+  accountSID <- getAccountSID
+  authToken  <- getAuthToken
+  case parseCredentials accountSID authToken of
+    Left  exception   -> throw exception
+    Right credentials -> runTwilioT credentials twilio
+
+instance Functor (TwilioT m) where
+  fmap f ma = TwilioT $ \credentials -> do
+    a <- _runTwilioT ma credentials
+    return $ f a
 
 liftTwilioT :: m a -> TwilioT m a
 liftTwilioT m = TwilioT (const m)
 
 instance Applicative m => Applicative (TwilioT m) where
   pure = liftTwilioT . pure
-  f <*> v = TwilioT $ \r -> runTwilioT' f r <*> runTwilioT' v r
+  f <*> v = TwilioT $ \r -> _runTwilioT f r <*> _runTwilioT v r
 
 instance Alternative m => Alternative (TwilioT m) where
   empty = liftTwilioT empty
-  m <|> n = TwilioT $ \r -> runTwilioT' m r <|> runTwilioT' n r
+  m <|> n = TwilioT $ \r -> _runTwilioT m r <|> _runTwilioT n r
+
+instance Monad m => Monad (TwilioT m) where
+  return a = TwilioT (return . const a)
+  m >>= k = TwilioT $ \client -> do
+    a <- _runTwilioT m client
+    _runTwilioT (k a) client
 
 instance Monad m => MonadReader Credentials (TwilioT m) where
   ask = TwilioT return
-  local f m = TwilioT $ runTwilioT' m . f
+  local f m = TwilioT $ _runTwilioT m . f
 
 instance MonadTrans TwilioT where
   lift m = TwilioT $ const m
@@ -133,9 +173,10 @@ type Credentials = (AccountSID, AuthToken)
 parseCredentials
   :: String             -- ^ Account SID
   -> String             -- ^ Authentication Token
-  -> Maybe Credentials
+  -> Either TwilioException Credentials
 parseCredentials accountSID authToken = uncurry (liftM2 (,))
-  (parseSID accountSID :: Maybe AccountSID, parseAuthToken authToken)
+  ( parseSID accountSID :: Either TwilioException AccountSID
+  , parseAuthToken authToken )
 
 -- | Your authentication token is used to make authenticated REST API requests
 -- to your Twilio account.
@@ -147,16 +188,19 @@ getAuthToken :: AuthToken -> String
 getAuthToken = getAuthToken'
 
 -- | Parse a 'String' to an 'AuthToken'.
-parseAuthToken :: String -> Maybe AuthToken
+parseAuthToken :: String -> Either TwilioException AuthToken
 parseAuthToken token
   | length token == 32
   , all (\x -> isLower x || isNumber x) token
-  = Just $ AuthToken token
+  = Right $ AuthToken token
   | otherwise
-  = Nothing
+  = Left $ InvalidAuthToken token
+
+maybeReturnE (Left _) = mzero
+maybeReturnE (Right a) = return a
 
 instance FromJSON AuthToken where
-  parseJSON (String v) = maybeReturn . parseAuthToken $ unpack v
+  parseJSON (String v) = maybeReturnE . parseAuthToken $ unpack v
   parseJSON _ = mzero
 
 {- System Identifiers (SIDs) -}
@@ -174,21 +218,21 @@ class SID a where
   getSID :: a -> String
 
   -- | Parse a 'String' to an instance of the 'SID'.
-  parseSID :: String -> Maybe a
+  parseSID :: String -> Either TwilioException a
   parseSID sid@(a:b:xs)
     | (a, b) == getConst (getPrefix :: Const (Char, Char) a)
     , length xs == 32
     , all (\x -> isLower x || isNumber x) xs
-    = Just $ unwrap (getSIDWrapper :: Wrapper (String -> a)) sid
+    = Right $ unwrap (getSIDWrapper :: Wrapper (String -> a)) sid
     | otherwise
-    = Nothing
-  parseSID _ = Nothing
+    = Left $ InvalidAccountSID sid
+  parseSID str = Left $ InvalidAccountSID str
 
   -- | Parse a 'JSON' 'Value' to an instance of the 'SID'.
   parseJSONToSID :: Value -> Parser a
   parseJSONToSID (String v) = case parseSID (unpack v) of
-    Just sid -> return sid
-    Nothing  -> mzero
+    Right sid -> return sid
+    Left  _   -> mzero
   parseJSONToSID _ = mzero
 
 -- | Account 'SID's begin with \"AC\".

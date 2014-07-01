@@ -1,6 +1,7 @@
 module Twilio
   ( Twilio
   , runTwilio
+  , runTwilio'
   , Credentials
   , parseCredentials
   ) where
@@ -8,6 +9,7 @@ module Twilio
 import Twilio.Types
   ( Twilio
   , runTwilio
+  , runTwilio'
   , Credentials
   , parseCredentials
   )
