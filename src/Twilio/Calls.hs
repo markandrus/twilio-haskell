@@ -1,9 +1,8 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.Call
-  ( calls
-  , calls'
+module Twilio.Calls
+  ( get
   , Call(..)
   , CallSID
   , Calls(..)
@@ -23,12 +22,8 @@ import Data.Maybe
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
-calls :: Client -> IO Calls
-calls client = runRequest client $
-  Client.accountBaseURL (Client.accountSID client) ++ "/Calls.json"
-
-calls' :: Twilio Calls
-calls' = do
+get :: Twilio Calls
+get = do
   (accountSID, _) <- ask
   request $ Client.accountBaseURL accountSID ++ "/Calls.json"
 

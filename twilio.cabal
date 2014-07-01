@@ -20,7 +20,7 @@ library
   exposed-modules:     Twilio,
                        Twilio.Account,
                        Twilio.Application,
-                       Twilio.Call,
+                       Twilio.Calls,
                        Twilio.Client,
                        Twilio.ConnectApp,
                        Twilio.Message,
