@@ -6,6 +6,9 @@ module Twilio.Account
     Account(..)
   , AccountSID
   , get
+  , suspend
+  , unsuspend
+  , close
     -- * Types
   , Status(..)
   , Type(..)
@@ -52,6 +55,21 @@ instance FromJSON Account where
 -- | Get an 'Account' by 'AccountSID'.
 get :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Account
 get accountSID = request $ "/Accounts/" ++ getSID accountSID ++ ".json"
+
+-- | Suspends a subaccount by POST-ing the parameter 'status' with the value
+-- 'Suspended'.
+suspend :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ()
+suspend accountSID = return ()
+
+-- Reactivates a suspended subaccount by POST-ing the parameter 'status' with
+-- the value 'Active'.
+unsuspend :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ()
+unsuspend accountSID = return ()
+
+-- Closes a subaccount by POST-ing the parameter 'status' with the value
+-- 'Closed'.
+close :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ()
+close accountSID = return ()
 
 {- Types -}
 

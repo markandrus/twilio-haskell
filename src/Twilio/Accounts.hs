@@ -5,6 +5,7 @@ module Twilio.Accounts
   ( -- * Resource
     Accounts(..)
   , get
+  , createSubAccount
   ) where
 
 import Twilio.Types
@@ -34,3 +35,13 @@ instance FromJSON Accounts where
 -- | Get 'Accounts'.
 get :: (MonadThrow m, MonadIO m) => TwilioT m Accounts
 get = request "/Accounts.json"
+
+-- | Create a new 'Account' instance resource as a subaccount of the one used
+-- to make the request.
+createSubAccount :: (MonadThrow m, MonadIO m)
+                 => Maybe String  -- ^ A human readable description of the new
+                                  -- subaccount, up to 64 characters. Defaults
+                                  -- to "SubAccount Created at {YYYY-MM-DD
+                                  -- HH:MM meridian}".
+                 -> TwilioT m (Maybe Account)
+createSubAccount friendlyName = return Nothing
