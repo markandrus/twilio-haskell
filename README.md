@@ -28,10 +28,11 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
      $ Calls.get >>= liftIO . print
 ```
 
-TODO
-----
+Contributing
+------------
 
-* Continue adding resources.
-* Eventually separate resources from the methods used to retrieve the resources?
-* Add query filters for lists.
-* Add subresources.
+Feel free to contribute to any of the open [issues]
+(https://github.com/markandrus/twilio-haskell/issues), bugfixes, etc. When you
+think you're ready to merge, ensure the tests are passing and open a pull
+request. If you are adding new functionality, please include new tests as well.
+Finally, add yourself to the `AUTHORS` file.
