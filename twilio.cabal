@@ -2,7 +2,7 @@ name:                twilio
 version:             0.1.0.0
 synopsis:            Twilio REST API library for Haskell
 description:         This package exports bindings to Twilio's REST API (<https://www.twilio.com/docs/api/rest>). While we would like to have a complete binding to Twilio's REST API, this package is being developed on demand. If you need something that has not been implemented yet, please send a pull request or file an issue on GitHub (<https://github.com/markandrus/twilio-haskell>).
-homepage:            https://github.com/markandrus/twiml-haskell
+homepage:            https://github.com/markandrus/twilio-haskell
 license:             BSD3
 license-file:        LICENSE
 author:              Mark Andrus Roberts
@@ -36,31 +36,29 @@ library
                        Twilio.UsageRecord
                        Twilio.UsageRecords
   hs-source-dirs:      src
-  build-depends:       aeson ==0.7.*,
+  build-depends:       aeson ==0.*,
                        base ==4.*,
                        bytestring ==0.10.*,
-                       exceptions ==0.6.*,
-                       http-client ==0.2.*,
+                       exceptions ==0.*,
+                       http-client ==0.*,
                        http-client-tls ==0.2.*,
                        mtl ==2.*,
                        network-uri >=2.6,
                        old-locale ==1.0.*,
-                       text ==0.11.*,
+                       text ==1.*,
                        time ==1.4.*,
-                       transformers ==0.3.*,
-                       twiml ==0.1.*
+                       transformers ==0.3.*
 
 test-suite Tests
   hs-source-dirs:      test
   main-is:             Test.hs
   Type:                exitcode-stdio-1.0
-  build-depends:       aeson ==0.7.*,
+  build-depends:       aeson ==0.*,
                        base ==4.*,
                        bytestring ==0.10.*,
                        Cabal >=1.16.0,
-                       http-client ==0.2.*,
+                       http-client ==0.*,
                        http-client-tls ==0.2.*,
-                       text ==0.11.*,
+                       text ==1.*,
                        transformers ==0.3.*,
-                       twilio,
-                       twiml ==0.1.*
+                       twilio
