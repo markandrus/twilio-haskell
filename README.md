@@ -1,6 +1,8 @@
 twilio
 ======
 
+[![twilio-haskell on Travis CI](https://travis-ci.org/markandrus/twilio-haskell.svg)](https://travis-ci.org/markandrus/twilio-haskell)
+
 This package provides a library for interacting with
 [Twilio's API](www.twilio.com/docs/api). Install using
 
