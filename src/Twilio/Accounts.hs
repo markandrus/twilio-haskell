@@ -32,12 +32,44 @@ instance List Accounts Account where
 instance FromJSON Accounts where
   parseJSON = parseJSONToList
 
--- | Get 'Accounts'.
+{- | Get 'Accounts'.
+
+For example, you can fetch the 'Accounts' resource in the 'IO' monad as follows:
+
+>module Main where
+>
+>import Control.Monad.IO.Class (liftIO)
+>import System.Environment (getEnv)
+>import Twilio.Accounts as Accounts
+>import Twilio.Types
+>
+>-- | Print accounts.
+>main :: IO ()
+>main = runTwilio' (getEnv "ACCOUNT_SID")
+>                  (getEnv "AUTH_TOKEN")
+>     $ Accounts.get >>= liftIO . print
+-}
 get :: (MonadThrow m, MonadIO m) => TwilioT m Accounts
 get = request "/Accounts.json"
 
--- | Create a new 'Account' instance resource as a subaccount of the one used
--- to make the request.
+{- | Create a new 'Account' instance resource as a subaccount of the one used
+to make the request.
+
+For example, you can create a subaccount, "foo", as follows:
+
+>module Main where
+>
+>import Control.Monad.IO.Class (liftIO)
+>import System.Environment (getEnv)
+>import Twilio.Accounts (createSubAccount)
+>import Twilio.Types
+>
+>-- | Create and print a subaccount, "foo".
+>main :: IO ()
+>main = runTwilio' (getEnv "ACCOUNT_SID")
+>                  (getEnv "AUTH_TOKEN")
+>     $ createSubAccount (Just "foo") >>= liftIO . print
+-}
 createSubAccount :: (MonadThrow m, MonadIO m)
                  => Maybe String  -- ^ A human readable description of the new
                                   -- subaccount, up to 64 characters. Defaults

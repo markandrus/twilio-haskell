@@ -32,7 +32,23 @@ instance List Calls Call where
 instance FromJSON Calls where
   parseJSON = parseJSONToList
 
--- | Get 'Calls'.
+{- | Get 'Calls'.
+
+For example, you can fetch the 'Calls' resource in the 'IO' monad as follows:
+
+>module Main where
+>
+>import Control.Monad.IO.Class (liftIO)
+>import System.Environment (getEnv)
+>import Twilio.Calls as Calls
+>import Twilio.Types
+>
+>-- | Print calls.
+>main :: IO ()
+>main = runTwilio' (getEnv "ACCOUNT_SID")
+>                  (getEnv "AUTH_TOKEN")
+>     $ Calls.get >>= liftIO . print
+-}
 get :: (MonadThrow m, MonadIO m) => TwilioT m Calls
 get = requestForAccount "/Calls.json"
 

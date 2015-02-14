@@ -32,7 +32,23 @@ instance List Applications Application where
 instance FromJSON Applications where
   parseJSON = parseJSONToList
 
--- | Get the 'Applications' for your account.
+{- | Get the 'Applications' for your account.
+
+For example, you can fetch the 'Applications' resource in the 'IO' monad as follows:
+
+>module Main where
+>
+>import Control.Monad.IO.Class (liftIO)
+>import System.Environment (getEnv)
+>import Twilio.Applications as Applications
+>import Twilio.Types
+>
+>-- | Print applications.
+>main :: IO ()
+>main = runTwilio' (getEnv "ACCOUNT_SID")
+>                  (getEnv "AUTH_TOKEN")
+>     $ Applications.get >>= liftIO . print
+-}
 get :: (MonadThrow m, MonadIO m) => TwilioT m Applications
 get = requestForAccount "/Applications.json"
 
