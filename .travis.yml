@@ -1,1 +1,2 @@
 language: haskell
+after_success: script/publish_haddock.sh
