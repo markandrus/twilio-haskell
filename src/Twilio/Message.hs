@@ -24,16 +24,16 @@ import Network.URI (URI, parseRelativeReference)
 {- Resource -}
 
 data Message = Message
-  { sid :: !MessageSID
+  { sid         :: !MessageSID
   , dateCreated :: !UTCTime
   , dateUpdated :: !UTCTime
   , dateSent    :: !UTCTime
   , accountSID  :: !AccountSID
-  , from        :: !String
   , to          :: !String
+  , from        :: !String
   , body        :: !String
---  , numSegments :: !Integer
   , status      :: !MessageStatus
+--  , numSegments :: !Integer
   , direction   :: !MessageDirection
 --  , price       :: !Double
   , priceUnit   :: !PriceUnit
@@ -48,12 +48,12 @@ instance FromJSON Message where
     <*> (v .: "date_updated" >>= parseDateTime)
     <*> (v .: "date_sent"    >>= parseDateTime)
     <*>  v .: "account_sid"
-    <*>  v .: "from"
     <*>  v .: "to"
+    <*>  v .: "from"
     <*>  v .: "body"
---    <*> (v .: "num_segments" <&> fmap safeRead
---                             >>= maybeReturn')
     <*>  v .: "status"
+--     <*> (v .: "num_segments" <&> fmap safeRead
+--                              >>= maybeReturn)
     <*>  v .: "direction"
 --    <*> (v .: "price"        <&> fmap safeRead
 --                             >>= maybeReturn')
@@ -103,19 +103,22 @@ data MessageStatus
   | Sent
   | Failed
   | Received
+  | Delivered
   deriving Eq
 
 instance Show MessageStatus where
-  show Queued   = "queued"
-  show Sending  = "sending"
-  show Sent     = "sent"
-  show Failed   = "failed"
-  show Received = "received"
+  show Queued    = "queued"
+  show Sending   = "sending"
+  show Sent      = "sent"
+  show Failed    = "failed"
+  show Received  = "received"
+  show Delivered = "delivered"
 
 instance FromJSON MessageStatus where
-  parseJSON (String "queued")   = return Queued
-  parseJSON (String "sending")  = return Sending
-  parseJSON (String "sent")     = return Sent
-  parseJSON (String "failed")   = return Failed
-  parseJSON (String "received") = return Received
+  parseJSON (String "queued")    = return Queued
+  parseJSON (String "sending")   = return Sending
+  parseJSON (String "sent")      = return Sent
+  parseJSON (String "failed")    = return Failed
+  parseJSON (String "received")  = return Received
+  parseJSON (String "delivered") = return Delivered
   parseJSON _ = mzero
