@@ -22,10 +22,10 @@ data UsageRecord = UsageRecord
   , accountSID  :: !AccountSID
   , startDate   :: !UTCTime
   , endDate     :: !UTCTime
-  , usage       :: !Integer
+  , usage       :: !Double
   , usageUnit   :: !String
-  , count       :: !String
-  , countUnit   :: !String
+  , count       :: !(Maybe Double)
+  , countUnit   :: !(Maybe String)
   , price       :: !Double
   , priceUnit   :: !PriceUnit
   , uri         :: !URI
@@ -36,13 +36,14 @@ instance FromJSON UsageRecord where
     <$>  v .: "category"
     <*>  v .: "description"
     <*>  v .: "account_sid"
-    <*> (v .: "start_date" >>= parseDateTime)
-    <*> (v .: "end_date"   >>= parseDateTime)
-    <*>  v .: "usage"
+    <*> (v .: "start_date" >>= parseDate)
+    <*> (v .: "end_date"   >>= parseDate)
+    <*> (v .: "usage"      >>= safeRead)
     <*>  v .: "usage_unit"
-    <*>  v .: "count"
-    <*>  v .: "count_unit"
-    <*>  v .: "price"
+    <*> (v .: "count"      <&> fmap safeRead
+                           >>= maybeReturn')
+    <*> (v .: "count_unit" <&> (=<<) filterEmpty)
+    <*> (v .: "price"      >>= safeRead)
     <*>  v .: "price_unit"
     <*> (v .: "uri"        <&> parseRelativeReference
                            >>= maybeReturn)

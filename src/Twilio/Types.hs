@@ -69,6 +69,7 @@ module Twilio.Types
   , wrap
   , (<&>)
   , filterEmpty
+  , parseDate
   , parseDateTime
   , safeRead
   , maybeReturn
@@ -643,6 +644,12 @@ wrap = Wrapper
 filterEmpty :: String -> Maybe String
 filterEmpty "" = Nothing
 filterEmpty s = Just s
+
+parseDate :: (Monad m, MonadPlus m) => String -> m UTCTime
+parseDate s =
+  case parseTime defaultTimeLocale "%F" s of
+    Just date -> return date
+    Nothing   -> mzero
 
 parseDateTime :: (Monad m, MonadPlus m) => String -> m UTCTime
 parseDateTime s =

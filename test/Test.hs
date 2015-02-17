@@ -27,8 +27,8 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   , ConnectApps.get       >>= liftIO . print
   , Messages.get          >>= liftIO . print
   , OutgoingCallerIDs.get >>= liftIO . print
-  , PhoneNumbers.get      >>= liftIO . print ]
-  -- , UsageRecords.get      >>= liftIO . print ]
+  , PhoneNumbers.get      >>= liftIO . print
+  , UsageRecords.get      >>= liftIO . print ]
 
 niam = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do
