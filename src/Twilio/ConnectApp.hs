@@ -23,15 +23,13 @@ import Network.URI (URI, parseURI, parseRelativeReference)
 
 data ConnectApp = ConnectApp
   { sid                       :: !ConnectAppSID
-  , dateCreated               :: !UTCTime
-  , dateUpdated               :: !UTCTime
   , accountSID                :: !AccountSID
 --  , permissions               :: !
   , friendlyName              :: !String
   , description               :: !String
   , companyName               :: !String
   , homepageURL               :: !(Maybe URI)
-  , authorizedRedirectURL     :: !(Maybe URI)
+  , authorizeRedirectURL      :: !(Maybe URI)
   , deauthorizeCallbackURL    :: !(Maybe URI)
 --  , deauthorizeCallbackMethod :: !String
   , uri                       :: !URI
@@ -40,8 +38,6 @@ data ConnectApp = ConnectApp
 instance FromJSON ConnectApp where
   parseJSON (Object v) = ConnectApp
     <$>  v .: "sid"
-    <*> (v .: "date_created" >>= parseDateTime)
-    <*> (v .: "date_updated" >>= parseDateTime)
     <*>  v .: "account_sid"
 --    <*>  v .: "permissions"
     <*>  v .: "friendly_name"
@@ -50,7 +46,7 @@ instance FromJSON ConnectApp where
     <*> (v .: "homepage_url"             <&> fmap filterEmpty
                                          <&> fmap (fmap parseURI)
                                          >>= maybeReturn'')
-    <*> (v .: "authorized_redirect_url"  <&> fmap filterEmpty
+    <*> (v .: "authorize_redirect_url"   <&> fmap filterEmpty
                                          <&> fmap (fmap parseURI)
                                          >>= maybeReturn'')
     <*> (v .: "deauthorize_callback_url" <&> fmap filterEmpty
