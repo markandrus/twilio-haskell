@@ -12,6 +12,8 @@ $ cabal install twilio
 
 Documentation soon to be available on Hackage. For now, see [markandrus.github.io/twilio-haskell](http://markandrus.github.io/twilio-haskell).
 
+For TwiML, see [twiml-haskell](http://markandrus.github.io/twilio-haskell).
+
 Example
 -------
 
