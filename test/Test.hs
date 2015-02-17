@@ -23,7 +23,7 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ sequence_
   [ Accounts.get          >>= liftIO . print
   , Applications.get      >>= liftIO . print
-  -- , Calls.get             >>= liftIO . print
+  , Calls.get             >>= liftIO . print
   -- , ConnectApps.get       >>= liftIO . print
   , Messages.get          >>= liftIO . print
   , OutgoingCallerIDs.get >>= liftIO . print ]
