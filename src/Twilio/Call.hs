@@ -69,7 +69,7 @@ instance FromJSON Call where
     <*>  v .: "price_unit"
     <*>  v .: "direction"
     <*>  v .: "answered_by"
-    <*>  v .: "forwarded_from"   <&> filterEmpty
+    <*>  v .: "forwarded_from"   <&> (=<<) filterEmpty
     <*>  v .: "caller_name"
     <*> (v .: "uri"              <&> parseRelativeReference
                                  >>= maybeReturn)
