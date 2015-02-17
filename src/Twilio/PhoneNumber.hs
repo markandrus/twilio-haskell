@@ -20,11 +20,11 @@ import Data.Aeson
 {- Resource -}
 
 data PhoneNumber = PhoneNumber
-  { sid          :: !PhoneNumberSID
-  , friendlyName :: !String
+  -- { sid          :: !PhoneNumberSID
+  { friendlyName :: !String
   , phoneNumber  :: !String
-  , lata         :: !Integer
-  , rateCenter   :: !String
+  , lata         :: !(Maybe Integer)
+  , rateCenter   :: !(Maybe String)
   , latitude     :: !(Maybe Double)
   , longitude    :: !(Maybe Double)
   , region       :: !String
@@ -34,10 +34,11 @@ data PhoneNumber = PhoneNumber
 
 instance FromJSON PhoneNumber where
   parseJSON (Object v) = PhoneNumber
-    <$>  v .: "sid"
-    <*>  v .: "friendly_name"
+    -- <$>  v .: "sid"
+    <$>  v .: "friendly_name"
     <*>  v .: "phone_number"
-    <*> (v .: "lata"         >>= safeRead)
+    <*> (v .: "lata"         <&> (=<<) safeRead
+                             >>= maybeReturn')
     <*>  v .: "rate_center"
     <*> (v .: "latitude"     <&> (=<<) safeRead
                              >>= maybeReturn')
