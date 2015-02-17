@@ -1,12 +1,9 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 
-module Twilio.PhoneNumber
+module Twilio.AvailablePhoneNumber
   ( -- * Resource
-    PhoneNumber(..)
-  , PhoneNumberSID
-  , get
-  , get'
+    AvailablePhoneNumber(..)
   ) where
 
 import Twilio.Types
@@ -19,8 +16,7 @@ import Data.Aeson
 
 {- Resource -}
 
-data PhoneNumber = PhoneNumber
-  -- { sid          :: !PhoneNumberSID
+data AvailablePhoneNumber = AvailablePhoneNumber
   { friendlyName :: !String
   , phoneNumber  :: !String
   , lata         :: !(Maybe Integer)
@@ -29,12 +25,11 @@ data PhoneNumber = PhoneNumber
   , longitude    :: !(Maybe Double)
   , region       :: !String
   , postalCode   :: !(Maybe Integer)
-  , isoCountry   :: !String
+  , isoCountry   :: !ISOCountryCode
   } deriving (Eq, Show)
 
-instance FromJSON PhoneNumber where
-  parseJSON (Object v) = PhoneNumber
-    -- <$>  v .: "sid"
+instance FromJSON AvailablePhoneNumber where
+  parseJSON (Object v) = AvailablePhoneNumber
     <$>  v .: "friendly_name"
     <*>  v .: "phone_number"
     <*> (v .: "lata"         <&> (=<<) safeRead
@@ -49,16 +44,3 @@ instance FromJSON PhoneNumber where
                              >>= maybeReturn')
     <*>  v .: "iso_country"
   parseJSON _ = mzero
-
--- | Get a 'PhoneNumber' by 'PhoneNumberSID'.
-get :: (MonadThrow m, MonadIO m) => PhoneNumberSID -> TwilioT m PhoneNumber
-get phoneNumberSID
-  = requestForAccount
-  $ "/AvailablePhoneNumbers/US/Local/" ++ getSID phoneNumberSID ++ ".json"
-
--- | Get an account's 'PhoneNumber' by 'PhoneNumberSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> PhoneNumberSID
-     -> TwilioT m PhoneNumber
-get' accountSID phoneNumberSID = forAccount accountSID $ get phoneNumberSID

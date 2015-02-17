@@ -22,6 +22,8 @@ library
                        Twilio.Accounts,
                        Twilio.Application,
                        Twilio.Applications,
+                       Twilio.AvailablePhoneNumber,
+                       Twilio.AvailablePhoneNumbers,
                        Twilio.Call,
                        Twilio.Calls,
                        Twilio.ConnectApp,
@@ -30,8 +32,6 @@ library
                        Twilio.Messages,
                        Twilio.OutgoingCallerID,
                        Twilio.OutgoingCallerIDs,
-                       Twilio.PhoneNumber,
-                       Twilio.PhoneNumbers,
                        Twilio.Types,
                        Twilio.UsageRecord
                        Twilio.UsageRecords
