@@ -26,6 +26,7 @@ data AvailablePhoneNumber = AvailablePhoneNumber
   , region       :: !String
   , postalCode   :: !(Maybe Integer)
   , isoCountry   :: !ISOCountryCode
+  , addressRequirements :: !(Maybe AddressRequirement)
   } deriving (Eq, Show)
 
 instance FromJSON AvailablePhoneNumber where
@@ -43,4 +44,25 @@ instance FromJSON AvailablePhoneNumber where
     <*> (v .: "postal_code"  <&> (=<<) safeRead
                              >>= maybeReturn')
     <*>  v .: "iso_country"
+    <*>  v .: "address_requirements"
+  parseJSON _ = mzero
+
+data AddressRequirement
+  = None
+  | Any
+  | Local
+  | Foreign
+  deriving (Bounded, Enum, Eq, Ord)
+
+instance Show AddressRequirement where
+  show None    = "none"
+  show Any     = "any"
+  show Local   = "local"
+  show Foreign = "foreign"
+
+instance FromJSON AddressRequirement where
+  parseJSON (String "none")    = return None
+  parseJSON (String "any")     = return Any
+  parseJSON (String "local")   = return Local
+  parseJSON (String "foreign") = return Foreign
   parseJSON _ = mzero
