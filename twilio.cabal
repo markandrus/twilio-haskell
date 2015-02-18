@@ -32,6 +32,8 @@ library
                        Twilio.Messages,
                        Twilio.OutgoingCallerID,
                        Twilio.OutgoingCallerIDs,
+                       Twilio.Transcription,
+                       Twilio.Transcriptions,
                        Twilio.Types,
                        Twilio.UsageRecord
                        Twilio.UsageRecords
