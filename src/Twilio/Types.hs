@@ -57,6 +57,14 @@ module Twilio.Types
   , PhoneNumberSID
   , getPhoneNumberSID
   , parsePhoneNumberSID
+    -- ** Transcription SID
+  , TranscriptionSID
+  , getTranscriptionSID
+  , parseTranscriptionSID
+    -- ** Recording SID
+  , RecordingSID
+  , getRecordingSID
+  , parseRecordingSID
     -- * List Resources
   , List(..)
   , PagingInformation(..)
@@ -445,6 +453,42 @@ parsePhoneNumberSID :: String -> Either TwilioException PhoneNumberSID
 parsePhoneNumberSID = parseSID
 
 instance FromJSON PhoneNumberSID where
+  parseJSON = parseJSONToSID
+
+-- | Transcription 'SID's begin with \"TR\".
+newtype TranscriptionSID = TranscriptionSID {
+    -- | Get the 'String' representation of a 'TranscriptionSID'.
+    getTranscriptionSID :: String
+  } deriving (Show, Eq, Ord)
+
+instance SID TranscriptionSID where
+  getSIDWrapper = wrap TranscriptionSID
+  getPrefix = Const ('T', 'R')
+  getSID = getTranscriptionSID
+
+-- | Parse a 'String' to a 'TranscriptionSID'.
+parseTranscriptionSID :: String -> Either TwilioException TranscriptionSID
+parseTranscriptionSID = parseSID
+
+instance FromJSON TranscriptionSID where
+  parseJSON = parseJSONToSID
+
+-- | Recording 'SID's begin with \"RE\".
+newtype RecordingSID = RecordingSID {
+    -- | Get the 'String' representation of a 'RecordingSID'.
+    getRecordingSID :: String
+  } deriving (Show, Eq, Ord)
+
+instance SID RecordingSID where
+  getSIDWrapper = wrap RecordingSID
+  getPrefix = Const ('R', 'E')
+  getSID = getRecordingSID
+
+-- | Parse a 'String' to a 'RecordingSID'.
+parseRecordingSID :: String -> Either TwilioException RecordingSID
+parseRecordingSID = parseSID
+
+instance FromJSON RecordingSID where
   parseJSON = parseJSONToSID
 
 {- List Resources -}

@@ -12,6 +12,7 @@ import Twilio.Messages              as Messages
 import Twilio.OutgoingCallerIDs     as OutgoingCallerIDs
 import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
 import Twilio.UsageRecords          as UsageRecords
+import Twilio.Transcriptions        as Transcriptions
 
 import Control.Monad (forM_)
 -- import Control.Monad (sequence_)
@@ -21,6 +22,7 @@ import System.Environment (getEnv)
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ sequence_
+
   [ Accounts.get                 >>= liftIO . print
   , Applications.get             >>= liftIO . print
   , Calls.get                    >>= liftIO . print
@@ -28,7 +30,8 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   , Messages.get                 >>= liftIO . print
   , OutgoingCallerIDs.get        >>= liftIO . print
   , AvailablePhoneNumbers.get US >>= liftIO . print
-  , UsageRecords.get             >>= liftIO . print ]
+  , UsageRecords.get             >>= liftIO . print
+  , Transcriptions.get           >>= liftIO . print ]
 
 niam = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do
