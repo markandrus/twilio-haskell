@@ -13,6 +13,10 @@ import Control.Monad (mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import qualified Data.HashMap.Strict as HashMap
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Data.Text (pack)
 
 {- Resource -}
 
@@ -27,6 +31,7 @@ data AvailablePhoneNumber = AvailablePhoneNumber
   , postalCode   :: !(Maybe Integer)
   , isoCountry   :: !ISOCountryCode
   , addressRequirements :: !(Maybe AddressRequirement)
+  , capabilities        :: !(Set Capability)
   } deriving (Eq, Show)
 
 instance FromJSON AvailablePhoneNumber where
@@ -45,6 +50,7 @@ instance FromJSON AvailablePhoneNumber where
                              >>= maybeReturn')
     <*>  v .: "iso_country"
     <*>  v .: "address_requirements"
+    <*>  v .: "capabilities" <&> parseCapabilitiesFromJSON
   parseJSON _ = mzero
 
 data AddressRequirement
@@ -66,3 +72,21 @@ instance FromJSON AddressRequirement where
   parseJSON (String "local")   = return Local
   parseJSON (String "foreign") = return Foreign
   parseJSON _ = mzero
+
+data Capability
+  = Voice
+  | SMS
+  | MMS
+  deriving (Bounded, Enum, Eq, Ord, Read, Show)
+
+parseCapabilitiesFromJSON :: Value -> Set Capability
+parseCapabilitiesFromJSON (Object map)
+  = let map' = fmap (\value -> case value of
+                      Bool bool     -> bool
+                      _             -> False) map
+    in  foldr (\capability set ->
+          if HashMap.lookupDefault False (pack $ show capability) map'
+            then Set.insert capability set
+            else set
+        ) Set.empty [Voice, SMS, MMS]
+parseCapabilitiesFromJSON _ = Set.empty

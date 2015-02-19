@@ -41,6 +41,7 @@ library
   build-depends:       aeson ==0.*,
                        base ==4.*,
                        bytestring ==0.10.*,
+                       containers ==0.5.*,
                        exceptions ==0.*,
                        http-client ==0.*,
                        http-client-tls ==0.2.*,
@@ -49,7 +50,8 @@ library
                        old-locale ==1.0.*,
                        text ==1.*,
                        time ==1.4.*,
-                       transformers ==0.3.*
+                       transformers ==0.3.*,
+                       unordered-containers ==0.2.*
 
 test-suite Tests
   hs-source-dirs:      test
