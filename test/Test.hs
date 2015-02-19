@@ -11,6 +11,7 @@ import Twilio.ConnectApps           as ConnectApps
 import Twilio.Messages              as Messages
 import Twilio.OutgoingCallerIDs     as OutgoingCallerIDs
 import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
+import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
 import Twilio.UsageRecords          as UsageRecords
 import Twilio.Transcriptions        as Transcriptions
 
@@ -30,6 +31,7 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   , Messages.get                 >>= liftIO . print
   , OutgoingCallerIDs.get        >>= liftIO . print
   , AvailablePhoneNumbers.get US >>= liftIO . print
+  , IncomingPhoneNumbers.get     >>= liftIO . print
   , UsageRecords.get             >>= liftIO . print
   , Transcriptions.get           >>= liftIO . print ]
 

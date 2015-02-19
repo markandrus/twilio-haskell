@@ -85,6 +85,11 @@ module Twilio.Types
   , maybeReturn''
     -- * Misc
   , ISOCountryCode(..)
+  , AddressRequirement(..)
+  , Capabilities
+  , Capability(..)
+  , parseCapabilitiesFromJSON
+  , NonEmptyString(getNonEmptyString)
   ) where
 
 import Control.Applicative
@@ -99,7 +104,10 @@ import Data.Aeson.Types (Parser)
 import qualified Data.ByteString.Char8 as C
 import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isLower, isNumber)
+import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromJust)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Data.Text (pack, unpack)
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (parseTime)
@@ -353,6 +361,11 @@ newtype AccountSID = AccountSID {
     getAccountSID :: String
   } deriving (Show, Eq, Ord)
 
+instance Read AccountSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
+
 instance SID AccountSID where
   getSIDWrapper = wrap AccountSID
   getPrefix = Const ('A', 'C')
@@ -370,6 +383,11 @@ newtype ApplicationSID = ApplicationSID {
     -- | Get the 'String' representation of an 'ApplicationSID'.
     getApplicationSID :: String
   } deriving (Show, Eq, Ord)
+
+instance Read ApplicationSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
 
 instance SID ApplicationSID where
   getSIDWrapper = wrap ApplicationSID
@@ -389,6 +407,11 @@ newtype CallSID = CallSID {
     getCallSID :: String
   } deriving (Show, Eq, Ord)
 
+instance Read CallSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
+
 instance SID CallSID where
   getSIDWrapper = wrap CallSID
   getPrefix = Const ('C', 'A')
@@ -406,6 +429,11 @@ newtype ConnectAppSID = ConnectAppSID {
     -- | Get the 'String' representation of a 'ConnectAppSID'.
     getConnectAppSID :: String
   } deriving (Show, Eq, Ord)
+
+instance Read ConnectAppSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
 
 instance SID ConnectAppSID where
   getSIDWrapper = wrap ConnectAppSID
@@ -425,6 +453,11 @@ newtype MessageSID = MessageSID {
     getMessageSID :: String
   } deriving (Show, Eq, Ord)
 
+instance Read MessageSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
+
 instance SID MessageSID where
   getSIDWrapper = wrap MessageSID
   getPrefix = Const ('S', 'M')
@@ -442,6 +475,11 @@ newtype PhoneNumberSID = PhoneNumberSID {
     -- | Get the 'String' representation of a 'PhoneNumberSID'.
     getPhoneNumberSID :: String
   } deriving (Show, Eq, Ord)
+
+instance Read PhoneNumberSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
 
 instance SID PhoneNumberSID where
   getSIDWrapper = wrap PhoneNumberSID
@@ -461,6 +499,11 @@ newtype TranscriptionSID = TranscriptionSID {
     getTranscriptionSID :: String
   } deriving (Show, Eq, Ord)
 
+instance Read TranscriptionSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
+
 instance SID TranscriptionSID where
   getSIDWrapper = wrap TranscriptionSID
   getPrefix = Const ('T', 'R')
@@ -478,6 +521,11 @@ newtype RecordingSID = RecordingSID {
     -- | Get the 'String' representation of a 'RecordingSID'.
     getRecordingSID :: String
   } deriving (Show, Eq, Ord)
+
+instance Read RecordingSID where
+  readsPrec _ = \s -> case parseSID s of
+    Left  _   -> []
+    Right sid -> [(sid, "")]
 
 instance SID RecordingSID where
   getSIDWrapper = wrap RecordingSID
@@ -605,6 +653,12 @@ data APIVersion
   = API_2010_04_01
   | API_2008_08_01
   deriving Eq
+
+instance Read APIVersion where
+  readsPrec _ = \s -> case s of
+    "2010-04-01" -> return (API_2010_04_01, "")
+    "2008-08-01" -> return (API_2008_08_01, "")
+    _            -> mzero
 
 instance Show APIVersion where
   show API_2010_04_01 = "2010-04-01"
@@ -759,4 +813,59 @@ data ISOCountryCode
 
 instance FromJSON ISOCountryCode where
   parseJSON (String v) = safeRead $ unpack v
+  parseJSON _ = mzero
+
+data AddressRequirement
+  = None
+  | Any
+  | Local
+  | Foreign
+  deriving (Bounded, Enum, Eq, Ord)
+
+instance Read AddressRequirement where
+  readsPrec _ = \s -> case s of
+    "none"    -> return (None, "none")
+    "any"     -> return (None, "any")
+    "local"   -> return (None, "local")
+    "foreign" -> return (None, "foregin")
+    _         -> mzero
+
+instance Show AddressRequirement where
+  show None    = "none"
+  show Any     = "any"
+  show Local   = "local"
+  show Foreign = "foreign"
+
+instance FromJSON AddressRequirement where
+  parseJSON (String "none")    = return None
+  parseJSON (String "any")     = return Any
+  parseJSON (String "local")   = return Local
+  parseJSON (String "foreign") = return Foreign
+  parseJSON _ = mzero
+
+data Capability
+  = Voice
+  | SMS
+  | MMS
+  deriving (Bounded, Enum, Eq, Ord, Read, Show)
+
+parseCapabilitiesFromJSON :: Value -> Capabilities
+parseCapabilitiesFromJSON (Object map)
+  = let map' = fmap (\value -> case value of
+                      Bool bool     -> bool
+                      _             -> False) map
+    in  foldr (\capability set ->
+          if HashMap.lookupDefault False (pack $ show capability) map'
+            then Set.insert capability set
+            else set
+        ) Set.empty [Voice, SMS, MMS]
+parseCapabilitiesFromJSON _ = Set.empty
+
+type Capabilities = Set Capability
+
+newtype NonEmptyString = NonEmptyString { getNonEmptyString :: Maybe String }
+
+instance FromJSON NonEmptyString where
+  parseJSON (String "") = return $ NonEmptyString Nothing
+  parseJSON (String v) = return . NonEmptyString . Just $ unpack v
   parseJSON _ = mzero

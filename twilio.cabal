@@ -28,6 +28,8 @@ library
                        Twilio.Calls,
                        Twilio.ConnectApp,
                        Twilio.ConnectApps,
+                       Twilio.IncomingPhoneNumber,
+                       Twilio.IncomingPhoneNumbers,
                        Twilio.Message,
                        Twilio.Messages,
                        Twilio.OutgoingCallerID,
