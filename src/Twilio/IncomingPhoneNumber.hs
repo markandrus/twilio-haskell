@@ -62,7 +62,7 @@ instance FromJSON IncomingPhoneNumber where
     <*>  v .: "voice_caller_id_lookup"
     <*> (v .: "voice_url" <&> getNonEmptyString)
     <*>  v .: "voice_method"
-    <*> (v .: "voice_fallback_url" <&> getNonEmptyString)
+    <*> (v .: "voice_fallback_url" <&> (join . fmap getNonEmptyString))
     <*>  v .: "voice_fallback_method"
     <*> (v .: "status_callback"  <&> getNonEmptyString)
     <*>  v .: "status_callback_method"
