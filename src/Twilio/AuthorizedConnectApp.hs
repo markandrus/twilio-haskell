@@ -50,12 +50,12 @@ instance FromJSON AuthorizedConnectApp where
                                          >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get a 'ConnectApp' by 'ConnectAppSID'.
+-- | Get an 'AuthorizedConnectApp' by 'ConnectAppSID'.
 get :: (MonadThrow m, MonadIO m) => ConnectAppSID -> TwilioT m AuthorizedConnectApp
 get connectAppSID
   = requestForAccount $ "/AuthorizedConnectApps/" ++ getSID connectAppSID ++ ".json"
 
--- | Get an account's 'ConnectApp' by 'ConnectAppSID'.
+-- | Get an 'AuthorizedConnectApp' for an account by 'ConnectAppSID'.
 get' :: (MonadThrow m, MonadIO m)
      => AccountSID
      -> ConnectAppSID

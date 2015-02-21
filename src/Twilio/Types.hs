@@ -35,6 +35,7 @@ module Twilio.Types
   , SID(getSID, parseSID)
     -- ** Resources
   , AccountSID
+  , AddressSID
   , ApplicationSID
   , CallSID
   , ConnectAppSID

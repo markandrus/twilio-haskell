@@ -12,6 +12,7 @@ module Twilio.Types.SID
     SID(getSID, parseSID)
     -- ** Instances
   , AccountSID
+  , AddressSID
   , ApplicationSID
   , CallSID
   , ConnectAppSID
@@ -30,6 +31,9 @@ import Data.Text
 import GHC.Generics
 
 newtype AccountSID = AccountSID { getAccountSID :: String }
+  deriving (Eq, Generic, Ord, Read, Show, Typeable)
+
+newtype AddressSID = AddressSID { getAddressSID :: String }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
 newtype ApplicationSID = ApplicationSID { getApplicationSID :: String }
@@ -60,6 +64,15 @@ instance FromJSON AccountSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON AccountSID where
+  toJSON = sidToJSON
+
+instance SID AddressSID where
+  getPrefix = Const ('A', 'D')
+
+instance FromJSON AddressSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON AddressSID where
   toJSON = sidToJSON
 
 instance SID ApplicationSID where
