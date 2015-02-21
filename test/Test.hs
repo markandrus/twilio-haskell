@@ -6,6 +6,7 @@ import Twilio.Types
 import Twilio.Account               as Account
 import Twilio.Accounts              as Accounts
 import Twilio.Applications          as Applications
+import Twilio.AuthorizedConnectApps as AuthorizedConnectApps
 import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
 import Twilio.Calls                 as Calls
 import Twilio.ConnectApps           as ConnectApps
@@ -27,6 +28,7 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
 
   [ Accounts.get                 >>= liftIO . print
   , Applications.get             >>= liftIO . print
+  , AuthorizedConnectApps.get    >>= liftIO . print
   , AvailablePhoneNumbers.get US >>= liftIO . print
   , Calls.get                    >>= liftIO . print
   , ConnectApps.get              >>= liftIO . print

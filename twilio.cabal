@@ -22,6 +22,8 @@ library
                        Twilio.Accounts,
                        Twilio.Application,
                        Twilio.Applications,
+                       Twilio.AuthorizedConnectApp,
+                       Twilio.AuthorizedConnectApps,
                        Twilio.AvailablePhoneNumber,
                        Twilio.AvailablePhoneNumbers,
                        Twilio.Call,
