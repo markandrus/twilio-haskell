@@ -6,14 +6,15 @@ import Twilio.Types
 import Twilio.Account               as Account
 import Twilio.Accounts              as Accounts
 import Twilio.Applications          as Applications
+import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
 import Twilio.Calls                 as Calls
 import Twilio.ConnectApps           as ConnectApps
+import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
 import Twilio.Messages              as Messages
 import Twilio.OutgoingCallerIDs     as OutgoingCallerIDs
-import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
-import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
-import Twilio.UsageRecords          as UsageRecords
+import Twilio.Recordings            as Recordings
 import Twilio.Transcriptions        as Transcriptions
+import Twilio.UsageRecords          as UsageRecords
 
 import Control.Monad (forM_)
 -- import Control.Monad (sequence_)
@@ -26,14 +27,15 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
 
   [ Accounts.get                 >>= liftIO . print
   , Applications.get             >>= liftIO . print
+  , AvailablePhoneNumbers.get US >>= liftIO . print
   , Calls.get                    >>= liftIO . print
   , ConnectApps.get              >>= liftIO . print
+  , IncomingPhoneNumbers.get     >>= liftIO . print
   , Messages.get                 >>= liftIO . print
   , OutgoingCallerIDs.get        >>= liftIO . print
-  , AvailablePhoneNumbers.get US >>= liftIO . print
-  , IncomingPhoneNumbers.get     >>= liftIO . print
   , UsageRecords.get             >>= liftIO . print
-  , Transcriptions.get           >>= liftIO . print ]
+  , Transcriptions.get           >>= liftIO . print
+  , Recordings.get               >>= liftIO . print ]
 
 niam = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do

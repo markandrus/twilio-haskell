@@ -66,12 +66,12 @@ instance FromJSON IncomingPhoneNumber where
     <*>  v .: "voice_fallback_method"
     <*> (v .: "status_callback"  <&> getNonEmptyString)
     <*>  v .: "status_callback_method"
-    <*> (v .: "voice_application_sid" <&> (join . fmap parseSID' . getNonEmptyString))
+    <*> (v .: "voice_application_sid" <&> (join . fmap parseSID . getNonEmptyString))
     <*> (v .: "sms_url"          <&> getNonEmptyString)
     <*>  v .: "sms_method"
     <*> (v .: "sms_fallback_url" <&> getNonEmptyString)
     <*>  v .: "sms_fallback_method"
-    <*> (v .: "sms_application_sid" <&> (join . fmap parseSID' . getNonEmptyString))
+    <*> (v .: "sms_application_sid" <&> (join . fmap parseSID . getNonEmptyString))
     <*> (v .: "capabilities" <&> parseCapabilitiesFromJSON)
     <*>  v .: "address_requirements"
     <*> (v .: "uri"              <&> parseRelativeReference
@@ -85,8 +85,3 @@ get phoneNumberSID = requestForAccount $ "/IncomingPhoneNumbers/" ++ getSID phon
 -- | Get an 'IncomingPhoneNumber' for an account by 'PhoneNumberSID'.
 get' :: (MonadThrow m, MonadIO m) => AccountSID -> PhoneNumberSID -> TwilioT m IncomingPhoneNumber
 get' accountSID phoneNumberSID = forAccount accountSID $ get phoneNumberSID
-
-parseSID' :: SID a => String -> Maybe a
-parseSID' s = case parseSID s of
-  Left  _   -> Nothing
-  Right sid -> Just sid

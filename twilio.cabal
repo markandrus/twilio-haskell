@@ -35,14 +35,18 @@ library
                        Twilio.OutgoingCallerID,
                        Twilio.OutgoingCallerIDs,
                        Twilio.Tokens
+                       Twilio.Recording,
+                       Twilio.Recordings,
                        Twilio.Transcription,
                        Twilio.Transcriptions,
                        Twilio.Types,
+                       Twilio.Types.SID,
                        Twilio.UsageRecord
                        Twilio.UsageRecords
   hs-source-dirs:      src
   build-depends:       aeson ==0.*,
                        base ==4.*,
+                       bifunctors ==4.*,
                        bytestring ==0.10.*,
                        containers ==0.5.*,
                        exceptions ==0.*,

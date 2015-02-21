@@ -27,44 +27,21 @@ module Twilio.Types
     -- * Credentials
   , Credentials
   , parseCredentials
-    -- ** Account SID
-  , AccountSID
-  , getAccountSID
-  , parseAccountSID
     -- ** Authentication Token
   , AuthToken
   , getAuthToken
   , parseAuthToken
     -- * System Identifiers (SIDs)
   , SID(getSID, parseSID)
-    -- ** Application SID
+    -- ** Resources
+  , AccountSID
   , ApplicationSID
-  , getApplicationSID
-  , parseApplicationSID
-    -- ** Call SID
   , CallSID
-  , getCallSID
-  , parseCallSID
-    -- ** Connect App SID
   , ConnectAppSID
-  , getConnectAppSID
-  , parseConnectAppSID
-    -- ** Message SID
   , MessageSID
-  , getMessageSID
-  , parseMessageSID
-    -- ** Phone Number SID
   , PhoneNumberSID
-  , getPhoneNumberSID
-  , parsePhoneNumberSID
-    -- ** Transcription SID
   , TranscriptionSID
-  , getTranscriptionSID
-  , parseTranscriptionSID
-    -- ** Recording SID
   , RecordingSID
-  , getRecordingSID
-  , parseRecordingSID
     -- * List Resources
   , List(..)
   , PagingInformation(..)
@@ -119,12 +96,14 @@ import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
 
+import Twilio.Types.SID
+
 -- | The set of 'Exception's that may be thrown when attempting to make
 -- requests against Twilio's REST API.
 data TwilioException
   = InvalidSID         !String
   | InvalidAuthToken   !String
-  | InvalidCredentials !Credentials
+  | InvalidCredentials
   deriving (Show, Eq, Typeable)
 
 instance Exception TwilioException
@@ -189,8 +168,8 @@ runTwilioT' getAccountSID getAuthToken twilio = do
   accountSID <- getAccountSID
   authToken  <- getAuthToken
   case parseCredentials accountSID authToken of
-    Left  exception   -> throw exception
-    Right credentials -> runTwilioT credentials twilio
+    Nothing -> throw InvalidCredentials
+    Just credentials -> runTwilioT credentials twilio
 
 instance Functor (TwilioT m) where
   fmap f ma = TwilioT $ \credentials -> do
@@ -293,9 +272,9 @@ type Credentials = (AccountSID, AuthToken)
 parseCredentials
   :: String             -- ^ Account SID
   -> String             -- ^ Authentication Token
-  -> Either TwilioException Credentials
+  -> Maybe Credentials
 parseCredentials accountSID authToken = uncurry (liftM2 (,))
-  ( parseSID accountSID :: Either TwilioException AccountSID
+  ( parseSID accountSID :: Maybe AccountSID
   , parseAuthToken authToken )
 
 -- | Your authentication token is used to make authenticated REST API requests
@@ -308,236 +287,23 @@ getAuthToken :: AuthToken -> String
 getAuthToken = getAuthToken'
 
 -- | Parse a 'String' to an 'AuthToken'.
-parseAuthToken :: String -> Either TwilioException AuthToken
-parseAuthToken token
+parseAuthToken :: String -> Maybe AuthToken
+parseAuthToken = parseAuthToken'
+
+parseAuthToken' :: MonadPlus m => String -> m AuthToken
+parseAuthToken' token
   | length token == 32
   , all (\x -> isLower x || isNumber x) token
-  = Right $ AuthToken token
+  = return $ AuthToken token
   | otherwise
-  = Left $ InvalidAuthToken token
+  = mzero
 
 maybeReturnE (Left _) = mzero
 maybeReturnE (Right a) = return a
 
 instance FromJSON AuthToken where
-  parseJSON (String v) = maybeReturnE . parseAuthToken $ unpack v
+  parseJSON (String v) = parseAuthToken' $ unpack v
   parseJSON _ = mzero
-
-{- System Identifiers (SIDs) -}
-
--- | 'SID's are 34 characters long and begin with two capital letters.
-class SID a where
-
-  -- | Get the 'wrap'ped constructor of the 'SID'.
-  getSIDWrapper :: Wrapper (String -> a)
-
-  -- | Get the two capital letters that prefix the 'SID'.
-  getPrefix :: Const (Char, Char) a
-
-  -- | Get the 'String' representation of the 'SID'.
-  getSID :: a -> String
-
-  -- | Parse a 'String' to an instance of the 'SID'.
-  parseSID :: String -> Either TwilioException a
-  parseSID sid@(a:b:xs)
-    | (a, b) == getConst (getPrefix :: Const (Char, Char) a)
-    , length xs == 32
-    , all (\x -> isLower x || isNumber x) xs
-    = Right $ unwrap (getSIDWrapper :: Wrapper (String -> a)) sid
-    | otherwise
-    = Left $ InvalidSID sid
-  parseSID str = Left $ InvalidSID str
-
-  -- | Parse a 'JSON' 'Value' to an instance of the 'SID'.
-  parseJSONToSID :: Value -> Parser a
-  parseJSONToSID (String v) = case parseSID (unpack v) of
-    Right sid -> return sid
-    Left  _   -> mzero
-  parseJSONToSID _ = mzero
-
--- | Account 'SID's begin with \"AC\".
-newtype AccountSID = AccountSID {
-    -- | Get the 'String' representation of an 'AccountSID'.
-    getAccountSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read AccountSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID AccountSID where
-  getSIDWrapper = wrap AccountSID
-  getPrefix = Const ('A', 'C')
-  getSID = getAccountSID
-
--- | Parse a 'String' to an 'AccountSID'.
-parseAccountSID :: String -> Either TwilioException AccountSID
-parseAccountSID = parseSID
-
-instance FromJSON AccountSID where
-  parseJSON = parseJSONToSID
-
--- | Application 'SID's begin with \"AP\".
-newtype ApplicationSID = ApplicationSID {
-    -- | Get the 'String' representation of an 'ApplicationSID'.
-    getApplicationSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read ApplicationSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID ApplicationSID where
-  getSIDWrapper = wrap ApplicationSID
-  getPrefix = Const ('A', 'P')
-  getSID = getApplicationSID
-
--- | Parse a 'String' to an 'ApplicationSID'.
-parseApplicationSID :: String -> Either TwilioException ApplicationSID
-parseApplicationSID = parseSID
-
-instance FromJSON ApplicationSID where
-  parseJSON = parseJSONToSID
-
--- | Call 'SID's begin with \"CA\".
-newtype CallSID = CallSID {
-    -- | Get the 'String' representation of a 'CallSID'.
-    getCallSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read CallSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID CallSID where
-  getSIDWrapper = wrap CallSID
-  getPrefix = Const ('C', 'A')
-  getSID = getCallSID
-
--- | Parse a 'String' to a 'CallSID'.
-parseCallSID :: String -> Either TwilioException CallSID
-parseCallSID = parseSID
-
-instance FromJSON CallSID where
-  parseJSON = parseJSONToSID
-
--- | Connect App 'SID's begin with \"CN\".
-newtype ConnectAppSID = ConnectAppSID {
-    -- | Get the 'String' representation of a 'ConnectAppSID'.
-    getConnectAppSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read ConnectAppSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID ConnectAppSID where
-  getSIDWrapper = wrap ConnectAppSID
-  getPrefix = Const ('C', 'N')
-  getSID = getConnectAppSID
-
--- | Parse a 'String' to a 'ConnectAppSID'.
-parseConnectAppSID :: String -> Either TwilioException ConnectAppSID
-parseConnectAppSID = parseSID
-
-instance FromJSON ConnectAppSID where
-  parseJSON = parseJSONToSID
-
--- | Message 'SID's begin with \"MM\".
-newtype MessageSID = MessageSID {
-    -- | Get the 'String' representation of a 'MessageSID'.
-    getMessageSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read MessageSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID MessageSID where
-  getSIDWrapper = wrap MessageSID
-  getPrefix = Const ('S', 'M')
-  getSID = getMessageSID
-
--- | Parse a 'String' to a 'MessageSID'.
-parseMessageSID :: String -> Either TwilioException MessageSID
-parseMessageSID = parseSID
-
-instance FromJSON MessageSID where
-  parseJSON = parseJSONToSID
-
--- | Phone number 'SID's begin with \"PN\".
-newtype PhoneNumberSID = PhoneNumberSID {
-    -- | Get the 'String' representation of a 'PhoneNumberSID'.
-    getPhoneNumberSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read PhoneNumberSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID PhoneNumberSID where
-  getSIDWrapper = wrap PhoneNumberSID
-  getPrefix = Const ('P', 'N')
-  getSID = getPhoneNumberSID
-
--- | Parse a 'String' to a 'PhoneNumberSID'.
-parsePhoneNumberSID :: String -> Either TwilioException PhoneNumberSID
-parsePhoneNumberSID = parseSID
-
-instance FromJSON PhoneNumberSID where
-  parseJSON = parseJSONToSID
-
--- | Transcription 'SID's begin with \"TR\".
-newtype TranscriptionSID = TranscriptionSID {
-    -- | Get the 'String' representation of a 'TranscriptionSID'.
-    getTranscriptionSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read TranscriptionSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID TranscriptionSID where
-  getSIDWrapper = wrap TranscriptionSID
-  getPrefix = Const ('T', 'R')
-  getSID = getTranscriptionSID
-
--- | Parse a 'String' to a 'TranscriptionSID'.
-parseTranscriptionSID :: String -> Either TwilioException TranscriptionSID
-parseTranscriptionSID = parseSID
-
-instance FromJSON TranscriptionSID where
-  parseJSON = parseJSONToSID
-
--- | Recording 'SID's begin with \"RE\".
-newtype RecordingSID = RecordingSID {
-    -- | Get the 'String' representation of a 'RecordingSID'.
-    getRecordingSID :: String
-  } deriving (Show, Eq, Ord)
-
-instance Read RecordingSID where
-  readsPrec _ = \s -> case parseSID s of
-    Left  _   -> []
-    Right sid -> [(sid, "")]
-
-instance SID RecordingSID where
-  getSIDWrapper = wrap RecordingSID
-  getPrefix = Const ('R', 'E')
-  getSID = getRecordingSID
-
--- | Parse a 'String' to a 'RecordingSID'.
-parseRecordingSID :: String -> Either TwilioException RecordingSID
-parseRecordingSID = parseSID
-
-instance FromJSON RecordingSID where
-  parseJSON = parseJSONToSID
 
 {- List Resources -}
 

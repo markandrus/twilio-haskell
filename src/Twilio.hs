@@ -8,8 +8,8 @@ module Twilio
   , parseCredentials
     -- ** Account SID
   , AccountSID
-  , getAccountSID
-  , parseAccountSID
+  , getSID
+  , parseSID
     -- ** Authentication Token
   , AuthToken
   , getAuthToken
