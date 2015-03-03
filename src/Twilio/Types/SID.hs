@@ -20,6 +20,7 @@ module Twilio.Types.SID
   , PhoneNumberSID
   , RecordingSID
   , TranscriptionSID
+  , UsageTriggerSID
   ) where
 
 import Control.Monad
@@ -55,6 +56,9 @@ newtype RecordingSID = RecordingSID { getRecordingSID :: String }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
 newtype TranscriptionSID = TranscriptionSID { getTranscriptionSID :: String }
+  deriving (Eq, Generic, Ord, Read, Show, Typeable)
+
+newtype UsageTriggerSID = UsageTriggerSID { getUsageTriggerSID :: String }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID AccountSID where
@@ -136,6 +140,15 @@ instance FromJSON TranscriptionSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON TranscriptionSID where
+  toJSON = sidToJSON
+
+instance SID UsageTriggerSID where
+  getPrefix = Const ('U', 'T')
+
+instance FromJSON UsageTriggerSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON UsageTriggerSID where
   toJSON = sidToJSON
 
 parseSID' :: (MonadPlus m, SID s) => String -> Const (m s) s

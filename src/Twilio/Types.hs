@@ -41,8 +41,9 @@ module Twilio.Types
   , ConnectAppSID
   , MessageSID
   , PhoneNumberSID
-  , TranscriptionSID
   , RecordingSID
+  , TranscriptionSID
+  , UsageTriggerSID
     -- * List Resources
   , List(..)
   , PagingInformation(..)
@@ -348,7 +349,7 @@ data PagingInformation = PagingInformation
     -- | The position in the overall list of the last item in this page.
   , end :: !Integer
     -- | The 'URI' of the current page.
-  , pageURI :: !URI
+  , pageURI :: !(Maybe URI)
     -- | The 'URI' for the first page of this list.
   , firstPageURI :: !(Maybe URI)
     -- | The 'URI' for the next page of this list.
@@ -368,8 +369,8 @@ instance FromJSON PagingInformation where
    <*>  v .: "total"
    <*>  v .: "start"
    <*>  v .: "end"
-   <*> (v .: "uri"               <&> parseRelativeReference
-                                 >>= maybeReturn)
+   <*> (v .: "uri"               <&> fmap parseRelativeReference
+                                 >>= maybeReturn')
    <*> (v .: "first_page_uri"    <&> fmap parseRelativeReference
                                  >>= maybeReturn')
    <*> (v .: "next_page_uri"     <&> fmap parseRelativeReference

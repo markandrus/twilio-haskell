@@ -36,7 +36,7 @@ data Call = Call
   , duration       :: !(Maybe Int)
   , price          :: !(Maybe Double)
   , priceUnit      :: !(Maybe PriceUnit)
-  , direction      :: !CallDirection
+  , direction      :: !(Maybe CallDirection)
   , answeredBy     :: !(Maybe AnsweredBy)
   , forwardedFrom  :: !(Maybe String)
   , callerName     :: !(Maybe String)
@@ -51,9 +51,9 @@ instance FromJSON Call where
     <*> (v .: "date_created"     >>= parseDateTime)
     <*> (v .: "date_updated"     >>= parseDateTime)
     <*>  v .: "account_sid"
-    <*>  v .: "to"               <&> filterEmpty
+    <*> (v .: "to"               <&> filterEmpty)
     <*>  v .: "from"
-    <*> (v .: "phone_number_sid" <&> filterEmpty
+    <*> (v .: "phone_number_sid" <&> (=<<) filterEmpty
                                  <&> (=<<) parseSID)
     <*>  v .: "status"
     <*> (v .: "start_time"       >>= parseDateTime)

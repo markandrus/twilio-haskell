@@ -45,8 +45,10 @@ library
                        Twilio.Transcriptions,
                        Twilio.Types,
                        Twilio.Types.SID,
-                       Twilio.UsageRecord
-                       Twilio.UsageRecords
+                       Twilio.UsageRecord,
+                       Twilio.UsageRecords,
+                       Twilio.UsageTrigger,
+                       Twilio.UsageTriggers
   hs-source-dirs:      src
   build-depends:       aeson ==0.*,
                        base ==4.*,
