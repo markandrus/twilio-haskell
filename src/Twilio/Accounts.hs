@@ -50,7 +50,7 @@ For example, you can fetch the 'Accounts' resource in the 'IO' monad as follows:
 >     $ Accounts.get >>= liftIO . print
 -}
 get :: (MonadThrow m, MonadIO m) => TwilioT m Accounts
-get = request "/Accounts.json"
+get = request "/Accounts.json" id
 
 {- | Create a new 'Account' instance resource as a subaccount of the one used
 to make the request.
