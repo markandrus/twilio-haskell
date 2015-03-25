@@ -27,7 +27,8 @@ data Message = Message
   { sid         :: !MessageSID
   , dateCreated :: !UTCTime
   , dateUpdated :: !UTCTime
-  , dateSent    :: !UTCTime
+  , dateSent    :: !(Maybe UTCTime)
+    -- ^ This will be Nothing if Twilio hasn't sent the message yet.
   , accountSID  :: !AccountSID
   , to          :: !String
   , from        :: !String
@@ -46,7 +47,7 @@ instance FromJSON Message where
     <$>  v .: "sid"
     <*> (v .: "date_created" >>= parseDateTime)
     <*> (v .: "date_updated" >>= parseDateTime)
-    <*> (v .: "date_sent"    >>= parseDateTime)
+    <*> (v .:? "date_sent" >>= parseMaybeDateTime)
     <*>  v .: "account_sid"
     <*>  v .: "to"
     <*>  v .: "from"

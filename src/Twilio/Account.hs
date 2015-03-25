@@ -54,7 +54,7 @@ instance FromJSON Account where
 
 -- | Get an 'Account' by 'AccountSID'.
 get :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Account
-get accountSID = request $ "/Accounts/" ++ getSID accountSID ++ ".json"
+get accountSID = request ("/Accounts/" ++ getSID accountSID ++ ".json") id
 
 -- | Suspends a subaccount by POST-ing the parameter 'status' with the value
 -- 'Suspended'.
