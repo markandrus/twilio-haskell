@@ -63,7 +63,7 @@ library
                        old-locale ==1.0.*,
                        text ==1.*,
                        time ==1.4.*,
-                       transformers ==0.3.*,
+                       transformers ==0.4.*,
                        unordered-containers ==0.2.*
 
 test-suite Tests
@@ -77,5 +77,5 @@ test-suite Tests
                        http-client ==0.*,
                        http-client-tls ==0.2.*,
                        text ==1.*,
-                       transformers ==0.3.*,
+                       transformers ==0.4.*,
                        twilio
