@@ -1,11 +1,12 @@
+{-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.AuthorizedConnectApp
   ( -- * Resource
     AuthorizedConnectApp(..)
   , ConnectAppSID
-  , get
-  , get'
+  , Twilio.AuthorizedConnectApp.get
   ) where
 
 import Twilio.Types
@@ -15,8 +16,12 @@ import Control.Monad (mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseURI, parseRelativeReference)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -50,14 +55,10 @@ instance FromJSON AuthorizedConnectApp where
                                          >>= maybeReturn)
   parseJSON _ = mzero
 
+instance Get1 ConnectAppSID AuthorizedConnectApp where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/AuthorizedConnectApps/" ++ sid ++ ".json")
+
 -- | Get an 'AuthorizedConnectApp' by 'ConnectAppSID'.
 get :: (MonadThrow m, MonadIO m) => ConnectAppSID -> TwilioT m AuthorizedConnectApp
-get connectAppSID
-  = requestForAccount $ "/AuthorizedConnectApps/" ++ getSID connectAppSID ++ ".json"
-
--- | Get an 'AuthorizedConnectApp' for an account by 'ConnectAppSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> ConnectAppSID
-     -> TwilioT m AuthorizedConnectApp
-get' accountSID connectAppSID = forAccount accountSID $ get connectAppSID
+get = Resource.get

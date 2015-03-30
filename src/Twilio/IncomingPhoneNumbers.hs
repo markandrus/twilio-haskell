@@ -4,8 +4,7 @@
 module Twilio.IncomingPhoneNumbers
   ( -- * Resource
     IncomingPhoneNumbers(..)
-  , get
-  , get'
+  , Twilio.IncomingPhoneNumbers.get
   ) where
 
 import Twilio.Types
@@ -15,6 +14,10 @@ import Control.Applicative (Const(Const))
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -30,13 +33,11 @@ instance List IncomingPhoneNumbers IncomingPhoneNumber where
 instance FromJSON IncomingPhoneNumbers where
   parseJSON = parseJSONToList
 
+instance Get0 IncomingPhoneNumbers where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/IncomingPhoneNumbers.json"
+
 -- | Get 'IncomingPhoneNumbers' for a particular country.
 get :: (MonadThrow m, MonadIO m)
     => TwilioT m IncomingPhoneNumbers
-get = requestForAccount "/IncomingPhoneNumbers.json"
-
--- | Get an account's 'IncomingPhoneNumbers' for a particular country.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> TwilioT m IncomingPhoneNumbers
-get' = flip forAccount get
+get = Resource.get

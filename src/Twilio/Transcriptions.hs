@@ -4,18 +4,20 @@
 module Twilio.Transcriptions
   ( -- * Resource
     Transcriptions(..)
-  , get
-  , get'
+  , Twilio.Transcriptions.get
   ) where
 
 import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-import Twilio.Transcription hiding (get, get')
+import Twilio.Transcription hiding (get)
 
 import Control.Applicative (Const(Const))
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 data Transcriptions = Transcriptions
@@ -31,10 +33,10 @@ instance List Transcriptions Transcription where
 instance FromJSON Transcriptions where
   parseJSON = parseJSONToList
 
+instance Get0 Transcriptions where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Transcriptions.json"
+
 -- | Get 'Transcriptions'.
 get :: (MonadThrow m, MonadIO m) => TwilioT m Transcriptions
-get = requestForAccount "/Transcriptions.json"
-
--- | Get an account's 'Transcriptions'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Transcriptions
-get' = flip forAccount get
+get = Resource.get

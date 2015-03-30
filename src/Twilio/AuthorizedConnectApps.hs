@@ -4,8 +4,7 @@
 module Twilio.AuthorizedConnectApps
   ( -- * Resource
     AuthorizedConnectApps(..)
-  , get
-  , get'
+  , Twilio.AuthorizedConnectApps.get
   ) where
 
 import Twilio.Types
@@ -16,6 +15,9 @@ import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -32,10 +34,10 @@ instance List AuthorizedConnectApps AuthorizedConnectApp where
 instance FromJSON AuthorizedConnectApps where
   parseJSON = parseJSONToList
 
+instance Get0 AuthorizedConnectApps where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/AuthorizedConnectApps.json"
+
 -- | Get 'AuthorizedConnectApps'.
 get :: (MonadThrow m, MonadIO m) => TwilioT m AuthorizedConnectApps
-get = requestForAccount "/AuthorizedConnectApps.json"
-
--- | Get an account's 'AuthorizedConnectApps'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m AuthorizedConnectApps
-get' = flip forAccount get
+get = Resource.get

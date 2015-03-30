@@ -4,8 +4,7 @@
 module Twilio.Calls
   ( -- * Resource
     Calls(..)
-  , get
-  , get'
+  , Twilio.Calls.get
   ) where
 
 import Twilio.Types
@@ -16,6 +15,9 @@ import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -31,6 +33,10 @@ instance List Calls Call where
 
 instance FromJSON Calls where
   parseJSON = parseJSONToList
+
+instance Get0 Calls where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Calls.json"
 
 {- | Get 'Calls'.
 
@@ -50,8 +56,4 @@ For example, you can fetch the 'Calls' resource in the 'IO' monad as follows:
 >     $ Calls.get >>= liftIO . print
 -}
 get :: (MonadThrow m, MonadIO m) => TwilioT m Calls
-get = requestForAccount "/Calls.json"
-
--- | Get an account's 'Calls'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Calls
-get' = flip forAccount get
+get = Resource.get

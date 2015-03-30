@@ -4,8 +4,7 @@
 module Twilio.Applications
   ( -- * Resource
     Applications(..)
-  , get
-  , get'
+  , Twilio.Applications.get
   ) where
 
 import Twilio.Types
@@ -16,6 +15,9 @@ import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -31,6 +33,9 @@ instance List Applications Application where
 
 instance FromJSON Applications where
   parseJSON = parseJSONToList
+
+instance Get0 Applications where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/Applications.json"
 
 {- | Get the 'Applications' for your account.
 
@@ -50,8 +55,4 @@ For example, you can fetch the 'Applications' resource in the 'IO' monad as foll
 >     $ Applications.get >>= liftIO . print
 -}
 get :: (MonadThrow m, MonadIO m) => TwilioT m Applications
-get = requestForAccount "/Applications.json"
-
--- | Get the 'Applications' for a sub-account of your account.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Applications
-get' = flip forAccount get
+get = Resource.get

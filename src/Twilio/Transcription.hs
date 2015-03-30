@@ -1,11 +1,11 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Transcription
   ( -- * Resource
     Transcription(..)
-  , get
-  , get'
+  , Twilio.Transcription.get
     -- * Types
   , PriceUnit(..)
   , TranscriptionStatus(..)
@@ -18,10 +18,15 @@ import Control.Monad (mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+
 {- Resource -}
+
 data Transcription = Transcription
   { sid                  :: !TranscriptionSID
   , dateCreated          :: !UTCTime
@@ -56,17 +61,13 @@ instance FromJSON Transcription where
                              >>= maybeReturn)
   parseJSON _ = mzero
 
+instance Get1 TranscriptionSID Transcription where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Transcriptions/" ++ sid ++ ".json")
+
 -- | Get a 'Transcription' by 'TranscriptionSID'.
 get :: (MonadThrow m, MonadIO m) => TranscriptionSID -> TwilioT m Transcription
-get transcriptionSID
-  = requestForAccount $ "/Transcriptions/" ++ getSID transcriptionSID ++ ".json"
-
--- | Get an account's 'Transcription' by 'TranscriptionSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> TranscriptionSID
-     -> TwilioT m Transcription
-get' accountSID transcriptionSID = forAccount accountSID $ get transcriptionSID
+get = Resource.get
 
 {- Types -}
 data TranscriptionStatus

@@ -1,12 +1,12 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Call
   ( -- * Resource
     Call(..)
   , CallSID
-  , get
-  , get'
+  , Twilio.Call.get
   ) where
 
 import Twilio.Types
@@ -16,8 +16,12 @@ import Control.Monad (mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -72,10 +76,10 @@ instance FromJSON Call where
     <*>  v .: "api_version"
   parseJSON _ = mzero
 
+instance Get1 CallSID Call where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Calls/" ++ sid ++ ".json")
+
 -- | Get a 'Call' by 'CallSID'.
 get :: (MonadThrow m, MonadIO m) => CallSID -> TwilioT m Call
-get callSID = requestForAccount $ "/Calls/" ++ getSID callSID ++ ".json"
-
--- | Get an account's 'Call' by 'CallSID'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> CallSID -> TwilioT m Call
-get' accountSID callSID = forAccount accountSID $ get callSID
+get = Resource.get

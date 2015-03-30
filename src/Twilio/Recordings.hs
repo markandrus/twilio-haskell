@@ -4,8 +4,7 @@
 module Twilio.Recordings
   ( -- * Resource
     Recordings(..)
-  , get
-  , get'
+  , Twilio.Recordings.get
   ) where
 
 import Twilio.Types hiding (CallStatus(..), CallDirection(..))
@@ -16,6 +15,9 @@ import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 data Recordings = Recordings
@@ -31,10 +33,10 @@ instance List Recordings Recording where
 instance FromJSON Recordings where
   parseJSON = parseJSONToList
 
+instance Get0 Recordings where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Recordings.json"
+
 -- | Get 'Recordings'.
 get :: (MonadThrow m, MonadIO m) => TwilioT m Recordings
-get = requestForAccount "/Recordings.json"
-
--- | Get an account's 'Recordings'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Recordings
-get' = flip forAccount get
+get = Resource.get

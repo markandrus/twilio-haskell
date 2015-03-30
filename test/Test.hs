@@ -42,9 +42,3 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   , Transcriptions.get           >>= liftIO . print
   , UsageRecords.get             >>= liftIO . print
   , UsageTriggers.get            >>= liftIO . print ]
-
-niam = runTwilio' (getEnv "ACCOUNT_SID")
-                  (getEnv "AUTH_TOKEN") $ do
-  subAccounts <- fmap getList Accounts.get
-  forM_ subAccounts $ \Account {Account.sid=subAccountSID} ->
-    forAccount subAccountSID Calls.get >>= liftIO . print

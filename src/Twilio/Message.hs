@@ -1,11 +1,11 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Message
   ( -- * Resource
     Message(..)
-  , get
-  , get'
+  , Twilio.Message.get
     -- * Types
   , MessageDirection(..)
   , MessageStatus(..)
@@ -18,8 +18,12 @@ import Control.Monad (mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -63,17 +67,13 @@ instance FromJSON Message where
                              >>= maybeReturn)
   parseJSON _ = mzero
 
+instance Get1 MessageSID Message where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Messages/" ++ sid ++ ".json")
+
 -- | Get a 'Message' by 'MessageSID'.
 get :: (MonadThrow m, MonadIO m) => MessageSID -> TwilioT m Message
-get messageSID
-  = requestForAccount $ "/Messages/" ++ getSID messageSID ++ ".json"
-
--- | Get an account's 'Message' by 'MessageSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> MessageSID
-     -> TwilioT m Message
-get' accountSID messageSID = forAccount accountSID $ get messageSID
+get = Resource.get
 
 {- Types -}
 

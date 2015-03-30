@@ -1,4 +1,5 @@
 {-#LANGUAGE DeriveDataTypeable #-}
+{-#LANGUAGE DeriveFunctor #-}
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE FlexibleContexts #-}
 {-#LANGUAGE FunctionalDependencies #-}
@@ -14,36 +15,20 @@ module Twilio.Types
   , runTwilio
   , runTwilio'
     -- * Twilio Monad Transformer
-  , TwilioT
+  , TwilioT(..)
   , runTwilioT
   , runTwilioT'
-    -- * Making Requests
-    -- $makingRequests
-  , forAccount
-  , request
-  , requestForAccount
-    -- * Twilio Exceptions
-  , TwilioException(..)
     -- * Credentials
   , Credentials
   , parseCredentials
+    -- * Twilio Exceptions
+  , TwilioException(..)
     -- ** Authentication Token
   , AuthToken
   , getAuthToken
   , parseAuthToken
-    -- * System Identifiers (SIDs)
-  , SID(getSID, parseSID)
-    -- ** Resources
-  , AccountSID
-  , AddressSID
-  , ApplicationSID
-  , CallSID
-  , ConnectAppSID
-  , MessageSID
-  , PhoneNumberSID
-  , RecordingSID
-  , TranscriptionSID
-  , UsageTriggerSID
+    -- ** String Identifier (SID)
+  , module Twilio.Types.SID
     -- * List Resources
   , List(..)
   , PagingInformation(..)
@@ -69,6 +54,8 @@ module Twilio.Types
   , Capability(..)
   , parseCapabilitiesFromJSON
   , NonEmptyString(getNonEmptyString)
+  , makeTwilioRequest
+  , makeTwilioRequest'
   ) where
 
 import Control.Applicative
@@ -76,6 +63,7 @@ import Control.Exception (Exception, throw)
 import Control.Monad (MonadPlus, liftM2, mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO(liftIO))
+import Control.Monad.Reader (runReader)
 import Control.Monad.Reader.Class (MonadReader(ask, local))
 import Control.Monad.Trans.Class (MonadTrans(lift))
 import Data.Aeson
@@ -92,13 +80,13 @@ import Data.Time.Clock (UTCTime)
 import Data.Time.Format (parseTime)
 import Data.Typeable (Typeable)
 import Debug.Trace (trace)
-import Network.HTTP.Client (applyBasicAuth, brConsume, newManager, parseUrl,
-  responseBody, withResponse)
+import Network.HTTP.Client
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Network.URI (URI, parseRelativeReference)
 import System.Locale (defaultTimeLocale)
 
 import Twilio.Types.SID
+import Twilio.Internal.Request
 
 -- | The set of 'Exception's that may be thrown when attempting to make
 -- requests against Twilio's REST API.
@@ -120,8 +108,8 @@ type Twilio = TwilioT IO
 runTwilio :: Credentials -> Twilio a -> IO a
 runTwilio = runTwilioT
 
-{- | Parse an account SID and authentication token before running zero or more
-REST API requests to Twilio.
+{- | Parse an 'AccountSID' and 'AuthToken' before running zero or more REST API
+requests to Twilio.
 
 For example, you can fetch the 'Calls' resource in the 'IO' monad as follows:
 
@@ -148,19 +136,23 @@ runTwilio' = runTwilioT'
 
 -- | This monad transformer allows you to make authenticated REST API requests
 -- to Twilio using your 'AccountSID' and 'AuthToken'.
-newtype TwilioT m a = TwilioT {
-    _runTwilioT :: (MonadThrow m, MonadIO m)
-                => (Credentials, AccountSID)
-                -> m a
-  }
+newtype TwilioT m a = TwilioT (Monad m => (Credentials, AccountSID) -> RequestT m a)
+
+getTwilioT (TwilioT f) = f
+
+instance Monad m => MonadRequest (TwilioT m) where
+  request uri go = TwilioT $ \credentials -> (request uri go)
 
 -- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
 -- @m@.
 runTwilioT :: (MonadThrow m, MonadIO m) => Credentials -> TwilioT m a -> m a
-runTwilioT credentials@(accountSID, _) = flip _runTwilioT (credentials, accountSID)
+runTwilioT credentials@(accountSID, authToken) (TwilioT runTwilioT) = do
+  let basicAuthCredentials = (getSID accountSID, getAuthToken authToken)
+  let requestM = runTwilioT (credentials, accountSID)
+  runRequest' basicAuthCredentials requestM
 
--- | Parse an account SID and authentication token before running zero or more
--- REST API requests to Twilio, unwrapping the inner monad @m@.
+-- | Parse an 'AccountSID' and 'AuthToken' before running zero or more REST API
+-- requests to Twilio, unwrapping the inner monad @m@.
 runTwilioT' :: (MonadThrow m, MonadIO m)
             => m String     -- ^ Account SID
             -> m String     -- ^ Authentication Token
@@ -175,32 +167,34 @@ runTwilioT' getAccountSID getAuthToken twilio = do
 
 instance Functor (TwilioT m) where
   fmap f ma = TwilioT $ \credentials -> do
-    a <- _runTwilioT ma credentials
+    a <- getTwilioT ma credentials
     return $ f a
 
 liftTwilioT :: m a -> TwilioT m a
-liftTwilioT m = TwilioT (const m)
+liftTwilioT m = TwilioT (const (lift m))
 
 instance Applicative m => Applicative (TwilioT m) where
   pure = liftTwilioT . pure
-  f <*> v = TwilioT $ \r -> _runTwilioT f r <*> _runTwilioT v r
+  f <*> v = TwilioT $ \r -> getTwilioT f r <*> getTwilioT v r
 
+{-
 instance Alternative m => Alternative (TwilioT m) where
   empty = liftTwilioT empty
-  m <|> n = TwilioT $ \r -> _runTwilioT m r <|> _runTwilioT n r
+  m <|> n = TwilioT $ \r -> getTwilioT m r <|> getTwilioT n r
+-}
 
 instance Monad m => Monad (TwilioT m) where
   return a = TwilioT (return . const a)
   m >>= k = TwilioT $ \client -> do
-    a <- _runTwilioT m client
-    _runTwilioT (k a) client
+    a <- getTwilioT m client
+    getTwilioT (k a) client
 
 instance Monad m => MonadReader (Credentials, AccountSID) (TwilioT m) where
   ask = TwilioT return
-  local f m = TwilioT $ _runTwilioT m . f
+  local f m = TwilioT $ getTwilioT m . f
 
 instance MonadTrans TwilioT where
-  lift m = TwilioT $ const m
+  lift m = TwilioT $ const (lift m)
 
 instance MonadIO m => MonadIO (TwilioT m) where
   liftIO = lift . liftIO
@@ -238,11 +232,9 @@ forAccount subAccountSID twilio = do
   (credentials, _) <- ask
   local (const (credentials, subAccountSID)) twilio
 
-baseURL :: String
-baseURL = "https://api.twilio.com/2010-04-01"
-
 -- | Given a relative resource URL, make an authenticated GET request to
 -- Twilio. /You should never need to use this function directly./
+{-
 request :: (MonadIO m, FromJSON a) => String -> TwilioT m a
 request resourceURL = do
   manager <- liftIO (newManager tlsManagerSettings)
@@ -255,14 +247,15 @@ request resourceURL = do
     bs <- LBS.fromChunks <$> brConsume (responseBody response)
     putStrLn . C.unpack $ LBS.toStrict bs
     return . fromJust $ decode bs
+-}
 
 -- | Given a relative resource URL, make an authenticated GET request to
 -- Twilio for the specified account.
 -- /You should never need to use this function directly./
 requestForAccount :: (MonadIO m, FromJSON a) => String -> TwilioT m a
-requestForAccount resourceURL = do
-  (_, subAccountSID) <- ask
-  request ("/Accounts/" ++ getSID subAccountSID ++ resourceURL)
+requestForAccount = undefined -- resourceURL = do
+--  (_, subAccountSID) <- ask
+--  request ("/Accounts/" ++ getSID subAccountSID ++ resourceURL)
 
 {- Credentials -}
 
@@ -637,3 +630,15 @@ instance FromJSON NonEmptyString where
   parseJSON (String "") = return $ NonEmptyString Nothing
   parseJSON (String v) = return . NonEmptyString . Just $ unpack v
   parseJSON _ = mzero
+
+makeTwilioRequest' :: Monad m => String -> TwilioT m Request
+makeTwilioRequest' suffix = do
+  ((accountSID, authToken), _) <- ask
+  let Just request = parseUrl (baseURL ++ suffix)
+  return $ applyBasicAuth (C.pack $ getSID accountSID)
+                          (C.pack $ getAuthToken authToken) request
+
+makeTwilioRequest :: Monad m => String -> TwilioT m Request
+makeTwilioRequest suffix = do
+  ((_, _), accountSID) <- ask
+  makeTwilioRequest' $ "/Accounts/" ++ getSID accountSID ++ suffix

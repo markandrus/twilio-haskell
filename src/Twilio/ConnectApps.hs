@@ -4,18 +4,20 @@
 module Twilio.ConnectApps
   ( -- * Resource
     ConnectApps(..)
-  , get
-  , get'
+  , Twilio.ConnectApps.get
   ) where
 
 import Twilio.Types
-import Twilio.ConnectApp hiding (get, get')
+import Twilio.ConnectApp
 
 import Control.Applicative (Const(Const))
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -32,10 +34,9 @@ instance List ConnectApps ConnectApp where
 instance FromJSON ConnectApps where
   parseJSON = parseJSONToList
 
+instance Get0 ConnectApps where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/ConnectApps.json"
+
 -- | Get 'ConnectApps'.
 get :: (MonadThrow m, MonadIO m) => TwilioT m ConnectApps
-get = requestForAccount "/ConnectApps.json"
-
--- | Get an account's 'ConnectApps'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ConnectApps
-get' = flip forAccount get
+get = Resource.get

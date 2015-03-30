@@ -1,21 +1,27 @@
+{-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE RankNTypes #-}
 
 module Twilio.Accounts
   ( -- * Resource
     Accounts(..)
-  , get
+  , Twilio.Accounts.get
   , createSubAccount
   ) where
 
 import Twilio.Types
 import Twilio.Account hiding (get)
 
-import Control.Applicative (Const(Const))
+import Control.Applicative (Const(Const), (<$>))
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+import Network.URI
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -31,6 +37,9 @@ instance List Accounts Account where
 
 instance FromJSON Accounts where
   parseJSON = parseJSONToList
+
+instance Get0 Accounts where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest' "/Accounts.json"
 
 {- | Get 'Accounts'.
 
@@ -49,8 +58,8 @@ For example, you can fetch the 'Accounts' resource in the 'IO' monad as follows:
 >                  (getEnv "AUTH_TOKEN")
 >     $ Accounts.get >>= liftIO . print
 -}
-get :: (MonadThrow m, MonadIO m) => TwilioT m Accounts
-get = request "/Accounts.json"
+get :: forall m. Monad m => TwilioT m Accounts
+get = Resource.get
 
 {- | Create a new 'Account' instance resource as a subaccount of the one used
 to make the request.

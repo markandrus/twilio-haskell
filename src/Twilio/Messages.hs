@@ -1,11 +1,11 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Messages
   ( -- * Resource
     Messages(..)
-  , get
-  , get'
+  , Twilio.Messages.get
   ) where
 
 import Twilio.Types hiding (CallStatus(..), CallDirection(..))
@@ -16,6 +16,9 @@ import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -32,10 +35,10 @@ instance List Messages Message where
 instance FromJSON Messages where
   parseJSON = parseJSONToList
 
+instance Get0 Messages where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Messages.json"
+
 -- | Get 'Messages'.
 get :: (MonadThrow m, MonadIO m) => TwilioT m Messages
-get = requestForAccount "/Messages.json"
-
--- | Get an account's 'Messages'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Messages
-get' = flip forAccount get
+get = Resource.get

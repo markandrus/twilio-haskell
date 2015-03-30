@@ -1,11 +1,11 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.AvailablePhoneNumbers
   ( -- * Resource
     AvailablePhoneNumbers(..)
-  , get
-  , get'
+  , Twilio.AvailablePhoneNumbers.get
   ) where
 
 import Twilio.Types
@@ -15,6 +15,10 @@ import Control.Applicative (Const(Const))
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -30,17 +34,12 @@ instance List AvailablePhoneNumbers AvailablePhoneNumber where
 instance FromJSON AvailablePhoneNumbers where
   parseJSON = parseJSONToList
 
+instance Get1 ISOCountryCode AvailablePhoneNumbers where
+  get1 (show -> isoCountryCode) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/AvailablePhoneNumbers/" ++ isoCountryCode ++ "/Local.json")
+
 -- | Get 'AvailablePhoneNumbers' for a particular country.
 get :: (MonadThrow m, MonadIO m)
     => ISOCountryCode
     -> TwilioT m AvailablePhoneNumbers
-get isoCountryCode
-  = requestForAccount
-  $ "/AvailablePhoneNumbers/" ++ show isoCountryCode ++ "/Local.json"
-
--- | Get an account's 'AvailablePhoneNumbers' for a particular country.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> ISOCountryCode
-     -> TwilioT m AvailablePhoneNumbers
-get' accountSid isoCountryCode = flip forAccount (get isoCountryCode) accountSid
+get = Resource.get

@@ -1,11 +1,12 @@
+{-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Address
   ( -- * Resource
     Address(..)
-  , get
-  , get'
+  , Twilio.Address.get
   ) where
 
 import Twilio.Types
@@ -15,6 +16,10 @@ import Control.Monad (mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
+import Data.Maybe (fromJust)
+
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 
 {- Resource -}
 
@@ -44,14 +49,10 @@ instance FromJSON Address where
     <*>  v .: "iso_country"
   parseJSON _ = mzero
 
--- | Get an 'Address' by 'AddressSID'.
-get :: (MonadThrow m, MonadIO m) => AddressSID -> TwilioT m Address
-get addressSID
-  = requestForAccount $ "/Addresses/" ++ getSID addressSID ++ ".json"
+instance Get1 AddressSID Address where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Addresses" ++ sid ++ ".json")
 
--- | Get an 'Address' for an account by 'AddressSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> AddressSID
-     -> TwilioT m Address
-get' accountSID addressSID = forAccount accountSID $ get addressSID
+-- | Get an 'Address' by 'AddressSID'.
+get :: Monad m => AddressSID -> TwilioT m Address
+get = Resource.get
