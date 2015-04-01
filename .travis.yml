@@ -1,2 +1,4 @@
 language: haskell
+ghc:
+  - 7.8
 after_success: script/publish_haddock.sh
