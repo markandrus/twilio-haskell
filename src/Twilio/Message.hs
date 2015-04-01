@@ -104,21 +104,24 @@ data MessageStatus
   | Failed
   | Received
   | Delivered
+  | Undelivered
   deriving Eq
 
 instance Show MessageStatus where
-  show Queued    = "queued"
-  show Sending   = "sending"
-  show Sent      = "sent"
-  show Failed    = "failed"
-  show Received  = "received"
-  show Delivered = "delivered"
+  show Queued      = "queued"
+  show Sending     = "sending"
+  show Sent        = "sent"
+  show Failed      = "failed"
+  show Received    = "received"
+  show Delivered   = "delivered"
+  show Undelivered = "undelivered"
 
 instance FromJSON MessageStatus where
-  parseJSON (String "queued")    = return Queued
-  parseJSON (String "sending")   = return Sending
-  parseJSON (String "sent")      = return Sent
-  parseJSON (String "failed")    = return Failed
-  parseJSON (String "received")  = return Received
-  parseJSON (String "delivered") = return Delivered
+  parseJSON (String "queued")      = return Queued
+  parseJSON (String "sending")     = return Sending
+  parseJSON (String "sent")        = return Sent
+  parseJSON (String "failed")      = return Failed
+  parseJSON (String "received")    = return Received
+  parseJSON (String "delivered")   = return Delivered
+  parseJSON (String "undelivered") = return Undelivered
   parseJSON _ = mzero
