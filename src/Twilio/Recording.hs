@@ -1,22 +1,26 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Recording
   ( -- * Resource
     Recording(..)
-  , get
-  , get'
+  , Twilio.Recording.get
   ) where
 
-import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 data Recording = Recording
@@ -24,7 +28,7 @@ data Recording = Recording
   , dateCreated          :: !UTCTime
   , dateUpdated          :: !UTCTime
   , accountSID           :: !AccountSID
-  , callSID         		 :: !CallSID
+  , callSID              :: !CallSID
   , duration             :: !(Maybe Int)
   , apiVersion           :: !APIVersion
   , uri                  :: !URI
@@ -38,21 +42,17 @@ instance FromJSON Recording where
     <*> (v .: "date_updated" >>= parseDateTime)
     <*>  v .: "account_sid"
     <*>  v .: "call_sid"
-    <*> (v .: "duration"     <&> fmap safeRead
+    <*> (v .: "duration"     <&> fmap readZ
                              >>= maybeReturn')
     <*>  v .: "api_version"
     <*> (v .: "uri"          <&> parseRelativeReference
                              >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get a 'Recording' by 'RecordingSID'.
-get :: (MonadThrow m, MonadIO m) => RecordingSID -> TwilioT m Recording
-get recordingSID
-  = requestForAccount $ "/Recordings/" ++ getSID recordingSID ++ ".json"
+instance Get1 RecordingSID Recording where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Recordings/" ++ sid ++ ".json")
 
--- | Get an account's 'Recording' by 'RecordingSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> RecordingSID
-     -> TwilioT m Recording
-get' accountSID recordingSID = forAccount accountSID $ get recordingSID
+-- | Get a 'Recording' by 'RecordingSID'.
+get :: Monad m => RecordingSID -> TwilioT m Recording
+get = Resource.get

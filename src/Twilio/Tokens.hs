@@ -7,20 +7,18 @@ module Twilio.Tokens
   , IceServer(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (join, mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
 import qualified Data.HashMap.Strict as HashMap
-import Data.Maybe (fromMaybe)
-import Data.Set (Set)
-import qualified Data.Set as Set
-import Data.Text (pack, unpack)
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Text
+import Data.Time.Clock
+import Network.URI
+
+import Twilio.Types
+import Twilio.Internal.Parser
 
 {- Resource -}
 
@@ -41,7 +39,7 @@ instance FromJSON Token where
     <*> (v .: "date_updated" >>= parseDateTime)
     <*>  v .: "ice_servers"
     <*>  v .: "password"
-    <*> (v .: "ttl"          >>= safeRead)
+    <*> (v .: "ttl"          >>= readZ)
     <*>  v .: "username"
   parseJSON _ = mzero
 

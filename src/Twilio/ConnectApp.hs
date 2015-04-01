@@ -1,23 +1,25 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.ConnectApp
   ( -- * Resource
     ConnectApp(..)
   , ConnectAppSID
-  , get
-  , get'
+  , Twilio.ConnectApp.get
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseURI, parseRelativeReference)
+import Data.Maybe
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -57,14 +59,10 @@ instance FromJSON ConnectApp where
                                          >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get a 'ConnectApp' by 'ConnectAppSID'.
-get :: (MonadThrow m, MonadIO m) => ConnectAppSID -> TwilioT m ConnectApp
-get connectAppSID
-  = requestForAccount $ "/ConnectApps/" ++ getSID connectAppSID ++ ".json"
+instance Get1 ConnectAppSID ConnectApp where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<<
+    makeTwilioRequest ("/ConnectApps/" ++ sid ++ ".json")
 
--- | Get an account's 'ConnectApp' by 'ConnectAppSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> ConnectAppSID
-     -> TwilioT m ConnectApp
-get' accountSID connectAppSID = forAccount accountSID $ get connectAppSID
+-- | Get a 'ConnectApp' by 'ConnectAppSID'.
+get :: Monad m => ConnectAppSID -> TwilioT m ConnectApp
+get = Resource.get

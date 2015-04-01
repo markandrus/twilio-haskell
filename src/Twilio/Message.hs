@@ -1,25 +1,28 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Message
   ( -- * Resource
     Message(..)
-  , get
-  , get'
+  , Twilio.Message.get
     -- * Types
   , MessageDirection(..)
   , MessageStatus(..)
   ) where
 
-import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -64,17 +67,13 @@ instance FromJSON Message where
                              >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get a 'Message' by 'MessageSID'.
-get :: (MonadThrow m, MonadIO m) => MessageSID -> TwilioT m Message
-get messageSID
-  = requestForAccount $ "/Messages/" ++ getSID messageSID ++ ".json"
+instance Get1 MessageSID Message where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Messages/" ++ sid ++ ".json")
 
--- | Get an account's 'Message' by 'MessageSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> MessageSID
-     -> TwilioT m Message
-get' accountSID messageSID = forAccount accountSID $ get messageSID
+-- | Get a 'Message' by 'MessageSID'.
+get :: Monad m => MessageSID -> TwilioT m Message
+get = Resource.get
 
 {- Types -}
 

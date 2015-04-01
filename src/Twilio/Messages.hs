@@ -5,21 +5,21 @@ module Twilio.Messages
   ( -- * Resource
     Messages(..)
   , PostMessage(..)
-  , get
-  , get'
-  , post
+  , Twilio.Messages.get
+  , Twilio.Messages.post
   ) where
 
-import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-import Twilio.Message hiding (get, get')
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Text (pack)
-import Data.Text.Encoding (encodeUtf8)
-import Data.Maybe (fromJust)
+import qualified Data.Text as T
+import Data.Text.Encoding
+import Data.Maybe
+
+import Control.Monad.Twilio
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Message
+import Twilio.Types
 
 {- Resource -}
 
@@ -42,18 +42,22 @@ instance List Messages Message where
 instance FromJSON Messages where
   parseJSON = parseJSONToList
 
--- | Get 'Messages'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m Messages
-get = requestForAccount "/Messages.json"
+instance Get0 Messages where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Messages.json"
 
--- | Get an account's 'Messages'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Messages
-get' = flip forAccount get
+instance Post1 PostMessage Message where
+  post1 msg = request (fromJust . parseJSONFromResponse) =<<
+    makeTwilioPOSTRequest "/Messages.json"
+      [ ("To", encodeUtf8 . T.pack . sendTo $ msg)
+      , ("From", encodeUtf8 . T.pack . sendFrom $ msg)
+      , ("Body", encodeUtf8 . T.pack . sendBody $ msg)
+      ]
+
+-- | Get 'Messages'.
+get :: Monad m => TwilioT m Messages
+get = Resource.get
 
 -- | Send a text message.
-post :: (MonadThrow m, MonadIO m) => PostMessage -> TwilioT m Message
-post msg = postForAccount "/Messages.json"
-  [ ("To", encodeUtf8 . pack . sendTo $ msg)
-  , ("From", encodeUtf8 . pack . sendFrom $ msg)
-  , ("Body", encodeUtf8 . pack . sendBody $ msg)
-  ]
+post :: Monad m => PostMessage -> TwilioT m Message
+post = Resource.post

@@ -1,22 +1,25 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.UsageTrigger
   ( -- * Resource
     UsageTrigger(..)
-  , get
-  , get'
+  , Twilio.UsageTrigger.get
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
+import Data.Maybe
+import Data.Time.Clock
 import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -59,14 +62,10 @@ instance FromJSON UsageTrigger where
                                  >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get a 'UsageTrigger' by 'UsageTriggerSID'.
-get :: (MonadThrow m, MonadIO m) => UsageTriggerSID -> TwilioT m UsageTrigger
-get usageTriggerSID
-  = requestForAccount $ "/Usage/Triggeres/" ++ getSID usageTriggerSID ++ ".json"
+instance Get1 UsageTriggerSID UsageTrigger where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Usage/Triggers/" ++ sid ++ ".json")
 
--- | Get a 'UsageTrigger' for an account by 'UsageTriggerSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> UsageTriggerSID
-     -> TwilioT m UsageTrigger
-get' accountSID usageTriggerSID = forAccount accountSID $ get usageTriggerSID
+-- | Get a 'UsageTrigger' by 'UsageTriggerSID'.
+get :: Monad m => UsageTriggerSID -> TwilioT m UsageTrigger
+get = Resource.get

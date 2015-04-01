@@ -1,11 +1,13 @@
+{-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Account
   ( -- * Resource
     Account(..)
   , AccountSID
-  , get
+  , Twilio.Account.get
   , suspend
   , unsuspend
   , close
@@ -14,15 +16,18 @@ module Twilio.Account
   , Type(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -52,24 +57,30 @@ instance FromJSON Account where
     <*>  v .: "owner_account_sid"
   parseJSON _ = mzero
 
--- | Get an 'Account' by 'AccountSID'.
-get :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Account
-get accountSID = request ("/Accounts/" ++ getSID accountSID ++ ".json") id
+instance Get1 AccountSID Account where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest'
+    ("/Accounts/" ++ sid ++ ".json")
+
+get :: Monad m => AccountSID -> TwilioT m Account
+get = Resource.get
+
+-- instance Post2 AccountSID () () where
+--   post2 accountSID () = return ()
 
 -- | Suspends a subaccount by POST-ing the parameter 'status' with the value
 -- 'Suspended'.
-suspend :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ()
-suspend accountSID = return ()
+suspend :: Monad m => AccountSID -> TwilioT m ()
+suspend = undefined -- flip Resource.post ()
 
 -- Reactivates a suspended subaccount by POST-ing the parameter 'status' with
 -- the value 'Active'.
-unsuspend :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ()
-unsuspend accountSID = return ()
+unsuspend :: Monad m => AccountSID -> TwilioT m ()
+unsuspend = undefined -- flip Resource.post ()
 
 -- Closes a subaccount by POST-ing the parameter 'status' with the value
 -- 'Closed'.
-close :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m ()
-close accountSID = return ()
+close :: Monad m => AccountSID -> TwilioT m ()
+close = undefined -- flip Resource.post ()
 
 {- Types -}
 

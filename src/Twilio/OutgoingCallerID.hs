@@ -1,23 +1,26 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.OutgoingCallerID
   ( -- * Resource
     OutgoingCallerID(..)
   , PhoneNumberSID
-  , get
-  , get'
+  , Twilio.OutgoingCallerID.get
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -43,17 +46,10 @@ instance FromJSON OutgoingCallerID where
                               >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get an 'OutgoingCallerID' by 'PhoneNumberSID'
-get :: (MonadThrow m, MonadIO m)
-    => PhoneNumberSID
-    -> TwilioT m OutgoingCallerID
-get phoneNumberSID
-  = requestForAccount
-  $ "/OutgoingCallerIds/" ++ getSID phoneNumberSID ++ ".json"
+instance Get1 PhoneNumberSID OutgoingCallerID where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/OutgoingCallerIds/" ++ sid ++ ".json")
 
--- | Get an account's 'OutgoingCallerID' by 'PhoneNumberSID'
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> PhoneNumberSID
-     -> TwilioT m OutgoingCallerID
-get' accountSID phoneNumberSID = forAccount accountSID $ get phoneNumberSID
+-- | Get an 'OutgoingCallerID' by 'PhoneNumberSID'
+get :: Monad m => PhoneNumberSID -> TwilioT m OutgoingCallerID
+get = Resource.get

@@ -1,8 +1,8 @@
-{-#LANGUAGE NamedFieldPuns #-}
 module Main where
 
-import Twilio.Types
-
+import Control.Monad.IO.Class
+import System.Environment
+import Twilio
 import Twilio.Account               as Account
 import Twilio.Accounts              as Accounts
 import Twilio.Addresses             as Addresses
@@ -19,32 +19,26 @@ import Twilio.Transcriptions        as Transcriptions
 import Twilio.UsageRecords          as UsageRecords
 import Twilio.UsageTriggers         as UsageTriggers
 
-import Control.Monad (forM_)
--- import Control.Monad (sequence_)
-import Control.Monad.IO.Class (liftIO)
-import System.Environment (getEnv)
-
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
-                  (getEnv "AUTH_TOKEN") $ sequence_
-
-  [ Accounts.get                 >>= liftIO . print
-  , Addresses.get                >>= liftIO . print
-  , Applications.get             >>= liftIO . print
-  , AuthorizedConnectApps.get    >>= liftIO . print
-  , AvailablePhoneNumbers.get US >>= liftIO . print
-  , Calls.get                    >>= liftIO . print
-  , ConnectApps.get              >>= liftIO . print
-  , IncomingPhoneNumbers.get     >>= liftIO . print
-  , Messages.get                 >>= liftIO . print
-  , OutgoingCallerIDs.get        >>= liftIO . print
-  , Recordings.get               >>= liftIO . print
-  , Transcriptions.get           >>= liftIO . print
-  , UsageRecords.get             >>= liftIO . print
-  , UsageTriggers.get            >>= liftIO . print ]
-
-niam = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do
-  subAccounts <- fmap getList Accounts.get
-  forM_ subAccounts $ \Account {Account.sid=subAccountSID} ->
-    forAccount subAccountSID Calls.get >>= liftIO . print
+  sequence_
+    [ Accounts.get                 >>= liftIO . print
+    , Addresses.get                >>= liftIO . print
+    , Applications.get             >>= liftIO . print
+    , AuthorizedConnectApps.get    >>= liftIO . print
+    , AvailablePhoneNumbers.get US >>= liftIO . print
+    , Calls.get                    >>= liftIO . print
+    , ConnectApps.get              >>= liftIO . print
+    , IncomingPhoneNumbers.get     >>= liftIO . print
+    , Messages.get                 >>= liftIO . print
+    , OutgoingCallerIDs.get        >>= liftIO . print
+    , Recordings.get               >>= liftIO . print
+    , Transcriptions.get           >>= liftIO . print
+    , UsageRecords.get             >>= liftIO . print
+    , UsageTriggers.get            >>= liftIO . print ]
+
+  -- NOTE: Uncomment the following to test SMS sending.
+  let body = PostMessage "+14158059869" "+14158059869" "Hello"
+  message <- post body
+  liftIO $ print message

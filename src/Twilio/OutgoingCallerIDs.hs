@@ -4,18 +4,19 @@
 module Twilio.OutgoingCallerIDs
   ( -- * Resource
     OutgoingCallerIDs(..)
-  , get
-  , get'
+  , Twilio.OutgoingCallerIDs.get
   ) where
 
-import Twilio.Types
-import Twilio.OutgoingCallerID hiding (get, get')
 
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
+
+import Control.Monad.Twilio
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.OutgoingCallerID
+import Twilio.Types
 
 {- Resource -}
 
@@ -32,10 +33,10 @@ instance List OutgoingCallerIDs OutgoingCallerID where
 instance FromJSON OutgoingCallerIDs where
   parseJSON = parseJSONToList
 
--- | Get 'OutgoingCallerIDs'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m OutgoingCallerIDs
-get = requestForAccount "/OutgoingCallerIds.json"
+instance Get0 OutgoingCallerIDs where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/OutgoingCallerIds.json"
 
--- | Get an account's 'OutgoingCallerIDs'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m OutgoingCallerIDs
-get' = flip forAccount get
+-- | Get 'OutgoingCallerIDs'.
+get :: Monad m => TwilioT m OutgoingCallerIDs
+get = Resource.get

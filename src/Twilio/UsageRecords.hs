@@ -4,18 +4,18 @@
 module Twilio.UsageRecords
   ( -- * Resource
     UsageRecords(..)
-  , get
-  , get'
+  , Twilio.UsageRecords.get
   ) where
 
+import Control.Applicative
+import Data.Aeson
+import Data.Maybe
+
+import Control.Monad.Twilio
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
 import Twilio.Types
 import Twilio.UsageRecord
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
-import Data.Aeson
-import Data.Maybe (fromJust)
 
 {- Resource -}
 
@@ -32,10 +32,10 @@ instance List UsageRecords UsageRecord where
 instance FromJSON UsageRecords where
   parseJSON = parseJSONToList
 
--- | Get 'UsageRecords'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m UsageRecords
-get = requestForAccount "/Usage/Records.json"
+instance Get0 UsageRecords where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Usage/Records.json"
 
--- | Get an account's 'UsageRecords'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m UsageRecords
-get' = flip forAccount get
+-- | Get 'UsageRecords'.
+get :: Monad m => TwilioT m UsageRecords
+get = Resource.get

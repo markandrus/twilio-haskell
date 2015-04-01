@@ -5,21 +5,23 @@ module Twilio.Application
   ( -- * Resource
     Application(..)
   , ApplicationSID
-  , get
-  , get'
+  , Twilio.Application.get
     -- * Types
   , Method(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseURI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -85,17 +87,13 @@ instance FromJSON Application where
                                         >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get an 'Application' by 'ApplicationSID'.
-get :: (MonadThrow m, MonadIO m) => ApplicationSID -> TwilioT m Application
-get applicationSID = requestForAccount
-                   $ "/Applications/" ++ getSID applicationSID ++ ".json"
+instance Get1 ApplicationSID Application where
+  get1 applicationSID = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Applications/" ++ getSID applicationSID ++ ".json")
 
--- | Get an account's 'Application' by 'ApplicationSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> ApplicationSID
-     -> TwilioT m Application
-get' accountSID applicationSID = forAccount accountSID $ get applicationSID
+-- | Get an 'Application' by 'ApplicationSID'.
+get :: Monad m => ApplicationSID -> TwilioT m Application
+get = Resource.get
 
 {- Types -}
 

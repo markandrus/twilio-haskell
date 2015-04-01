@@ -4,18 +4,19 @@
 module Twilio.UsageTriggers
   ( -- * Resource
     UsageTriggers(..)
-  , get
-  , get'
+  , Twilio.UsageTriggers.get
   ) where
 
-import Twilio.Types
-import Twilio.UsageTrigger hiding (get, get')
 
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
+
+import Control.Monad.Twilio
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
+import Twilio.UsageTrigger
 
 {- Resource -}
 
@@ -32,10 +33,10 @@ instance List UsageTriggers UsageTrigger where
 instance FromJSON UsageTriggers where
   parseJSON = parseJSONToList
 
--- | Get 'UsageTriggers'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m UsageTriggers
-get = requestForAccount "/Usage/Triggers.json"
+instance Get0 UsageTriggers where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    "/Usage/Triggers.json"
 
--- | Get an account's 'UsageTriggers'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m UsageTriggers
-get' = flip forAccount get
+-- | Get 'UsageTriggers'.
+get :: Monad m => TwilioT m UsageTriggers
+get = Resource.get

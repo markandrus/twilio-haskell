@@ -4,18 +4,18 @@
 module Twilio.Addresses
   ( -- * Resource
     Addresses(..)
-  , get
-  , get'
+  , Twilio.Addresses.get
   ) where
 
-import Twilio.Types
-import Twilio.Address hiding (get, get')
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
+
+import Control.Monad.Twilio
+import Twilio.Address
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -32,10 +32,8 @@ instance List Addresses Address where
 instance FromJSON Addresses where
   parseJSON = parseJSONToList
 
--- | Get 'Addresses'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m Addresses
-get = requestForAccount "/Addresses.json"
+instance Get0 Addresses where
+  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/Addresses.json"
 
--- | Get an account's 'Addresses'.
-get' :: (MonadThrow m, MonadIO m) => AccountSID -> TwilioT m Addresses
-get' = flip forAccount get
+get :: Monad m => TwilioT m Addresses
+get = Resource.get

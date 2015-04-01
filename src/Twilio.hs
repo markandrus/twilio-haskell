@@ -1,19 +1,8 @@
 module Twilio
-  ( -- * Twilio Monad
-    Twilio
-  , runTwilio
-  , runTwilio'
-    -- * Credentials
-  , Credentials
-  , parseCredentials
-    -- ** Account SID
-  , AccountSID
-  , getSID
-  , parseSID
-    -- ** Authentication Token
-  , AuthToken
-  , getAuthToken
-  , parseAuthToken
+  (
+    module Control.Monad.Twilio
+  , module Twilio.Types
   ) where
 
+import Control.Monad.Twilio
 import Twilio.Types

@@ -1,27 +1,32 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Transcription
   ( -- * Resource
     Transcription(..)
-  , get
-  , get'
+  , Twilio.Transcription.get
     -- * Types
   , PriceUnit(..)
   , TranscriptionStatus(..)
   ) where
 
-import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
+
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
+import Twilio.Internal.Request
+import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
+
 data Transcription = Transcription
   { sid                  :: !TranscriptionSID
   , dateCreated          :: !UTCTime
@@ -45,10 +50,10 @@ instance FromJSON Transcription where
     <*>  v .: "account_sid"
     <*>  v .: "status"
     <*>  v .: "recording_sid"
-    <*> (v .: "duration"     <&> fmap safeRead
+    <*> (v .: "duration"     <&> fmap readZ
                              >>= maybeReturn')
     <*>  v .: "transcription_text"
-    <*> (v .: "price"        <&> fmap safeRead
+    <*> (v .: "price"        <&> fmap readZ
                              >>= maybeReturn')
     <*>  v .: "price_unit"
     <*>  v .: "api_version"
@@ -56,19 +61,16 @@ instance FromJSON Transcription where
                              >>= maybeReturn)
   parseJSON _ = mzero
 
--- | Get a 'Transcription' by 'TranscriptionSID'.
-get :: (MonadThrow m, MonadIO m) => TranscriptionSID -> TwilioT m Transcription
-get transcriptionSID
-  = requestForAccount $ "/Transcriptions/" ++ getSID transcriptionSID ++ ".json"
+instance Get1 TranscriptionSID Transcription where
+  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+    ("/Transcriptions/" ++ sid ++ ".json")
 
--- | Get an account's 'Transcription' by 'TranscriptionSID'.
-get' :: (MonadThrow m, MonadIO m)
-     => AccountSID
-     -> TranscriptionSID
-     -> TwilioT m Transcription
-get' accountSID transcriptionSID = forAccount accountSID $ get transcriptionSID
+-- | Get a 'Transcription' by 'TranscriptionSID'.
+get :: Monad m => TranscriptionSID -> TwilioT m Transcription
+get = Resource.get
 
 {- Types -}
+
 data TranscriptionStatus
   = InProgress
   | Completed
