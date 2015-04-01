@@ -16,20 +16,18 @@ module Twilio.Account
   , Type(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Aeson.Types
 import Data.Maybe
-import Data.Time.Clock (UTCTime)
+import Data.Time.Clock
 import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -66,23 +64,23 @@ instance Get1 AccountSID Account where
 get :: Monad m => AccountSID -> TwilioT m Account
 get = Resource.get
 
-instance Post2 AccountSID () () where
-  post2 accountSID () = return ()
+-- instance Post2 AccountSID () () where
+--   post2 accountSID () = return ()
 
 -- | Suspends a subaccount by POST-ing the parameter 'status' with the value
 -- 'Suspended'.
 suspend :: Monad m => AccountSID -> TwilioT m ()
-suspend = flip Resource.post ()
+suspend = undefined -- flip Resource.post ()
 
 -- Reactivates a suspended subaccount by POST-ing the parameter 'status' with
 -- the value 'Active'.
 unsuspend :: Monad m => AccountSID -> TwilioT m ()
-unsuspend = flip Resource.post ()
+unsuspend = undefined -- flip Resource.post ()
 
 -- Closes a subaccount by POST-ing the parameter 'status' with the value
 -- 'Closed'.
 close :: Monad m => AccountSID -> TwilioT m ()
-close = flip Resource.post ()
+close = undefined -- flip Resource.post ()
 
 {- Types -}
 

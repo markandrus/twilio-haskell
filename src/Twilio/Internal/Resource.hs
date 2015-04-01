@@ -20,8 +20,7 @@ import Data.Aeson.Types
 import qualified Data.ByteString.Lazy as LBS
 import Network.HTTP.Client
 
-import Twilio.Types (TwilioT)
-import Twilio.Internal.Request (MonadRequest)
+import Control.Monad.Twilio
 
 -- $about This module repackages functionality exposed by 'MonadRequest' into a
 -- set of classes that REST resources can easily consume. It also provides

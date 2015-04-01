@@ -10,19 +10,18 @@ module Twilio.Application
   , Method(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseURI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -93,7 +92,7 @@ instance Get1 ApplicationSID Application where
     ("/Applications/" ++ getSID applicationSID ++ ".json")
 
 -- | Get an 'Application' by 'ApplicationSID'.
-get :: (MonadThrow m, MonadIO m) => ApplicationSID -> TwilioT m Application
+get :: Monad m => ApplicationSID -> TwilioT m Application
 get = Resource.get
 
 {- Types -}

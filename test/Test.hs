@@ -1,8 +1,8 @@
-{-#LANGUAGE NamedFieldPuns #-}
 module Main where
 
-import Twilio.Types
-
+import Control.Monad.IO.Class
+import System.Environment
+import Twilio
 import Twilio.Account               as Account
 import Twilio.Accounts              as Accounts
 import Twilio.Addresses             as Addresses
@@ -19,15 +19,9 @@ import Twilio.Transcriptions        as Transcriptions
 import Twilio.UsageRecords          as UsageRecords
 import Twilio.UsageTriggers         as UsageTriggers
 
-import Control.Monad (forM_)
--- import Control.Monad (sequence_)
-import Control.Monad.IO.Class (liftIO)
-import System.Environment (getEnv)
-
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ sequence_
-
   [ Accounts.get                 >>= liftIO . print
   , Addresses.get                >>= liftIO . print
   , Applications.get             >>= liftIO . print

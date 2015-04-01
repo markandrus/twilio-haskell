@@ -7,17 +7,15 @@ module Twilio.UsageRecords
   , Twilio.UsageRecords.get
   ) where
 
-import Twilio.Types
-import Twilio.UsageRecord
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
+import Twilio.UsageRecord
 
 {- Resource -}
 
@@ -39,5 +37,5 @@ instance Get0 UsageRecords where
     "/Usage/Records.json"
 
 -- | Get 'UsageRecords'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m UsageRecords
+get :: Monad m => TwilioT m UsageRecords
 get = Resource.get

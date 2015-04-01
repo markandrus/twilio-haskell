@@ -1,6 +1,5 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
-{-#LANGUAGE ViewPatterns #-}
 
 module Twilio.Messages
   ( -- * Resource
@@ -8,17 +7,15 @@ module Twilio.Messages
   , Twilio.Messages.get
   ) where
 
-import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-import Twilio.Message hiding (get, get')
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Message
+import Twilio.Types
 
 {- Resource -}
 
@@ -40,5 +37,5 @@ instance Get0 Messages where
     "/Messages.json"
 
 -- | Get 'Messages'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m Messages
+get :: Monad m => TwilioT m Messages
 get = Resource.get

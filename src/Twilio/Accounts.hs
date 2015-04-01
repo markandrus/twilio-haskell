@@ -7,21 +7,18 @@ module Twilio.Accounts
   ( -- * Resource
     Accounts(..)
   , Twilio.Accounts.get
-  , createSubAccount
+  -- , createSubAccount
   ) where
 
-import Twilio.Types
-import Twilio.Account hiding (get)
-
-import Control.Applicative (Const(Const), (<$>))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
 import Data.Maybe (fromJust)
-import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Account
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -79,6 +76,7 @@ For example, you can create a subaccount, "foo", as follows:
 >                  (getEnv "AUTH_TOKEN")
 >     $ createSubAccount (Just "foo") >>= liftIO . print
 -}
+{-
 createSubAccount :: (MonadThrow m, MonadIO m)
                  => Maybe String  -- ^ A human readable description of the new
                                   -- subaccount, up to 64 characters. Defaults
@@ -86,3 +84,4 @@ createSubAccount :: (MonadThrow m, MonadIO m)
                                   -- HH:MM meridian}".
                  -> TwilioT m (Maybe Account)
 createSubAccount friendlyName = return Nothing
+-}

@@ -9,17 +9,17 @@ module Twilio.Address
   , Twilio.Address.get
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
 import Data.Maybe (fromJust)
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -44,7 +44,7 @@ instance FromJSON Address where
     <*>  v .: "street"
     <*>  v .: "city"
     <*>  v .: "region"
-    <*> (v .: "postal_code"  <&> (=<<) safeRead
+    <*> (v .: "postal_code"  <&> (=<<) readZ
                              >>= maybeReturn')
     <*>  v .: "iso_country"
   parseJSON _ = mzero

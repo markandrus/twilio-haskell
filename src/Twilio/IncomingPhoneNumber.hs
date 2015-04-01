@@ -8,23 +8,20 @@ module Twilio.IncomingPhoneNumber
   , Twilio.IncomingPhoneNumber.get
   ) where
 
-import Twilio.Types
-
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad (join, mzero)
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
-import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe (fromJust)
-import Data.Set (Set)
-import qualified Data.Set as Set
-import Data.Text (pack)
 import Data.Time.Clock (UTCTime)
 import Network.URI (URI, parseRelativeReference)
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -76,7 +73,7 @@ instance FromJSON IncomingPhoneNumber where
     <*> (v .: "sms_fallback_url" <&> getNonEmptyString)
     <*>  v .: "sms_fallback_method"
     <*> (v .: "sms_application_sid" <&> (join . fmap parseSID . getNonEmptyString))
-    <*> (v .: "capabilities" <&> parseCapabilitiesFromJSON)
+    <*> (v .: "capabilities" >>= parseJSON)
     <*>  v .: "address_requirements"
     <*> (v .: "uri"              <&> parseRelativeReference
                                  >>= maybeReturn)

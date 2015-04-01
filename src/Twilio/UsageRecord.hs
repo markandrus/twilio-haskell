@@ -6,13 +6,15 @@ module Twilio.UsageRecord
     UsageRecord(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Time.Clock
+import Network.URI
+
+import Twilio.Types
+import Twilio.Internal.Parser
 
 {- Resource -}
 
@@ -38,12 +40,12 @@ instance FromJSON UsageRecord where
     <*>  v .: "account_sid"
     <*> (v .: "start_date" >>= parseDate)
     <*> (v .: "end_date"   >>= parseDate)
-    <*> (v .: "usage"      >>= safeRead)
+    <*> (v .: "usage"      >>= readZ)
     <*>  v .: "usage_unit"
-    <*> (v .: "count"      <&> fmap safeRead
+    <*> (v .: "count"      <&> fmap readZ
                            >>= maybeReturn')
     <*> (v .: "count_unit" <&> (=<<) filterEmpty)
-    <*> (v .: "price"      >>= safeRead)
+    <*> (v .: "price"      >>= readZ)
     <*>  v .: "price_unit"
     <*> (v .: "uri"        <&> parseRelativeReference
                            >>= maybeReturn)

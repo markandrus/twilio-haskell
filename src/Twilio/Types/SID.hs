@@ -1,3 +1,4 @@
+{-#OPTIONS_GHC -fno-warn-unused-binds #-}
 {-#LANGUAGE DefaultSignatures #-}
 {-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE DeriveDataTypeable #-}
@@ -155,6 +156,7 @@ parseSID' :: (MonadPlus m, SID s) => String -> Const (m s) s
 parseSID' sid@(a:b:_)
   = runFlip $ (\ab' -> if (a, b) == ab' then return (makeSID sid) else mzero)
            <$> Flip getPrefix
+parseSID' _ = Const mzero
 
 parseSIDFromJSON :: (MonadPlus m, SID s) => Value -> m s
 parseSIDFromJSON (String v) = getConst . parseSID' $ unpack v

@@ -7,17 +7,15 @@ module Twilio.Addresses
   , Twilio.Addresses.get
   ) where
 
-import Twilio.Types
-import Twilio.Address
-
 import Control.Applicative
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
+import Twilio.Address
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 

@@ -8,17 +8,17 @@ module Twilio.AvailablePhoneNumbers
   , Twilio.AvailablePhoneNumbers.get
   ) where
 
-import Twilio.Types
-import Twilio.AvailablePhoneNumber
-
 import Control.Applicative (Const(Const))
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson
 import Data.Maybe (fromJust)
 
+import Control.Monad.Twilio
+import Twilio.AvailablePhoneNumber
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 

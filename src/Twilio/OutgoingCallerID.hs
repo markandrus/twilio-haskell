@@ -9,19 +9,18 @@ module Twilio.OutgoingCallerID
   , Twilio.OutgoingCallerID.get
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -52,7 +51,5 @@ instance Get1 PhoneNumberSID OutgoingCallerID where
     ("/OutgoingCallerIds/" ++ sid ++ ".json")
 
 -- | Get an 'OutgoingCallerID' by 'PhoneNumberSID'
-get :: (MonadThrow m, MonadIO m)
-    => PhoneNumberSID
-    -> TwilioT m OutgoingCallerID
+get :: Monad m => PhoneNumberSID -> TwilioT m OutgoingCallerID
 get = Resource.get

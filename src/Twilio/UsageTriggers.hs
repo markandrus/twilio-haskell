@@ -7,17 +7,16 @@ module Twilio.UsageTriggers
   , Twilio.UsageTriggers.get
   ) where
 
-import Twilio.Types
-import Twilio.UsageTrigger hiding (get)
 
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
+import Twilio.UsageTrigger
 
 {- Resource -}
 
@@ -39,5 +38,5 @@ instance Get0 UsageTriggers where
     "/Usage/Triggers.json"
 
 -- | Get 'UsageTriggers'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m UsageTriggers
+get :: Monad m => TwilioT m UsageTriggers
 get = Resource.get

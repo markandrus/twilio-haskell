@@ -7,21 +7,25 @@ module Twilio.Call
     Call(..)
   , CallSID
   , Twilio.Call.get
+    -- * Types
+  , AnsweredBy(..)
+  , CallDirection(..)
+  , CallStatus(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -62,9 +66,9 @@ instance FromJSON Call where
     <*>  v .: "status"
     <*> (v .: "start_time"       >>= parseDateTime)
     <*> (v .: "end_time"         <&> (=<<) parseDateTime)
-    <*> (v .: "duration"         <&> fmap safeRead
+    <*> (v .: "duration"         <&> fmap readZ
                                  >>= maybeReturn')
-    <*> (v .: "price"            <&> fmap safeRead
+    <*> (v .: "price"            <&> fmap readZ
                                  >>= maybeReturn')
     <*>  v .: "price_unit"
     <*>  v .: "direction"
@@ -81,5 +85,70 @@ instance Get1 CallSID Call where
     ("/Calls/" ++ sid ++ ".json")
 
 -- | Get a 'Call' by 'CallSID'.
-get :: (MonadThrow m, MonadIO m) => CallSID -> TwilioT m Call
+get :: Monad m => CallSID -> TwilioT m Call
 get = Resource.get
+
+{- Types -}
+
+data AnsweredBy
+  = Human
+  | Machine
+  deriving Eq
+
+instance Show AnsweredBy where
+  show Human   = "human"
+  show Machine = "machine"
+
+instance FromJSON AnsweredBy where
+  parseJSON (String "human")   = return Human
+  parseJSON (String "machine") = return Machine
+  parseJSON _ = mzero
+
+data CallDirection
+  = Inbound
+  | OutboundAPI
+  | OutboundDial
+  deriving Eq
+
+instance Show CallDirection where
+  show Inbound      = "inbound"
+  show OutboundAPI  = "outbound-api"
+  show OutboundDial = "outbound-dial"
+
+instance FromJSON CallDirection where
+  parseJSON (String "inbound")       = return Inbound
+  parseJSON (String "outbound-api")  = return OutboundAPI
+  parseJSON (String "outbound-dial") = return OutboundDial
+  parseJSON _ = mzero
+
+data CallStatus
+  = Queued
+  | Ringing
+  | InProgress
+  | Canceled
+  | Completed
+  | Failed
+  | Busy
+  | NoAnswer
+  deriving Eq
+
+instance Show CallStatus where
+  show Queued     = "queued"
+  show Ringing    = "ringing"
+  show InProgress = "in-progress"
+  show Canceled   = "canceled"
+  show Completed  = "completed"
+  show Failed     = "failed"
+  show Busy       = "busy"
+  show NoAnswer   = "no-answer"
+
+instance FromJSON CallStatus where
+  parseJSON (String "queued")      = return Queued
+  parseJSON (String "ringing")     = return Ringing
+  parseJSON (String "in-progress") = return InProgress
+  parseJSON (String "canceled")    = return Canceled
+  parseJSON (String "completed")   = return Completed
+  parseJSON (String "failed")      = return Failed
+  parseJSON (String "busy")        = return Busy
+  parseJSON (String "no-answer")   = return NoAnswer
+  parseJSON _ = mzero

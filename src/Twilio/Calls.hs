@@ -7,17 +7,15 @@ module Twilio.Calls
   , Twilio.Calls.get
   ) where
 
-import Twilio.Types
-import Twilio.Call hiding (get, get')
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
+import Twilio.Call
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -55,5 +53,5 @@ For example, you can fetch the 'Calls' resource in the 'IO' monad as follows:
 >                  (getEnv "AUTH_TOKEN")
 >     $ Calls.get >>= liftIO . print
 -}
-get :: (MonadThrow m, MonadIO m) => TwilioT m Calls
+get :: Monad m => TwilioT m Calls
 get = Resource.get

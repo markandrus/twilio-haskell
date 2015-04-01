@@ -7,17 +7,15 @@ module Twilio.AuthorizedConnectApps
   , Twilio.AuthorizedConnectApps.get
   ) where
 
-import Twilio.Types
-import Twilio.AuthorizedConnectApp hiding (get, get')
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
+import Twilio.AuthorizedConnectApp
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -39,5 +37,5 @@ instance Get0 AuthorizedConnectApps where
     "/AuthorizedConnectApps.json"
 
 -- | Get 'AuthorizedConnectApps'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m AuthorizedConnectApps
+get :: Monad m => TwilioT m AuthorizedConnectApps
 get = Resource.get

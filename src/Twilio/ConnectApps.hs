@@ -7,17 +7,15 @@ module Twilio.ConnectApps
   , Twilio.ConnectApps.get
   ) where
 
-import Twilio.Types
-import Twilio.ConnectApp
-
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
+import Twilio.ConnectApp
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -38,5 +36,5 @@ instance Get0 ConnectApps where
   get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/ConnectApps.json"
 
 -- | Get 'ConnectApps'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m ConnectApps
+get :: Monad m => TwilioT m ConnectApps
 get = Resource.get

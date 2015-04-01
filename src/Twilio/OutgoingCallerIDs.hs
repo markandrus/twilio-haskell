@@ -7,17 +7,16 @@ module Twilio.OutgoingCallerIDs
   , Twilio.OutgoingCallerIDs.get
   ) where
 
-import Twilio.Types
-import Twilio.OutgoingCallerID hiding (get, get')
 
-import Control.Applicative (Const(Const))
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
+import Control.Monad.Twilio
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.OutgoingCallerID
+import Twilio.Types
 
 {- Resource -}
 
@@ -39,5 +38,5 @@ instance Get0 OutgoingCallerIDs where
     "/OutgoingCallerIds.json"
 
 -- | Get 'OutgoingCallerIDs'.
-get :: (MonadThrow m, MonadIO m) => TwilioT m OutgoingCallerIDs
+get :: Monad m => TwilioT m OutgoingCallerIDs
 get = Resource.get

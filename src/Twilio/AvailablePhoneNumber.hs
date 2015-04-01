@@ -6,13 +6,13 @@ module Twilio.AvailablePhoneNumber
     AvailablePhoneNumber(..)
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
+
+import Twilio.Types
+import Twilio.Internal.Parser
 
 {- Resource -}
 
@@ -34,17 +34,17 @@ instance FromJSON AvailablePhoneNumber where
   parseJSON (Object v) = AvailablePhoneNumber
     <$>  v .: "friendly_name"
     <*>  v .: "phone_number"
-    <*> (v .: "lata"         <&> (=<<) safeRead
+    <*> (v .: "lata"         <&> (=<<) readZ
                              >>= maybeReturn')
     <*>  v .: "rate_center"
-    <*> (v .: "latitude"     <&> (=<<) safeRead
+    <*> (v .: "latitude"     <&> (=<<) readZ
                              >>= maybeReturn')
-    <*> (v .: "longitude"    <&> (=<<) safeRead
+    <*> (v .: "longitude"    <&> (=<<) readZ
                              >>= maybeReturn')
     <*>  v .: "region"
-    <*> (v .: "postal_code"  <&> (=<<) safeRead
+    <*> (v .: "postal_code"  <&> (=<<) readZ
                              >>= maybeReturn')
     <*>  v .: "iso_country"
     <*>  v .: "address_requirements"
-    <*>  v .: "capabilities" <&> parseCapabilitiesFromJSON
+    <*> (v .: "capabilities" >>= parseJSON)
   parseJSON _ = mzero

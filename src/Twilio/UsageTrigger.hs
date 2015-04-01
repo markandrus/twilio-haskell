@@ -8,19 +8,18 @@ module Twilio.UsageTrigger
   , Twilio.UsageTrigger.get
   ) where
 
-import Twilio.Types
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.Time.Clock (UTCTime)
+import Data.Maybe
+import Data.Time.Clock
 import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 
@@ -68,5 +67,5 @@ instance Get1 UsageTriggerSID UsageTrigger where
     ("/Usage/Triggers/" ++ sid ++ ".json")
 
 -- | Get a 'UsageTrigger' by 'UsageTriggerSID'.
-get :: (MonadThrow m, MonadIO m) => UsageTriggerSID -> TwilioT m UsageTrigger
+get :: Monad m => UsageTriggerSID -> TwilioT m UsageTrigger
 get = Resource.get

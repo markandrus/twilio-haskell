@@ -8,19 +8,19 @@ module Twilio.Recording
   , Twilio.Recording.get
   ) where
 
-import Twilio.Types hiding (CallStatus(..), CallDirection(..))
-
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Error.Safe
+import Control.Monad
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Maybe
+import Data.Time.Clock
+import Network.URI
 
+import Control.Monad.Twilio
+import Twilio.Internal.Parser
 import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
+import Twilio.Types
 
 {- Resource -}
 data Recording = Recording
@@ -42,7 +42,7 @@ instance FromJSON Recording where
     <*> (v .: "date_updated" >>= parseDateTime)
     <*>  v .: "account_sid"
     <*>  v .: "call_sid"
-    <*> (v .: "duration"     <&> fmap safeRead
+    <*> (v .: "duration"     <&> fmap readZ
                              >>= maybeReturn')
     <*>  v .: "api_version"
     <*> (v .: "uri"          <&> parseRelativeReference
@@ -54,5 +54,5 @@ instance Get1 RecordingSID Recording where
     ("/Recordings/" ++ sid ++ ".json")
 
 -- | Get a 'Recording' by 'RecordingSID'.
-get :: (MonadThrow m, MonadIO m) => RecordingSID -> TwilioT m Recording
+get :: Monad m => RecordingSID -> TwilioT m Recording
 get = Resource.get
