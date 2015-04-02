@@ -15,6 +15,7 @@ import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
 import Twilio.Messages              as Messages
 import Twilio.OutgoingCallerIDs     as OutgoingCallerIDs
 import Twilio.Recordings            as Recordings
+import Twilio.Tokens                as Tokens
 import Twilio.Transcriptions        as Transcriptions
 import Twilio.UsageRecords          as UsageRecords
 import Twilio.UsageTriggers         as UsageTriggers
@@ -22,6 +23,7 @@ import Twilio.UsageTriggers         as UsageTriggers
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do
+  -- Test GET
   sequence_
     [ Accounts.get                 >>= liftIO . print
     , Addresses.get                >>= liftIO . print
@@ -38,7 +40,11 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
     , UsageRecords.get             >>= liftIO . print
     , UsageTriggers.get            >>= liftIO . print ]
 
-  -- NOTE: Uncomment the following to test SMS sending.
+  -- Test POST /Messages
   let body = PostMessage "+14158059869" "+14158059869" "Hello"
   message <- post body
   liftIO $ print message
+
+  -- Test POST /Tokens
+  token <- Tokens.post Nothing
+  liftIO $ print token

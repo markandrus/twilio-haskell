@@ -58,3 +58,7 @@ instance FromJSON NonEmptyString where
 parseMaybeDateTime :: Maybe String -> Parser (Maybe UTCTime)
 parseMaybeDateTime (Just a) = Just <$> parseDateTime a
 parseMaybeDateTime Nothing = return Nothing
+
+valueToString :: Value -> Maybe String
+valueToString (String v) = Just $ T.unpack v
+valueToString _ = Nothing
