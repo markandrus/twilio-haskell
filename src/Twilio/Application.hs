@@ -12,8 +12,8 @@ module Twilio.Application
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -88,11 +88,11 @@ instance FromJSON Application where
   parseJSON _ = mzero
 
 instance Get1 ApplicationSID Application where
-  get1 applicationSID = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 applicationSID = request parseJSONFromResponse =<< makeTwilioRequest
     ("/Applications/" ++ getSID applicationSID ++ ".json")
 
 -- | Get an 'Application' by 'ApplicationSID'.
-get :: Monad m => ApplicationSID -> TwilioT m Application
+get :: MonadThrow m => ApplicationSID -> TwilioT m Application
 get = Resource.get
 
 {- Types -}

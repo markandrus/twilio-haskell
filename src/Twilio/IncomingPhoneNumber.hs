@@ -8,14 +8,12 @@ module Twilio.IncomingPhoneNumber
   , Twilio.IncomingPhoneNumber.get
   ) where
 
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (join, mzero)
-import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Applicative
+import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe (fromJust)
-import Data.Time.Clock (UTCTime)
-import Network.URI (URI, parseRelativeReference)
+import Data.Time.Clock
+import Network.URI
 
 import Control.Monad.Twilio
 import Twilio.Internal.Parser
@@ -80,9 +78,9 @@ instance FromJSON IncomingPhoneNumber where
   parseJSON _ = mzero
 
 instance Get1 PhoneNumberSID IncomingPhoneNumber where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/IncomingPhoneNumbers/" ++ sid ++ ".json")
 
 -- | Get an 'IncomingPhoneNumber' by 'PhoneNumberSID'.
-get :: (MonadThrow m, MonadIO m) => PhoneNumberSID -> TwilioT m IncomingPhoneNumber
+get :: MonadThrow m => PhoneNumberSID -> TwilioT m IncomingPhoneNumber
 get = Resource.get

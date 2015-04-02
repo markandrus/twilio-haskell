@@ -10,8 +10,8 @@ module Twilio.UsageTrigger
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -63,9 +63,9 @@ instance FromJSON UsageTrigger where
   parseJSON _ = mzero
 
 instance Get1 UsageTriggerSID UsageTrigger where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/Usage/Triggers/" ++ sid ++ ".json")
 
 -- | Get a 'UsageTrigger' by 'UsageTriggerSID'.
-get :: Monad m => UsageTriggerSID -> TwilioT m UsageTrigger
+get :: MonadThrow m => UsageTriggerSID -> TwilioT m UsageTrigger
 get = Resource.get

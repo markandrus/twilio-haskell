@@ -11,8 +11,8 @@ module Twilio.OutgoingCallerID
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -47,9 +47,9 @@ instance FromJSON OutgoingCallerID where
   parseJSON _ = mzero
 
 instance Get1 PhoneNumberSID OutgoingCallerID where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/OutgoingCallerIds/" ++ sid ++ ".json")
 
 -- | Get an 'OutgoingCallerID' by 'PhoneNumberSID'
-get :: Monad m => PhoneNumberSID -> TwilioT m OutgoingCallerID
+get :: MonadThrow m => PhoneNumberSID -> TwilioT m OutgoingCallerID
 get = Resource.get

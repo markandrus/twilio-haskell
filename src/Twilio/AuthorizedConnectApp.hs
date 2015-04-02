@@ -11,8 +11,8 @@ module Twilio.AuthorizedConnectApp
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -55,9 +55,9 @@ instance FromJSON AuthorizedConnectApp where
   parseJSON _ = mzero
 
 instance Get1 ConnectAppSID AuthorizedConnectApp where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/AuthorizedConnectApps/" ++ sid ++ ".json")
 
 -- | Get an 'AuthorizedConnectApp' by 'ConnectAppSID'.
-get :: Monad m => ConnectAppSID -> TwilioT m AuthorizedConnectApp
+get :: MonadThrow m => ConnectAppSID -> TwilioT m AuthorizedConnectApp
 get = Resource.get

@@ -8,13 +8,7 @@
 
 module Twilio.Types
   ( APIVersion(..)
-  , module Twilio.Types.AddressRequirement
-  , module Twilio.Types.AuthToken
-  , module Twilio.Types.Capability
-  , module Twilio.Types.ISOCountryCode
-  , module Twilio.Types.List
-  , module Twilio.Types.PriceUnit
-  , module Twilio.Types.SID
+  , module X
     -- * Misc
   , makeTwilioRequest
   , makeTwilioRequest'
@@ -29,13 +23,13 @@ import qualified Data.ByteString.Char8 as C
 import Network.HTTP.Client
 
 import Control.Monad.Twilio
-import Twilio.Types.AddressRequirement
-import Twilio.Types.AuthToken
-import Twilio.Types.Capability
-import Twilio.Types.ISOCountryCode
-import Twilio.Types.List
-import Twilio.Types.PriceUnit
-import Twilio.Types.SID
+import Twilio.Types.AddressRequirement as X
+import Twilio.Types.AuthToken as X
+import Twilio.Types.Capability as X
+import Twilio.Types.ISOCountryCode as X
+import Twilio.Types.List as X
+import Twilio.Types.PriceUnit as X
+import Twilio.Types.SID as X
 import Twilio.Internal.Parser
 import Twilio.Internal.Request
 
@@ -76,11 +70,11 @@ makeTwilioPOSTRequest' :: Monad m
                        -> [(C.ByteString, C.ByteString)]
                        -> TwilioT m Request
 makeTwilioPOSTRequest' resourceURL params =
-  (makeTwilioRequest' resourceURL) <&> urlEncodedBody params
+  makeTwilioRequest' resourceURL <&> urlEncodedBody params
 
 makeTwilioPOSTRequest :: Monad m
                       => String
                       -> [(C.ByteString, C.ByteString)]
                       -> TwilioT m Request
 makeTwilioPOSTRequest resourceURL params =
-  (makeTwilioRequest resourceURL) <&> urlEncodedBody params
+  makeTwilioRequest resourceURL <&> urlEncodedBody params

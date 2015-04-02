@@ -14,8 +14,8 @@ module Twilio.Transcription
 import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -62,11 +62,11 @@ instance FromJSON Transcription where
   parseJSON _ = mzero
 
 instance Get1 TranscriptionSID Transcription where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/Transcriptions/" ++ sid ++ ".json")
 
 -- | Get a 'Transcription' by 'TranscriptionSID'.
-get :: Monad m => TranscriptionSID -> TwilioT m Transcription
+get :: MonadThrow m => TranscriptionSID -> TwilioT m Transcription
 get = Resource.get
 
 {- Types -}
@@ -87,4 +87,3 @@ instance FromJSON TranscriptionStatus where
   parseJSON (String "completed")     = return Completed
   parseJSON (String "failed")        = return Failed
   parseJSON _ = mzero
-

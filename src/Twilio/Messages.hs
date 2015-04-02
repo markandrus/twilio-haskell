@@ -10,6 +10,7 @@ module Twilio.Messages
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import qualified Data.Text as T
 import Data.Text.Encoding
@@ -43,11 +44,11 @@ instance FromJSON Messages where
   parseJSON = parseJSONToList
 
 instance Get0 Messages where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/Messages.json"
 
 instance Post1 PostMessage Message where
-  post1 msg = request (fromJust . parseJSONFromResponse) =<<
+  post1 msg = request parseJSONFromResponse =<<
     makeTwilioPOSTRequest "/Messages.json"
       [ ("To", encodeUtf8 . T.pack . sendTo $ msg)
       , ("From", encodeUtf8 . T.pack . sendFrom $ msg)
@@ -55,9 +56,9 @@ instance Post1 PostMessage Message where
       ]
 
 -- | Get 'Messages'.
-get :: Monad m => TwilioT m Messages
+get :: MonadThrow m => TwilioT m Messages
 get = Resource.get
 
 -- | Send a text message.
-post :: Monad m => PostMessage -> TwilioT m Message
+post :: MonadThrow m => PostMessage -> TwilioT m Message
 post = Resource.post

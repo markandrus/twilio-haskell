@@ -8,6 +8,7 @@ module Twilio.Calls
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -33,7 +34,7 @@ instance FromJSON Calls where
   parseJSON = parseJSONToList
 
 instance Get0 Calls where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/Calls.json"
 
 {- | Get 'Calls'.
@@ -53,5 +54,5 @@ For example, you can fetch the 'Calls' resource in the 'IO' monad as follows:
 >                  (getEnv "AUTH_TOKEN")
 >     $ Calls.get >>= liftIO . print
 -}
-get :: Monad m => TwilioT m Calls
+get :: MonadThrow m => TwilioT m Calls
 get = Resource.get

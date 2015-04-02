@@ -24,7 +24,9 @@ import Control.Monad.Catch
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
 import Control.Monad.Trans.Class
+import qualified Data.ByteString.Lazy as LBS
 import Data.Typeable
+import Network.HTTP.Client
 
 import Twilio.Internal.Request
 import Twilio.Types.AuthToken
@@ -74,7 +76,7 @@ getTwilioT :: Monad m => TwilioT m a -> (Credentials, AccountSID) -> RequestT m 
 getTwilioT (TwilioT f) = f
 
 instance Monad m => MonadRequest (TwilioT m) where
-  request uri go = TwilioT $ \_ -> request uri go
+  request uri go = TwilioT $ getTwilioT (request uri go)
 
 -- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
 -- @m@.
@@ -126,6 +128,9 @@ instance Monad m => MonadReader (Credentials, AccountSID) (TwilioT m) where
   ask = TwilioT return
   local f m = TwilioT $ getTwilioT m . f
 
+instance MonadThrow m => MonadThrow (TwilioT m) where
+  throwM = liftTwilioT . throwM
+
 instance MonadTrans TwilioT where
   lift m = TwilioT $ const (lift m)
 
@@ -152,6 +157,7 @@ data TwilioException
   = InvalidSID         !String
   | InvalidAuthToken   !String
   | InvalidCredentials
+  | UnexpectedResponse !(Response LBS.ByteString)
   deriving (Show, Eq, Typeable)
 
 instance Exception TwilioException

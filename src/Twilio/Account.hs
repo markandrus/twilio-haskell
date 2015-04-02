@@ -18,8 +18,8 @@ module Twilio.Account
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -58,10 +58,15 @@ instance FromJSON Account where
   parseJSON _ = mzero
 
 instance Get1 AccountSID Account where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest'
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest'
     ("/Accounts/" ++ sid ++ ".json")
+  {-
+  get1 (getSID -> sid) =
+    let twilioRequest = makeTwilioRequest' $ "/Accounts/" ++ sid ++ ".json"
+    in  twilioRequest >>= request parseJSONFromResponse
+  -}
 
-get :: Monad m => AccountSID -> TwilioT m Account
+get :: MonadThrow m => AccountSID -> TwilioT m Account
 get = Resource.get
 
 -- instance Post2 AccountSID () () where

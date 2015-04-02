@@ -15,6 +15,7 @@ module Twilio.Internal.Resource
   , parseJSONFromResponse
   ) where
 
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Aeson.Types
 import qualified Data.ByteString.Lazy as LBS
@@ -28,51 +29,53 @@ import Control.Monad.Twilio
 
 -- | 'Get0' represents REST resources that support HTTP GET requests with 0 arguments.
 class Get0 r where
-  get0 :: Monad m => TwilioT m r
+  get0 :: MonadThrow m => TwilioT m r
 
 -- | 'Get1' represents REST resources that support HTTP GET requests with 1 argument.
 class Get1 a r where
-  get1 :: Monad m => a -> TwilioT m r
+  get1 :: MonadThrow m => a -> TwilioT m r
 
 -- | 'Get' represents REST resources that support HTTP GET requests with any number of arguments.
 class Get r where
   get :: r
 
 -- | Instances of 'Get0' are instances of 'Get'.
-instance (Monad m, Get0 r) => Get (TwilioT m r) where
+instance (MonadThrow m, Get0 r) => Get (TwilioT m r) where
   get = get0
 
 -- | Instances of 'Get1' are instances of 'Get'.
-instance (Monad m, Get1 a r) => Get (a -> TwilioT m r) where
+instance (MonadThrow m, Get1 a r) => Get (a -> TwilioT m r) where
   get = get1
 
 -- | 'Post0' represents REST resources that support HTTP POST requests with 0 arguments.
 class Post0 r where
-  post0 :: Monad m => TwilioT m r
+  post0 :: MonadThrow m => TwilioT m r
 
 -- | 'Post1' represents REST resources that support HTTP POST requests with 1 argument.
 class Post1 a r where
-  post1 :: Monad m => a -> TwilioT m r
+  post1 :: MonadThrow m => a -> TwilioT m r
 
 -- | 'Post1' represents REST resources that support HTTP POST requests with 2 arguments.
 class Post2 a b r where
-  post2 :: Monad m => a -> b -> TwilioT m r
+  post2 :: MonadThrow m => a -> b -> TwilioT m r
 
 -- | 'Post' represents REST resources that support HTTP POST requests with any number of arguments.
 class Post r where
   post :: r
 
 -- | Instances of 'Post0' are instances of 'Post'.
-instance (Monad m, Post0 r) => Post (TwilioT m r) where
+instance (MonadThrow m, Post0 r) => Post (TwilioT m r) where
   post = post0
 
 -- | Instances of 'Post1' are instances of 'Post'.
-instance (Monad m, Post1 a r) => Post (a -> TwilioT m r) where
+instance (MonadThrow m, Post1 a r) => Post (a -> TwilioT m r) where
   post = post1
 
-instance (Monad m, Post2 a b r) => Post (a -> b -> TwilioT m r) where
+instance (MonadThrow m, Post2 a b r) => Post (a -> b -> TwilioT m r) where
   post = post2
 
-parseJSONFromResponse :: FromJSON a => Response LBS.ByteString -> Maybe a
+parseJSONFromResponse :: (FromJSON a, MonadThrow m) => Response LBS.ByteString -> m a
 parseJSONFromResponse response =
-  decode (responseBody response) >>= parseMaybe parseJSON
+  case eitherDecode (responseBody response) >>= parseEither parseJSON of
+    Left  _ -> throwM $ UnexpectedResponse response
+    Right a -> return a

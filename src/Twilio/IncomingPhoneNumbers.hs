@@ -8,8 +8,8 @@ module Twilio.IncomingPhoneNumbers
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 
 import Control.Monad.Twilio
 import Twilio.IncomingPhoneNumber
@@ -32,9 +32,9 @@ instance FromJSON IncomingPhoneNumbers where
   parseJSON = parseJSONToList
 
 instance Get0 IncomingPhoneNumbers where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/IncomingPhoneNumbers.json"
 
 -- | Get 'IncomingPhoneNumbers' for a particular country.
-get :: Monad m => TwilioT m IncomingPhoneNumbers
+get :: MonadThrow m => TwilioT m IncomingPhoneNumbers
 get = Resource.get

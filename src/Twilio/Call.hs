@@ -16,8 +16,8 @@ module Twilio.Call
 import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -81,11 +81,11 @@ instance FromJSON Call where
   parseJSON _ = mzero
 
 instance Get1 CallSID Call where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/Calls/" ++ sid ++ ".json")
 
 -- | Get a 'Call' by 'CallSID'.
-get :: Monad m => CallSID -> TwilioT m Call
+get :: MonadThrow m => CallSID -> TwilioT m Call
 get = Resource.get
 
 {- Types -}

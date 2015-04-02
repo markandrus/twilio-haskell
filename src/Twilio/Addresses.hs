@@ -8,6 +8,7 @@ module Twilio.Addresses
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -33,7 +34,7 @@ instance FromJSON Addresses where
   parseJSON = parseJSONToList
 
 instance Get0 Addresses where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/Addresses.json"
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest "/Addresses.json"
 
-get :: Monad m => TwilioT m Addresses
+get :: MonadThrow m => TwilioT m Addresses
 get = Resource.get

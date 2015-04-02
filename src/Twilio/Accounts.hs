@@ -11,8 +11,9 @@ module Twilio.Accounts
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe
 
 import Control.Monad.Twilio
 import Twilio.Account
@@ -36,7 +37,7 @@ instance FromJSON Accounts where
   parseJSON = parseJSONToList
 
 instance Get0 Accounts where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest' "/Accounts.json"
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest' "/Accounts.json"
 
 {- | Get 'Accounts'.
 
@@ -55,7 +56,7 @@ For example, you can fetch the 'Accounts' resource in the 'IO' monad as follows:
 >                  (getEnv "AUTH_TOKEN")
 >     $ Accounts.get >>= liftIO . print
 -}
-get :: Monad m => TwilioT m Accounts
+get :: MonadThrow m => TwilioT m Accounts
 get = Resource.get
 
 {- | Create a new 'Account' instance resource as a subaccount of the one used

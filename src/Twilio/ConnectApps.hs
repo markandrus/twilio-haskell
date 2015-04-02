@@ -8,6 +8,7 @@ module Twilio.ConnectApps
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -33,8 +34,8 @@ instance FromJSON ConnectApps where
   parseJSON = parseJSONToList
 
 instance Get0 ConnectApps where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/ConnectApps.json"
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest "/ConnectApps.json"
 
 -- | Get 'ConnectApps'.
-get :: Monad m => TwilioT m ConnectApps
+get :: MonadThrow m => TwilioT m ConnectApps
 get = Resource.get

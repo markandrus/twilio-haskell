@@ -7,8 +7,8 @@ module Twilio.OutgoingCallerIDs
   , Twilio.OutgoingCallerIDs.get
   ) where
 
-
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -34,9 +34,9 @@ instance FromJSON OutgoingCallerIDs where
   parseJSON = parseJSONToList
 
 instance Get0 OutgoingCallerIDs where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/OutgoingCallerIds.json"
 
 -- | Get 'OutgoingCallerIDs'.
-get :: Monad m => TwilioT m OutgoingCallerIDs
+get :: MonadThrow m => TwilioT m OutgoingCallerIDs
 get = Resource.get

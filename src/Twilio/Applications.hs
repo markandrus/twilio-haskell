@@ -8,6 +8,7 @@ module Twilio.Applications
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -33,7 +34,7 @@ instance FromJSON Applications where
   parseJSON = parseJSONToList
 
 instance Get0 Applications where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest "/Applications.json"
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest "/Applications.json"
 
 {- | Get the 'Applications' for your account.
 
@@ -52,5 +53,5 @@ For example, you can fetch the 'Applications' resource in the 'IO' monad as foll
 >                  (getEnv "AUTH_TOKEN")
 >     $ Applications.get >>= liftIO . print
 -}
-get :: Monad m => TwilioT m Applications
+get :: MonadThrow m => TwilioT m Applications
 get = Resource.get

@@ -12,8 +12,8 @@ module Twilio.Address
 import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe (fromJust)
 
 import Control.Monad.Twilio
 import Twilio.Internal.Parser
@@ -50,9 +50,9 @@ instance FromJSON Address where
   parseJSON _ = mzero
 
 instance Get1 AddressSID Address where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/Addresses" ++ sid ++ ".json")
 
 -- | Get an 'Address' by 'AddressSID'.
-get :: Monad m => AddressSID -> TwilioT m Address
+get :: MonadThrow m => AddressSID -> TwilioT m Address
 get = Resource.get

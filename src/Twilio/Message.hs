@@ -13,8 +13,8 @@ module Twilio.Message
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.Catch
 import Data.Aeson
-import Data.Maybe
 import Data.Time.Clock
 import Network.URI
 
@@ -68,11 +68,11 @@ instance FromJSON Message where
   parseJSON _ = mzero
 
 instance Get1 MessageSID Message where
-  get1 (getSID -> sid) = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
     ("/Messages/" ++ sid ++ ".json")
 
 -- | Get a 'Message' by 'MessageSID'.
-get :: Monad m => MessageSID -> TwilioT m Message
+get :: MonadThrow m => MessageSID -> TwilioT m Message
 get = Resource.get
 
 {- Types -}

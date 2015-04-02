@@ -9,6 +9,7 @@ module Twilio.UsageTriggers
 
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -34,9 +35,9 @@ instance FromJSON UsageTriggers where
   parseJSON = parseJSONToList
 
 instance Get0 UsageTriggers where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/Usage/Triggers.json"
 
 -- | Get 'UsageTriggers'.
-get :: Monad m => TwilioT m UsageTriggers
+get :: MonadThrow m => TwilioT m UsageTriggers
 get = Resource.get

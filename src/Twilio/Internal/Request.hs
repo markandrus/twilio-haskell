@@ -32,10 +32,10 @@ newtype RequestT m a = RequestT { runRequestT :: FreeT RequestF m a }
   deriving (Applicative, Functor, Generic, Monad, MonadIO, MonadTrans, Typeable)
 
 class Monad m => MonadRequest m where
-  request :: (Response LBS.ByteString -> a) -> Request -> m a
+  request :: (Response LBS.ByteString -> m a) -> Request -> m a
 
 instance Monad m => MonadRequest (RequestT m) where
-  request go r = RequestT . FreeT . return . Free $ RequestF (r, return <$> go)
+  request go r = RequestT . FreeT . return . Free $ RequestF (r, runRequestT . go)
 
 -- | A dummy interpreter
 {-

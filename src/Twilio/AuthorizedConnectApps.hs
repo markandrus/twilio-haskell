@@ -8,6 +8,7 @@ module Twilio.AuthorizedConnectApps
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -33,9 +34,9 @@ instance FromJSON AuthorizedConnectApps where
   parseJSON = parseJSONToList
 
 instance Get0 AuthorizedConnectApps where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/AuthorizedConnectApps.json"
 
 -- | Get 'AuthorizedConnectApps'.
-get :: Monad m => TwilioT m AuthorizedConnectApps
+get :: MonadThrow m => TwilioT m AuthorizedConnectApps
 get = Resource.get

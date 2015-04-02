@@ -8,6 +8,7 @@ module Twilio.Transcriptions
   ) where
 
 import Control.Applicative
+import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 
@@ -32,9 +33,9 @@ instance FromJSON Transcriptions where
   parseJSON = parseJSONToList
 
 instance Get0 Transcriptions where
-  get0 = request (fromJust . parseJSONFromResponse) =<< makeTwilioRequest
+  get0 = request parseJSONFromResponse =<< makeTwilioRequest
     "/Transcriptions.json"
 
 -- | Get 'Transcriptions'.
-get :: Monad m => TwilioT m Transcriptions
+get :: MonadThrow m => TwilioT m Transcriptions
 get = Resource.get
