@@ -13,6 +13,9 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Time.Clock
 import Network.URI
 
@@ -30,9 +33,9 @@ data AuthorizedConnectApp = AuthorizedConnectApp
   , accountSID   :: !AccountSID
 --  , permissions  :: !Permissions
   , sid          :: !ConnectAppSID
-  , friendlyName :: !String
-  , description  :: !String
-  , companyName  :: !String
+  , friendlyName :: !Text
+  , description  :: !Text
+  , companyName  :: !Text
   , homepageURL  :: !(Maybe URI)
   , uri          :: !URI
   } deriving (Show, Eq)
@@ -48,7 +51,7 @@ instance FromJSON AuthorizedConnectApp where
     <*>  v .: "connect_app_description"
     <*>  v .: "connect_app_company_name"
     <*> (v .: "connect_app_homepage_url" <&> fmap filterEmpty
-                                         <&> fmap (fmap parseURI)
+                                         <&> fmap (fmap $ parseURI . T.unpack)
                                          >>= maybeReturn'')
     <*> (v .: "uri"                      <&> parseRelativeReference
                                          >>= maybeReturn)
@@ -56,7 +59,7 @@ instance FromJSON AuthorizedConnectApp where
 
 instance Get1 ConnectAppSID AuthorizedConnectApp where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/AuthorizedConnectApps/" ++ sid ++ ".json")
+    ("/AuthorizedConnectApps/" <> sid <> ".json")
 
 -- | Get an 'AuthorizedConnectApp' by 'ConnectAppSID'.
 get :: MonadThrow m => ConnectAppSID -> TwilioT m AuthorizedConnectApp

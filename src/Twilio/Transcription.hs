@@ -16,6 +16,8 @@ import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -35,7 +37,7 @@ data Transcription = Transcription
   , status               :: !TranscriptionStatus
   , recordingSID         :: !RecordingSID
   , duration             :: !(Maybe Int)
-  , transcriptionText    :: !String
+  , transcriptionText    :: !Text
   , price                :: !(Maybe Double)
   , priceUnit            :: !PriceUnit
   , apiVersion           :: !APIVersion
@@ -63,7 +65,7 @@ instance FromJSON Transcription where
 
 instance Get1 TranscriptionSID Transcription where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Transcriptions/" ++ sid ++ ".json")
+    ("/Transcriptions/" <> sid <> ".json")
 
 -- | Get a 'Transcription' by 'TranscriptionSID'.
 get :: MonadThrow m => TranscriptionSID -> TwilioT m Transcription

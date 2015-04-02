@@ -13,6 +13,8 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -28,9 +30,9 @@ data OutgoingCallerID = OutgoingCallerID
   { sid          :: !PhoneNumberSID
   , dateCreated  :: !UTCTime
   , dateUpdated  :: !UTCTime
-  , friendlyName :: !String
+  , friendlyName :: !Text
   , accountSID   :: !AccountSID
-  , phoneNumber  :: !String
+  , phoneNumber  :: !Text
   , uri          :: !URI
   } deriving (Show, Eq)
 
@@ -48,7 +50,7 @@ instance FromJSON OutgoingCallerID where
 
 instance Get1 PhoneNumberSID OutgoingCallerID where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/OutgoingCallerIds/" ++ sid ++ ".json")
+    ("/OutgoingCallerIds/" <> sid <> ".json")
 
 -- | Get an 'OutgoingCallerID' by 'PhoneNumberSID'
 get :: MonadThrow m => PhoneNumberSID -> TwilioT m OutgoingCallerID

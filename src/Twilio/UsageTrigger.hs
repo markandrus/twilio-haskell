@@ -12,6 +12,8 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -28,16 +30,16 @@ data UsageTrigger = UsageTrigger
   , dateCreated    :: !UTCTime
   , dateUpdated    :: !UTCTime
   , accountSID     :: !AccountSID
-  , friendlyName   :: !String
-  , recurring      :: !(Maybe String)
-  , usageCategory  :: !String
-  , triggerBy      :: !String
-  , triggerValue   :: !String
-  , currentValue   :: !String
+  , friendlyName   :: !Text
+  , recurring      :: !(Maybe Text)
+  , usageCategory  :: !Text
+  , triggerBy      :: !Text
+  , triggerValue   :: !Text
+  , currentValue   :: !Text
   , usageRecordURI :: !URI
-  , callbackURL    :: !(Maybe String)
-  , callbackMethod :: !String
-  , dateFired      :: !(Maybe String)
+  , callbackURL    :: !(Maybe Text)
+  , callbackMethod :: !Text
+  , dateFired      :: !(Maybe Text)
   , uri            :: !URI
   } deriving (Eq, Show)
 
@@ -64,7 +66,7 @@ instance FromJSON UsageTrigger where
 
 instance Get1 UsageTriggerSID UsageTrigger where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Usage/Triggers/" ++ sid ++ ".json")
+    ("/Usage/Triggers/" <> sid <> ".json")
 
 -- | Get a 'UsageTrigger' by 'UsageTriggerSID'.
 get :: MonadThrow m => UsageTriggerSID -> TwilioT m UsageTrigger

@@ -6,6 +6,7 @@ import Control.Applicative
 import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
+import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time.Clock
 import Data.Time.Format
@@ -25,19 +26,19 @@ maybeReturn'' (Just Nothing) = return Nothing
 maybeReturn'' (Just (Just Nothing)) = mzero
 maybeReturn'' (Just (Just ma)) = return ma
 
-filterEmpty :: String -> Maybe String
+filterEmpty :: Text -> Maybe Text
 filterEmpty "" = Nothing
-filterEmpty s = Just s
+filterEmpty t = Just t
 
-parseDate :: (Monad m, MonadPlus m) => String -> m UTCTime
+parseDate :: (Monad m, MonadPlus m) => Text -> m UTCTime
 parseDate s =
-  case parseTime defaultTimeLocale "%F" s of
+  case parseTime defaultTimeLocale "%F" (T.unpack s) of
     Just date -> return date
     Nothing   -> mzero
 
-parseDateTime :: (Monad m, MonadPlus m) => String -> m UTCTime
+parseDateTime :: (Monad m, MonadPlus m) => Text -> m UTCTime
 parseDateTime s =
-  case parseTime defaultTimeLocale "%a, %d %b %Y %T %z" s of
+  case parseTime defaultTimeLocale "%a, %d %b %Y %T %z" (T.unpack s) of
     Just dateTime -> return dateTime
     Nothing       -> mzero
 
@@ -45,20 +46,20 @@ maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
 maybeReturn (Just a) = return a
 maybeReturn Nothing  = mzero
 
-newtype NonEmptyString = NonEmptyString { getNonEmptyString :: Maybe String }
+newtype NonEmptyText = NonEmptyText { getNonEmptyText :: Maybe Text }
 
-instance FromJSON NonEmptyString where
-  parseJSON (String "") = return $ NonEmptyString Nothing
-  parseJSON (String v) = return . NonEmptyString . Just $ T.unpack v
+instance FromJSON NonEmptyText where
+  parseJSON (String "") = return $ NonEmptyText Nothing
+  parseJSON (String v) = return . NonEmptyText $ Just v
   parseJSON _ = mzero
 
 -- | Note that the parser only returns Nothing if the input
 -- is Nothing. If the input is an incorrectly formatted
--- String the parse will fail.
-parseMaybeDateTime :: Maybe String -> Parser (Maybe UTCTime)
+-- Text the parse will fail.
+parseMaybeDateTime :: Maybe Text -> Parser (Maybe UTCTime)
 parseMaybeDateTime (Just a) = Just <$> parseDateTime a
 parseMaybeDateTime Nothing = return Nothing
 
-valueToString :: Value -> Maybe String
-valueToString (String v) = Just $ T.unpack v
-valueToString _ = Nothing
+valueToText :: Value -> Maybe Text
+valueToText (String v) = Just v
+valueToText _ = Nothing

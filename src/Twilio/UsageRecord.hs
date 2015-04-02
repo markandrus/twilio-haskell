@@ -10,6 +10,7 @@ import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
 import Data.Aeson
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -19,15 +20,15 @@ import Twilio.Internal.Parser
 {- Resource -}
 
 data UsageRecord = UsageRecord
-  { category    :: !String
-  , description :: !String
+  { category    :: !Text
+  , description :: !Text
   , accountSID  :: !AccountSID
   , startDate   :: !UTCTime
   , endDate     :: !UTCTime
   , usage       :: !Double
-  , usageUnit   :: !String
+  , usageUnit   :: !Text
   , count       :: !(Maybe Double)
-  , countUnit   :: !(Maybe String)
+  , countUnit   :: !(Maybe Text)
   , price       :: !Double
   , priceUnit   :: !PriceUnit
   , uri         :: !URI

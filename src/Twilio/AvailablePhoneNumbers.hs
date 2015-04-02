@@ -11,6 +11,8 @@ module Twilio.AvailablePhoneNumbers
 import Control.Applicative
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import qualified Data.Text as T
 
 import Control.Monad.Twilio
 import Twilio.AvailablePhoneNumber
@@ -34,7 +36,7 @@ instance FromJSON AvailablePhoneNumbers where
 
 instance Get1 ISOCountryCode AvailablePhoneNumbers where
   get1 (show -> isoCountryCode) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/AvailablePhoneNumbers/" ++ isoCountryCode ++ "/Local.json")
+    ("/AvailablePhoneNumbers/" <> T.pack isoCountryCode <> "/Local.json")
 
 -- | Get 'AvailablePhoneNumbers' for a particular country.
 get :: MonadThrow m => ISOCountryCode -> TwilioT m AvailablePhoneNumbers

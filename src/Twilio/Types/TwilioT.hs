@@ -4,18 +4,18 @@ import Twilio.Internal.Request
 
 -- | Your authentication token is used to make authenticated REST API requests
 -- to your Twilio account.
-newtype AuthToken = AuthToken { getAuthToken' :: String }
+newtype AuthToken = AuthToken { getAuthToken' :: Text }
   deriving (Show, Eq, Ord)
 
--- | Get the 'String' representation of an 'AuthToken'.
-getAuthToken :: AuthToken -> String
+-- | Get the 'Text' representation of an 'AuthToken'.
+getAuthToken :: AuthToken -> Text
 getAuthToken = getAuthToken'
 
--- | Parse a 'String' to an 'AuthToken'.
-parseAuthToken :: String -> Maybe AuthToken
+-- | Parse a 'Text' to an 'AuthToken'.
+parseAuthToken :: Text -> Maybe AuthToken
 parseAuthToken = parseAuthToken'
 
-parseAuthToken' :: MonadPlus m => String -> m AuthToken
+parseAuthToken' :: MonadPlus m => Text -> m AuthToken
 parseAuthToken' token
   | length token == 32
   , all (\x -> isLower x || isNumber x) token

@@ -10,6 +10,7 @@ import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
 import Data.Aeson
+import Data.Text (Text)
 
 import Twilio.Types
 import Twilio.Internal.Parser
@@ -17,13 +18,13 @@ import Twilio.Internal.Parser
 {- Resource -}
 
 data AvailablePhoneNumber = AvailablePhoneNumber
-  { friendlyName :: !String
-  , phoneNumber  :: !String
+  { friendlyName :: !Text
+  , phoneNumber  :: !Text
   , lata         :: !(Maybe Integer)
-  , rateCenter   :: !(Maybe String)
+  , rateCenter   :: !(Maybe Text)
   , latitude     :: !(Maybe Double)
   , longitude    :: !(Maybe Double)
-  , region       :: !String
+  , region       :: !Text
   , postalCode   :: !(Maybe Integer)
   , isoCountry   :: !ISOCountryCode
   , addressRequirements :: !(Maybe AddressRequirement)

@@ -15,6 +15,7 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Free
 import qualified Data.ByteString.Lazy as LBS
+import Data.Text (Text)
 import Data.Typeable
 import GHC.Generics
 import Network.HTTP.Client
@@ -47,10 +48,10 @@ runRequest (RequestT (FreeT m)) = m >>= \case
     run (RequestF (_, go)) = undefined
 -}
 
-baseURL :: String
+baseURL :: Text
 baseURL = "https://api.twilio.com/2010-04-01"
 
-runRequest' :: (Monad m, MonadIO m) => (String, String) -> RequestT m a -> m a
+runRequest' :: (Monad m, MonadIO m) => (Text, Text) -> RequestT m a -> m a
 runRequest' credentials (RequestT (FreeT m)) = m >>= \case
     Free f -> runRequest' credentials . RequestT =<< run (return <$> f)
     Pure a -> return a

@@ -20,6 +20,9 @@ import Control.Monad
 import Control.Monad.Reader.Class
 import Data.Aeson
 import qualified Data.ByteString.Char8 as C
+import Data.Monoid
+import Data.Text (Text)
+import qualified Data.Text as T
 import Network.HTTP.Client
 
 import Control.Monad.Twilio
@@ -53,27 +56,27 @@ instance FromJSON APIVersion where
   parseJSON (String "2008-08-01") = return API_2008_08_01
   parseJSON _ = mzero
 
-makeTwilioRequest' :: Monad m => String -> TwilioT m Request
+makeTwilioRequest' :: Monad m => Text -> TwilioT m Request
 makeTwilioRequest' suffix = do
   ((accountSID, authToken), _) <- ask
-  let Just request = parseUrl (baseURL ++ suffix)
-  return $ applyBasicAuth (C.pack $ getSID accountSID)
-                          (C.pack $ getAuthToken authToken) request
+  let Just request = parseUrl . T.unpack $ baseURL <> suffix
+  return $ applyBasicAuth (C.pack . T.unpack $ getSID accountSID)
+                          (C.pack . T.unpack $ getAuthToken authToken) request
 
-makeTwilioRequest :: Monad m => String -> TwilioT m Request
+makeTwilioRequest :: Monad m => Text -> TwilioT m Request
 makeTwilioRequest suffix = do
   ((_, _), accountSID) <- ask
-  makeTwilioRequest' $ "/Accounts/" ++ getSID accountSID ++ suffix
+  makeTwilioRequest' $ "/Accounts/" <> getSID accountSID <> suffix
 
 makeTwilioPOSTRequest' :: Monad m
-                       => String
+                       => Text
                        -> [(C.ByteString, C.ByteString)]
                        -> TwilioT m Request
 makeTwilioPOSTRequest' resourceURL params =
   makeTwilioRequest' resourceURL <&> urlEncodedBody params
 
 makeTwilioPOSTRequest :: Monad m
-                      => String
+                      => Text
                       -> [(C.ByteString, C.ByteString)]
                       -> TwilioT m Request
 makeTwilioPOSTRequest resourceURL params =

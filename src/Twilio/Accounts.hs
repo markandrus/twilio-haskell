@@ -15,6 +15,7 @@ import Control.Applicative
 import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
+import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding
 
@@ -66,16 +67,16 @@ instance Post0 Account where
   post0
     = request parseJSONFromResponse =<< makeTwilioPOSTRequest' "/Accounts.json" []
 
-instance Post1 String Account where
+instance Post1 Text Account where
   post1 friendlyName
     = request parseJSONFromResponse =<< makeTwilioPOSTRequest' "/Accounts.json"
-      [ ("FriendlyName", encodeUtf8 . T.pack $ friendlyName ) ]
+      [ ("FriendlyName", encodeUtf8 friendlyName ) ]
 
-instance Post1 (Maybe String) Account where
+instance Post1 (Maybe Text) Account where
   post1 Nothing = post0
   post1 (Just friendlyName) = post1 friendlyName
 
-post :: MonadThrow m => Maybe String -> TwilioT m Account
+post :: MonadThrow m => Maybe Text -> TwilioT m Account
 post = Resource.post
 
 {- | Create a new 'Account' instance resource as a subaccount of the one used
@@ -97,9 +98,9 @@ For example, you can create a subaccount, "foo", as follows:
 >     $ createSubAccount (Just "foo") >>= liftIO . print
 -}
 createSubAccount :: MonadThrow m
-                 => Maybe String  -- ^ A human readable description of the new
-                                  -- subaccount, up to 64 characters. Defaults
-                                  -- to "SubAccount Created at {YYYY-MM-DD
-                                  -- HH:MM meridian}".
+                 => Maybe Text  -- ^ A human readable description of the new
+                                -- subaccount, up to 64 characters. Defaults
+                                -- to "SubAccount Created at {YYYY-MM-DD
+                                -- HH:MM meridian}".
                  -> TwilioT m Account
 createSubAccount = Twilio.Accounts.post

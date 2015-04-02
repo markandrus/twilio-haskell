@@ -12,7 +12,7 @@ module Twilio.Messages
 import Control.Applicative
 import Control.Monad.Catch
 import Data.Aeson
-import qualified Data.Text as T
+import Data.Text (Text)
 import Data.Text.Encoding
 import Data.Maybe
 
@@ -30,9 +30,9 @@ data Messages = Messages
   } deriving (Show, Eq)
 
 data PostMessage = PostMessage
-  { sendTo   :: !String
-  , sendFrom :: !String
-  , sendBody :: !String
+  { sendTo   :: !Text
+  , sendFrom :: !Text
+  , sendBody :: !Text
   } deriving (Show, Eq)
 
 instance List Messages Message where
@@ -50,9 +50,9 @@ instance Get0 Messages where
 instance Post1 PostMessage Message where
   post1 msg = request parseJSONFromResponse =<<
     makeTwilioPOSTRequest "/Messages.json"
-      [ ("To", encodeUtf8 . T.pack . sendTo $ msg)
-      , ("From", encodeUtf8 . T.pack . sendFrom $ msg)
-      , ("Body", encodeUtf8 . T.pack . sendBody $ msg)
+      [ ("To", encodeUtf8 $ sendTo msg)
+      , ("From", encodeUtf8 $ sendFrom msg)
+      , ("Body", encodeUtf8 $ sendBody msg)
       ]
 
 -- | Get 'Messages'.

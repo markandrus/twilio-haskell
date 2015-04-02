@@ -29,37 +29,38 @@ import Control.Applicative
 import Data.Aeson
 import Data.Bifunctor.Flip
 import Data.Typeable
-import Data.Text
+import Data.Text (Text)
+import qualified Data.Text as T
 import GHC.Generics
 
-newtype AccountSID = AccountSID { getAccountSID :: String }
+newtype AccountSID = AccountSID { getAccountSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype AddressSID = AddressSID { getAddressSID :: String }
+newtype AddressSID = AddressSID { getAddressSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype ApplicationSID = ApplicationSID { getApplicationSID :: String }
+newtype ApplicationSID = ApplicationSID { getApplicationSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype CallSID = CallSID { getCallSID :: String }
+newtype CallSID = CallSID { getCallSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: String }
+newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype MessageSID = MessageSID { getMessageSID :: String }
+newtype MessageSID = MessageSID { getMessageSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: String }
+newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype RecordingSID = RecordingSID { getRecordingSID :: String }
+newtype RecordingSID = RecordingSID { getRecordingSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype TranscriptionSID = TranscriptionSID { getTranscriptionSID :: String }
+newtype TranscriptionSID = TranscriptionSID { getTranscriptionSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
-newtype UsageTriggerSID = UsageTriggerSID { getUsageTriggerSID :: String }
+newtype UsageTriggerSID = UsageTriggerSID { getUsageTriggerSID :: Text }
   deriving (Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID AccountSID where
@@ -152,37 +153,38 @@ instance FromJSON UsageTriggerSID where
 instance ToJSON UsageTriggerSID where
   toJSON = sidToJSON
 
-parseSID' :: (MonadPlus m, SID s) => String -> Const (m s) s
-parseSID' sid@(a:b:_)
-  = runFlip $ (\ab' -> if (a, b) == ab' then return (makeSID sid) else mzero)
-           <$> Flip getPrefix
-parseSID' _ = Const mzero
+parseSID' :: (MonadPlus m, SID s) => Text -> Const (m s) s
+parseSID' sid =
+  case T.unpack sid of
+    a:b:_ -> runFlip $ (\ab' -> if (a, b) == ab' then return (makeSID sid) else mzero)
+               <$> Flip getPrefix
+    _     -> Const mzero
 
 parseSIDFromJSON :: (MonadPlus m, SID s) => Value -> m s
-parseSIDFromJSON (String v) = getConst . parseSID' $ unpack v
+parseSIDFromJSON (String v) = getConst $ parseSID' v
 parseSIDFromJSON _ = mzero
 
 sidToJSON :: SID s => s -> Value
-sidToJSON = String . pack . getSID
+sidToJSON = String . getSID
 
 class SID s where
   getPrefix :: Const (Char, Char) s
 
-  getSID :: s -> String
-  default getSID :: (Generic s, GSID (Rep s ())) => s -> String
-  getSID = (gGetSID :: Rep s () -> String) . from
+  getSID :: s -> Text
+  default getSID :: (Generic s, GSID (Rep s ())) => s -> Text
+  getSID = (gGetSID :: Rep s () -> Text) . from
 
-  makeSID :: String -> s
-  default makeSID :: (Generic s, GSID (Rep s ())) => String -> s
-  makeSID = to . (gMakeSID :: String -> Rep s ())
+  makeSID :: Text -> s
+  default makeSID :: (Generic s, GSID (Rep s ())) => Text -> s
+  makeSID = to . (gMakeSID :: Text -> Rep s ())
 
-  parseSID :: String -> Maybe s
+  parseSID :: Text -> Maybe s
   parseSID = getConst . parseSID'
 
 class GSID s where
-  gGetSID :: s -> String
-  gMakeSID :: String -> s
+  gGetSID :: s -> Text
+  gMakeSID :: Text -> s
 
-instance GSID (D1 a (C1 b (S1 c (Rec0 String))) ()) where
+instance GSID (D1 a (C1 b (S1 c (Rec0 Text))) ()) where
   gGetSID (M1 (M1 (M1 (K1 s)))) = s
   gMakeSID = M1 . M1 . M1 . K1
