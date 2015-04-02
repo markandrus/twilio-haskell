@@ -1,5 +1,4 @@
 {-#LANGUAGE FlexibleInstances #-}
-{-#LANGUAGE LambdaCase #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ViewPatterns #-}
@@ -80,9 +79,8 @@ instance Post1 Integer Token where
       [ ("Ttl", encodeUtf8 . T.pack $ ttl ) ]
 
 instance Post1 (Maybe Integer) Token where
-  post1 = \case
-    Nothing  -> post0
-    Just ttl -> post1 ttl
+  post1 Nothing = post0
+  post1 (Just ttl) = post1 ttl
 
 post :: MonadThrow m => Maybe Integer -> TwilioT m Token
 post = Resource.post
