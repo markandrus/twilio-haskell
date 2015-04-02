@@ -24,6 +24,7 @@ import Control.Monad.Catch
 import Control.Monad.IO.Class
 import Control.Monad.Reader.Class
 import Control.Monad.Trans.Class
+import Control.Monad.Trans.Free
 import qualified Data.ByteString.Lazy as LBS
 import Data.Typeable
 import Network.HTTP.Client
@@ -76,7 +77,9 @@ getTwilioT :: Monad m => TwilioT m a -> (Credentials, AccountSID) -> RequestT m 
 getTwilioT (TwilioT f) = f
 
 instance Monad m => MonadRequest (TwilioT m) where
-  request uri go = TwilioT $ getTwilioT (request uri go)
+  request go r
+    = TwilioT $ \config -> RequestT . FreeT . return . Free
+    $ RequestF (r, \response -> runRequestT $ getTwilioT (go response) config)
 
 -- | Run zero or more REST API requests to Twilio, unwrapping the inner monad
 -- @m@.
