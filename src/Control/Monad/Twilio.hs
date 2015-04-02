@@ -26,6 +26,8 @@ import Control.Monad.Reader.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Free
 import qualified Data.ByteString.Lazy as LBS
+import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Typeable
 import Network.HTTP.Client
 
@@ -91,14 +93,14 @@ runTwilioT credentials@(accountSID, authToken) (TwilioT go) = do
 
 -- | Parse an 'AccountSID' and 'AuthToken' before running zero or more REST API
 -- requests to Twilio, unwrapping the inner monad @m@.
-runTwilioT' :: (MonadThrow m, MonadIO m)
+runTwilioT' :: (Functor m, MonadThrow m, MonadIO m)
             => m String     -- ^ Account SID
             -> m String     -- ^ Authentication Token
             -> TwilioT m a
             -> m a
 runTwilioT' getAccountSID getAuthToken twilio = do
-  accountSID <- getAccountSID
-  authToken  <- getAuthToken
+  accountSID <- T.pack <$> getAccountSID
+  authToken  <- T.pack <$> getAuthToken
   case parseCredentials accountSID authToken of
     Nothing -> throwM InvalidCredentials
     Just credentials -> runTwilioT credentials twilio
@@ -147,8 +149,8 @@ instance MonadIO m => MonadIO (TwilioT m) where
 type Credentials = (AccountSID, AuthToken)
 
 parseCredentials
-  :: String             -- ^ Account SID
-  -> String             -- ^ Authentication Token
+  :: Text               -- ^ Account SID
+  -> Text               -- ^ Authentication Token
   -> Maybe Credentials
 parseCredentials accountSID authToken = uncurry (liftM2 (,))
   ( parseSID accountSID :: Maybe AccountSID
@@ -157,8 +159,8 @@ parseCredentials accountSID authToken = uncurry (liftM2 (,))
 -- | The set of 'Exception's that may be thrown when attempting to make
 -- requests against Twilio's REST API.
 data TwilioException
-  = InvalidSID         !String
-  | InvalidAuthToken   !String
+  = InvalidSID         !Text
+  | InvalidAuthToken   !Text
   | InvalidCredentials
   | UnexpectedResponse !(Response LBS.ByteString)
   deriving (Show, Eq, Typeable)

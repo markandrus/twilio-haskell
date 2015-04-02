@@ -14,6 +14,9 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Time.Clock
 import Network.URI
 
@@ -29,7 +32,7 @@ data Application = Application
   { sid                   :: !ApplicationSID
   , dateCreated           :: !UTCTime
   , dateUpdated           :: !UTCTime
-  , friendlyName          :: !String
+  , friendlyName          :: !Text
   , accountSID            :: !AccountSID
   , apiVersion            :: !APIVersion
   , voiceURL              :: !(Maybe URI)
@@ -57,31 +60,31 @@ instance FromJSON Application where
     <*>  v .: "account_sid"
     <*>  v .: "api_version"
     <*> (v .: "voice_url"               <&> filterEmpty
-                                        <&> fmap parseURI
+                                        <&> fmap (parseURI . T.unpack)
                                         >>= maybeReturn')
     <*>  v .: "voice_method"
     <*> (v .: "voice_fallback_url"      <&> filterEmpty
-                                        <&> fmap parseURI
+                                        <&> fmap (parseURI . T.unpack)
                                         >>= maybeReturn')
     <*>  v .: "voice_fallback_method"
     <*> (v .: "status_callback"         <&> filterEmpty
-                                        <&> fmap parseURI
+                                        <&> fmap (parseURI . T.unpack)
                                         >>= maybeReturn')
     <*>  v .: "status_callback_method"
     <*>  v .: "voice_caller_id_lookup"
     <*> (v .: "sms_url"                 <&> filterEmpty
-                                        <&> fmap parseURI
+                                        <&> fmap (parseURI . T.unpack)
                                         >>= maybeReturn')
     <*>  v .: "sms_method"
     <*> (v .: "sms_fallback_url"        <&> filterEmpty
-                                        <&> fmap parseURI
+                                        <&> fmap (parseURI . T.unpack)
                                         >>= maybeReturn')
     <*>  v .: "sms_fallback_method"
     <*> (v .: "sms_status_callback"     <&> fmap filterEmpty
-                                        <&> fmap (fmap parseURI)
+                                        <&> fmap (fmap $ parseURI . T.unpack)
                                         >>= maybeReturn'')
     <*> (v .: "message_status_callback" <&> fmap filterEmpty
-                                        <&> fmap (fmap parseURI)
+                                        <&> fmap (fmap $ parseURI . T.unpack)
                                         >>= maybeReturn'')
     <*> (v .: "uri"                     <&> parseRelativeReference
                                         >>= maybeReturn)
@@ -89,7 +92,7 @@ instance FromJSON Application where
 
 instance Get1 ApplicationSID Application where
   get1 applicationSID = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Applications/" ++ getSID applicationSID ++ ".json")
+    ("/Applications/" <> getSID applicationSID <> ".json")
 
 -- | Get an 'Application' by 'ApplicationSID'.
 get :: MonadThrow m => ApplicationSID -> TwilioT m Application

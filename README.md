@@ -20,6 +20,8 @@ Example
 You can create a REST API client and fetch the calls resources as follows
 
 ```hs
+{-#LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Control.Monad.IO.Class (liftIO)

@@ -20,6 +20,8 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -35,7 +37,7 @@ data Account = Account
   { sid             :: !AccountSID
   , dateCreated     :: !UTCTime
   , dateUpdated     :: !UTCTime
-  , friendlyName    :: !String
+  , friendlyName    :: !Text
   , type'           :: !Type
   , status          :: !Status
   , authToken       :: !AuthToken
@@ -59,7 +61,7 @@ instance FromJSON Account where
 
 instance Get1 AccountSID Account where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest'
-    ("/Accounts/" ++ sid ++ ".json")
+    ("/Accounts/" <> sid <> ".json")
   {-
   get1 (getSID -> sid) =
     let twilioRequest = makeTwilioRequest' $ "/Accounts/" ++ sid ++ ".json"

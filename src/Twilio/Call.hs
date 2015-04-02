@@ -18,6 +18,8 @@ import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -35,8 +37,8 @@ data Call = Call
   , dateCreated    :: !UTCTime
   , dateUpdated    :: !UTCTime
   , accountSID     :: !AccountSID
-  , to             :: !(Maybe String)
-  , from           :: !String
+  , to             :: !(Maybe Text)
+  , from           :: !Text
   , phoneNumberSID :: !(Maybe PhoneNumberSID)
   , status         :: !CallStatus
   , startTime      :: !UTCTime
@@ -46,8 +48,8 @@ data Call = Call
   , priceUnit      :: !(Maybe PriceUnit)
   , direction      :: !(Maybe CallDirection)
   , answeredBy     :: !(Maybe AnsweredBy)
-  , forwardedFrom  :: !(Maybe String)
-  , callerName     :: !(Maybe String)
+  , forwardedFrom  :: !(Maybe Text)
+  , callerName     :: !(Maybe Text)
   , uri            :: !URI
   , apiVersion     :: !APIVersion
   } deriving (Show, Eq)
@@ -82,7 +84,7 @@ instance FromJSON Call where
 
 instance Get1 CallSID Call where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Calls/" ++ sid ++ ".json")
+    ("/Calls/" <> sid <> ".json")
 
 -- | Get a 'Call' by 'CallSID'.
 get :: MonadThrow m => CallSID -> TwilioT m Call

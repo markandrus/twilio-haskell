@@ -13,6 +13,9 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
+import qualified Data.Text as T
 import Network.URI
 
 import Control.Monad.Twilio
@@ -27,13 +30,13 @@ data ConnectApp = ConnectApp
   { sid                       :: !ConnectAppSID
   , accountSID                :: !AccountSID
 --  , permissions               :: !
-  , friendlyName              :: !String
-  , description               :: !String
-  , companyName               :: !String
+  , friendlyName              :: !Text
+  , description               :: !Text
+  , companyName               :: !Text
   , homepageURL               :: !(Maybe URI)
   , authorizeRedirectURL      :: !(Maybe URI)
   , deauthorizeCallbackURL    :: !(Maybe URI)
---  , deauthorizeCallbackMethod :: !String
+--  , deauthorizeCallbackMethod :: !Text
   , uri                       :: !URI
   } deriving (Show, Eq)
 
@@ -46,13 +49,13 @@ instance FromJSON ConnectApp where
     <*>  v .: "description"
     <*>  v .: "company_name"
     <*> (v .: "homepage_url"             <&> fmap filterEmpty
-                                         <&> fmap (fmap parseURI)
+                                         <&> fmap (fmap $ parseURI . T.unpack)
                                          >>= maybeReturn'')
     <*> (v .: "authorize_redirect_url"   <&> fmap filterEmpty
-                                         <&> fmap (fmap parseURI)
+                                         <&> fmap (fmap $ parseURI . T.unpack)
                                          >>= maybeReturn'')
     <*> (v .: "deauthorize_callback_url" <&> fmap filterEmpty
-                                         <&> fmap (fmap parseURI) 
+                                         <&> fmap (fmap $ parseURI . T.unpack)
                                          >>= maybeReturn'')
 --    <*>  v .: "deauthorize_callback_method"
     <*> (v .: "uri"                      <&> parseRelativeReference
@@ -61,7 +64,7 @@ instance FromJSON ConnectApp where
 
 instance Get1 ConnectAppSID ConnectApp where
   get1 (getSID -> sid) = request parseJSONFromResponse =<<
-    makeTwilioRequest ("/ConnectApps/" ++ sid ++ ".json")
+    makeTwilioRequest ("/ConnectApps/" <> sid <> ".json")
 
 -- | Get a 'ConnectApp' by 'ConnectAppSID'.
 get :: MonadThrow m => ConnectAppSID -> TwilioT m ConnectApp

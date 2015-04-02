@@ -13,6 +13,7 @@ import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
 import Data.Time.Clock
 import Network.URI
 
@@ -51,7 +52,7 @@ instance FromJSON Recording where
 
 instance Get1 RecordingSID Recording where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Recordings/" ++ sid ++ ".json")
+    ("/Recordings/" <> sid <> ".json")
 
 -- | Get a 'Recording' by 'RecordingSID'.
 get :: MonadThrow m => RecordingSID -> TwilioT m Recording

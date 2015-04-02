@@ -15,6 +15,8 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI
 
@@ -33,9 +35,9 @@ data Message = Message
   , dateSent    :: !(Maybe UTCTime)
     -- ^ This will be Nothing if Twilio hasn't sent the message yet.
   , accountSID  :: !AccountSID
-  , to          :: !String
-  , from        :: !String
-  , body        :: !String
+  , to          :: !Text
+  , from        :: !Text
+  , body        :: !Text
   , status      :: !MessageStatus
 --  , numSegments :: !Integer
   , direction   :: !MessageDirection
@@ -69,7 +71,7 @@ instance FromJSON Message where
 
 instance Get1 MessageSID Message where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Messages/" ++ sid ++ ".json")
+    ("/Messages/" <> sid <> ".json")
 
 -- | Get a 'Message' by 'MessageSID'.
 get :: MonadThrow m => MessageSID -> TwilioT m Message

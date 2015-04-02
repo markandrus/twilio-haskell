@@ -17,6 +17,7 @@ import Control.Monad.Catch
 import Data.Aeson
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe
+import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding
 import Data.Time.Clock
@@ -35,9 +36,9 @@ data Token = Token
   , dateCreated :: !UTCTime
   , dateUpdated :: !UTCTime
   , iceServers  :: [IceServer]
-  , password    :: !String
+  , password    :: !Text
   , ttl         :: !Integer
-  , username    :: !String
+  , username    :: !Text
   } deriving (Eq, Show)
 
 instance FromJSON Token where
@@ -54,19 +55,19 @@ instance FromJSON Token where
 data IceServer
   = StunServer { stunURL        :: !URI }
   | TurnServer { turnURL        :: !URI
-               , turnCredential :: !String
-               , turnUsername   :: !String }
+               , turnCredential :: !Text
+               , turnUsername   :: !Text }
   deriving (Eq, Show)
 
 instance FromJSON IceServer where
   parseJSON (Object map) =
-    let url = HashMap.lookup "url" map >>= valueToString >>= parseAbsoluteURI
+    let url = HashMap.lookup "url" map >>= valueToText >>= parseAbsoluteURI . T.unpack
     in  case url of
       Nothing   -> mzero
       Just url' -> return . fromMaybe (StunServer url') $ TurnServer
         <$> url
-        <*> (HashMap.lookup "credential" map >>= valueToString)
-        <*> (HashMap.lookup "username"   map >>= valueToString)
+        <*> (HashMap.lookup "credential" map >>= valueToText)
+        <*> (HashMap.lookup "username"   map >>= valueToText)
   parseJSON _ = mzero
 
 instance Post0 Token where

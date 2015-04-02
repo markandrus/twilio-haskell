@@ -14,6 +14,8 @@ import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+import Data.Monoid
+import Data.Text (Text)
 
 import Control.Monad.Twilio
 import Twilio.Internal.Parser
@@ -26,11 +28,11 @@ import Twilio.Types
 data Address = Address
   { sid          :: !AddressSID
   , accountSID   :: !AccountSID
-  , friendlyName :: !String
-  , customerName :: !String
-  , street       :: !String
-  , city         :: !String
-  , region       :: !String
+  , friendlyName :: !Text
+  , customerName :: !Text
+  , street       :: !Text
+  , city         :: !Text
+  , region       :: !Text
   , postalCode   :: !(Maybe Integer)
   , isoCountry   :: !ISOCountryCode
   } deriving (Eq, Show)
@@ -51,7 +53,7 @@ instance FromJSON Address where
 
 instance Get1 AddressSID Address where
   get1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioRequest
-    ("/Addresses" ++ sid ++ ".json")
+    ("/Addresses" <> sid <> ".json")
 
 -- | Get an 'Address' by 'AddressSID'.
 get :: MonadThrow m => AddressSID -> TwilioT m Address
