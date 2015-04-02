@@ -24,14 +24,21 @@ module Main where
 
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getEnv)
+import Twilio
 import Twilio.Calls as Calls
-import Twilio.Types
+import Twilio.Messages
 
--- | Print calls.
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
-                  (getEnv "AUTH_TOKEN")
-     $ Calls.get >>= liftIO . print
+                  (getEnv "AUTH_TOKEN") $ do
+  -- Print Calls.
+  calls <- Calls.get
+  liftIO $ print calls
+
+  -- Send a Message.
+  let body = PostMessage "+14158059869" "+14158059869" "Oh, hai"
+  message <- post body
+  liftIO $ print message
 ```
 
 Contributing
