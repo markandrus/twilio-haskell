@@ -43,8 +43,8 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
     , UsageTriggers.get            >>= liftIO . print ]
 
   -- Test POST /Accounts
-  subAccount <- Accounts.post Nothing
-  liftIO $ print subAccount
+  -- subAccount <- Accounts.post Nothing
+  -- liftIO $ print subAccount
 
   -- Test POST /Messages
   let body = PostMessage "+14158059869" "+14158059869" "Hello"
