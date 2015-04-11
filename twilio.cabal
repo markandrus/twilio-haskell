@@ -89,6 +89,7 @@ test-suite Tests
                        Cabal >=1.16.0,
                        http-client ==0.*,
                        http-client-tls ==0.2.*,
+                       network-uri >=2.6,
                        text ==1.*,
                        transformers ==0.4.*,
                        twilio

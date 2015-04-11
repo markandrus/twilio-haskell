@@ -1,8 +1,11 @@
 {-#LANGUAGE OverloadedStrings #-}
+{-#LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
 import Control.Monad.IO.Class
+import Data.Text (Text)
+import Network.URI
 import System.Environment
 import Twilio
 import Twilio.Account               as Account
@@ -12,6 +15,7 @@ import Twilio.Applications          as Applications
 import Twilio.AuthorizedConnectApps as AuthorizedConnectApps
 import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
 import Twilio.Calls                 as Calls
+import Twilio.Call                  as Call
 import Twilio.ConnectApps           as ConnectApps
 import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
 import Twilio.Messages              as Messages
@@ -21,6 +25,8 @@ import Twilio.Tokens                as Tokens
 import Twilio.Transcriptions        as Transcriptions
 import Twilio.UsageRecords          as UsageRecords
 import Twilio.UsageTriggers         as UsageTriggers
+
+import Twilio.Internal.Resource (post)
 
 main :: IO ()
 main = runTwilio' (getEnv "ACCOUNT_SID")
@@ -54,3 +60,8 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   -- Test POST /Tokens
   token <- Tokens.post Nothing
   liftIO $ print token
+
+  -- Test POST /Calls
+  let Just url = parseAbsoluteURI "https://quicktwiml.herokuapp.com/TwiML/w0_TVu9Q"
+  (call :: Call) <- Twilio.Internal.Resource.post ("+14158059869" :: Text) ("+14158059869" :: Text) url
+  liftIO $ print call

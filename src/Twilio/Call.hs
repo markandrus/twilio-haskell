@@ -34,14 +34,14 @@ import Twilio.Types
 data Call = Call
   { sid            :: !CallSID
   , parentCallSID  :: !(Maybe CallSID)
-  , dateCreated    :: !UTCTime
-  , dateUpdated    :: !UTCTime
+  , dateCreated    :: !(Maybe UTCTime) -- "date_created" is initially null
+  , dateUpdated    :: !(Maybe UTCTime) -- "date_updated" is initially null
   , accountSID     :: !AccountSID
   , to             :: !(Maybe Text)
   , from           :: !Text
   , phoneNumberSID :: !(Maybe PhoneNumberSID)
   , status         :: !CallStatus
-  , startTime      :: !UTCTime
+  , startTime      :: !(Maybe UTCTime) -- "start_time" is initially null
   , endTime        :: !(Maybe UTCTime)
   , duration       :: !(Maybe Int)
   , price          :: !(Maybe Double)
@@ -58,15 +58,15 @@ instance FromJSON Call where
   parseJSON (Object v) = Call
     <$>  v .: "sid"
     <*>  v .: "parent_call_sid"
-    <*> (v .: "date_created"     >>= parseDateTime)
-    <*> (v .: "date_updated"     >>= parseDateTime)
+    <*> (v .: "date_created"     <&> (=<<) parseDateTime)
+    <*> (v .: "date_updated"     <&> (=<<) parseDateTime)
     <*>  v .: "account_sid"
     <*> (v .: "to"               <&> filterEmpty)
     <*>  v .: "from"
     <*> (v .: "phone_number_sid" <&> (=<<) filterEmpty
                                  <&> (=<<) parseSID)
     <*>  v .: "status"
-    <*> (v .: "start_time"       >>= parseDateTime)
+    <*> (v .: "start_time"       <&> (=<<) parseDateTime)
     <*> (v .: "end_time"         <&> (=<<) parseDateTime)
     <*> (v .: "duration"         <&> fmap readZ
                                  >>= maybeReturn')
@@ -132,17 +132,7 @@ data CallStatus
   | Failed
   | Busy
   | NoAnswer
-  deriving Eq
-
-instance Show CallStatus where
-  show Queued     = "queued"
-  show Ringing    = "ringing"
-  show InProgress = "in-progress"
-  show Canceled   = "canceled"
-  show Completed  = "completed"
-  show Failed     = "failed"
-  show Busy       = "busy"
-  show NoAnswer   = "no-answer"
+  deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 instance FromJSON CallStatus where
   parseJSON (String "queued")      = return Queued

@@ -12,6 +12,7 @@ module Twilio.Internal.Resource
   , Post0(..)
   , Post1(..)
   , Post2(..)
+  , Post3(..)
   , parseJSONFromResponse
   ) where
 
@@ -55,9 +56,13 @@ class Post0 r where
 class Post1 a r where
   post1 :: MonadThrow m => a -> TwilioT m r
 
--- | 'Post1' represents REST resources that support HTTP POST requests with 2 arguments.
+-- | 'Post2' represents REST resources that support HTTP POST requests with 2 arguments.
 class Post2 a b r where
   post2 :: MonadThrow m => a -> b -> TwilioT m r
+
+-- | 'Post3' represents REST resources that support HTTP POST requests with 3 arguments.
+class Post3 a b c r where
+  post3 :: MonadThrow m => a -> b -> c -> TwilioT m r
 
 -- | 'Post' represents REST resources that support HTTP POST requests with any number of arguments.
 class Post r where
@@ -73,6 +78,9 @@ instance (MonadThrow m, Post1 a r) => Post (a -> TwilioT m r) where
 
 instance (MonadThrow m, Post2 a b r) => Post (a -> b -> TwilioT m r) where
   post = post2
+
+instance (MonadThrow m, Post3 a b c r) => Post (a -> b -> c -> TwilioT m r) where
+  post = post3
 
 parseJSONFromResponse :: (FromJSON a, MonadThrow m) => Response LBS.ByteString -> m a
 parseJSONFromResponse response =
