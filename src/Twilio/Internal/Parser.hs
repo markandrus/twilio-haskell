@@ -10,7 +10,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time.Clock
 import Data.Time.Format
-import System.Locale
 
 (<&>) :: Functor f => f a -> (a -> b) -> f b
 (<&>) = flip fmap
@@ -32,13 +31,13 @@ filterEmpty t = Just t
 
 parseDate :: (Monad m, MonadPlus m) => Text -> m UTCTime
 parseDate s =
-  case parseTime defaultTimeLocale "%F" (T.unpack s) of
+  case parseTimeM True defaultTimeLocale "%F" (T.unpack s) of
     Just date -> return date
     Nothing   -> mzero
 
 parseDateTime :: (Monad m, MonadPlus m) => Text -> m UTCTime
 parseDateTime s =
-  case parseTime defaultTimeLocale "%a, %d %b %Y %T %z" (T.unpack s) of
+  case parseTimeM True defaultTimeLocale "%a, %d %b %Y %T %z" (T.unpack s) of
     Just dateTime -> return dateTime
     Nothing       -> mzero
 
