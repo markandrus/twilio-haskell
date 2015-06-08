@@ -17,6 +17,7 @@ module Twilio.Types.SID
   , ApplicationSID
   , CallSID
   , ConnectAppSID
+  , FeedbackSummarySID
   , MessageSID
   , PhoneNumberSID
   , RecordingSID
@@ -27,41 +28,16 @@ module Twilio.Types.SID
 import Control.Monad
 import Control.Applicative
 import Data.Aeson
+import Data.Data
 import Data.Bifunctor.Flip
-import Data.Typeable
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics
 
+{- Account SID -}
+
 newtype AccountSID = AccountSID { getAccountSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype AddressSID = AddressSID { getAddressSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype ApplicationSID = ApplicationSID { getApplicationSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype CallSID = CallSID { getCallSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype MessageSID = MessageSID { getMessageSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype RecordingSID = RecordingSID { getRecordingSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype TranscriptionSID = TranscriptionSID { getTranscriptionSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
-
-newtype UsageTriggerSID = UsageTriggerSID { getUsageTriggerSID :: Text }
-  deriving (Eq, Generic, Ord, Read, Show, Typeable)
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID AccountSID where
   getPrefix = Const ('A', 'C')
@@ -72,6 +48,11 @@ instance FromJSON AccountSID where
 instance ToJSON AccountSID where
   toJSON = sidToJSON
 
+{- Address SID -}
+
+newtype AddressSID = AddressSID { getAddressSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
 instance SID AddressSID where
   getPrefix = Const ('A', 'D')
 
@@ -80,6 +61,11 @@ instance FromJSON AddressSID where
 
 instance ToJSON AddressSID where
   toJSON = sidToJSON
+
+{- Application SID -}
+
+newtype ApplicationSID = ApplicationSID { getApplicationSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID ApplicationSID where
   getPrefix = Const ('A', 'P')
@@ -90,6 +76,11 @@ instance FromJSON ApplicationSID where
 instance ToJSON ApplicationSID where
   toJSON = sidToJSON
 
+{- Call SID -}
+
+newtype CallSID = CallSID { getCallSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
 instance SID CallSID where
   getPrefix = Const ('C', 'A')
 
@@ -98,6 +89,11 @@ instance FromJSON CallSID where
 
 instance ToJSON CallSID where
   toJSON = sidToJSON
+
+{- Connect App SID -}
+
+newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID ConnectAppSID where
   getPrefix = Const ('C', 'N')
@@ -108,6 +104,25 @@ instance FromJSON ConnectAppSID where
 instance ToJSON ConnectAppSID where
   toJSON = sidToJSON
 
+{- Feedback Summary SID -}
+
+newtype FeedbackSummarySID = FeedbackSummarySID { getFeedbackSummarySID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID FeedbackSummarySID where
+  getPrefix = Const ('F', 'S')
+
+instance FromJSON FeedbackSummarySID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON FeedbackSummarySID where
+  toJSON = sidToJSON
+
+{- Message SID -}
+
+newtype MessageSID = MessageSID { getMessageSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
 instance SID MessageSID where
   getPrefix = Const ('S', 'M')
 
@@ -116,6 +131,11 @@ instance FromJSON MessageSID where
 
 instance ToJSON MessageSID where
   toJSON = sidToJSON
+
+{- Phone Number SID -}
+
+newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID PhoneNumberSID where
   getPrefix = Const ('P', 'N')
@@ -126,6 +146,11 @@ instance FromJSON PhoneNumberSID where
 instance ToJSON PhoneNumberSID where
   toJSON = sidToJSON
 
+{- Recording SID -}
+
+newtype RecordingSID = RecordingSID { getRecordingSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
 instance SID RecordingSID where
   getPrefix = Const ('R', 'E')
 
@@ -135,6 +160,11 @@ instance FromJSON RecordingSID where
 instance ToJSON RecordingSID where
   toJSON = sidToJSON
 
+{- Transcription SID -}
+
+newtype TranscriptionSID = TranscriptionSID { getTranscriptionSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
 instance SID TranscriptionSID where
   getPrefix = Const ('T', 'R')
 
@@ -143,6 +173,11 @@ instance FromJSON TranscriptionSID where
 
 instance ToJSON TranscriptionSID where
   toJSON = sidToJSON
+
+{- Usage Trigger SID -}
+
+newtype UsageTriggerSID = UsageTriggerSID { getUsageTriggerSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID UsageTriggerSID where
   getPrefix = Const ('U', 'T')

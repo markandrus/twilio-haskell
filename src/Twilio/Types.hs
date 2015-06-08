@@ -29,6 +29,7 @@ import Control.Monad.Twilio
 import Twilio.Types.AddressRequirement as X
 import Twilio.Types.AuthToken as X
 import Twilio.Types.Capability as X
+import Twilio.Types.Issue as X
 import Twilio.Types.ISOCountryCode as X
 import Twilio.Types.List as X
 import Twilio.Types.PriceUnit as X

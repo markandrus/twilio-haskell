@@ -16,7 +16,6 @@ import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
 import Data.Text (Text)
-import qualified Data.Text as T
 import Data.Text.Encoding
 
 import Control.Monad.Twilio
