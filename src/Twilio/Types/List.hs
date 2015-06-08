@@ -1,3 +1,5 @@
+{-#LANGUAGE DeriveDataTypeable #-}
+{-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE FunctionalDependencies #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ScopedTypeVariables #-}
@@ -13,8 +15,10 @@ import Control.Applicative
 import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
+import Data.Data
 import Data.Text (Text)
 import Debug.Trace (trace)
+import GHC.Generics
 import Network.URI
 
 (<&>) :: Functor f => f a -> (a -> b) -> f b
@@ -69,7 +73,7 @@ data PagingInformation = PagingInformation
   , previousPageURI :: !(Maybe URI)
     -- | The 'URI' for the last page of this list.
   , lastPageURI :: !(Maybe URI)
-  } deriving (Show, Eq, Ord)
+  } deriving (Data, Eq, Generic, Ord, Show, Typeable)
 
 instance FromJSON PagingInformation where
   parseJSON (Object v)

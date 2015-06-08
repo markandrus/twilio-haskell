@@ -41,6 +41,8 @@ library
                        Twilio.Internal.Request,
                        Twilio.Internal.Resource,
                        Twilio.Message,
+                       Twilio.Message.Media,
+                       Twilio.Message.MediaList,
                        Twilio.Messages,
                        Twilio.OutgoingCallerID,
                        Twilio.OutgoingCallerIDs,

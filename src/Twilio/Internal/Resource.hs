@@ -8,6 +8,7 @@ module Twilio.Internal.Resource
     Get(..)
   , Get0(..)
   , Get1(..)
+  , Get2(..)
   , Post(..)
   , Post0(..)
   , Post1(..)
@@ -36,6 +37,10 @@ class Get0 r where
 class Get1 a r where
   get1 :: MonadThrow m => a -> TwilioT m r
 
+-- | 'Get2' represents REST resources that support HTTP GET requests with 2 arguments.
+class Get2 a b r where
+  get2 :: MonadThrow m => a -> b -> TwilioT m r
+
 -- | 'Get' represents REST resources that support HTTP GET requests with any number of arguments.
 class Get r where
   get :: r
@@ -47,6 +52,10 @@ instance (MonadThrow m, Get0 r) => Get (TwilioT m r) where
 -- | Instances of 'Get1' are instances of 'Get'.
 instance (MonadThrow m, Get1 a r) => Get (a -> TwilioT m r) where
   get = get1
+
+-- | Instances of 'Get2' are instances of 'Get'.
+instance (MonadThrow m, Get2 a b r) => Get (a -> b -> TwilioT m r) where
+  get = get2
 
 -- | 'Post0' represents REST resources that support HTTP POST requests with 0 arguments.
 class Post0 r where

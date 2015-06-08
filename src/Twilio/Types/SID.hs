@@ -18,6 +18,7 @@ module Twilio.Types.SID
   , CallSID
   , ConnectAppSID
   , FeedbackSummarySID
+  , MediaSID
   , MessageSID
   , PhoneNumberSID
   , RecordingSID
@@ -116,6 +117,20 @@ instance FromJSON FeedbackSummarySID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON FeedbackSummarySID where
+  toJSON = sidToJSON
+
+{- Media SID -}
+
+newtype MediaSID = MediaSID { getMediaSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID MediaSID where
+  getPrefix = Const ('M', 'E')
+
+instance FromJSON MediaSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON MediaSID where
   toJSON = sidToJSON
 
 {- Message SID -}
