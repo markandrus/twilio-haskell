@@ -50,9 +50,13 @@ library
                        Twilio.Messages,
                        Twilio.OutgoingCallerID,
                        Twilio.OutgoingCallerIDs,
-                       Twilio.Tokens
+                       Twilio.Queue,
+                       Twilio.Queue.Member,
+                       Twilio.Queue.Members,
+                       Twilio.Queues,
                        Twilio.Recording,
                        Twilio.Recordings,
+                       Twilio.Tokens
                        Twilio.Transcription,
                        Twilio.Transcriptions,
                        Twilio.Types,

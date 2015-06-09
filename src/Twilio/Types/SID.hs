@@ -22,6 +22,7 @@ module Twilio.Types.SID
   , MediaSID
   , MessageSID
   , PhoneNumberSID
+  , QueueSID
   , RecordingSID
   , TranscriptionSID
   , UsageTriggerSID
@@ -174,6 +175,20 @@ instance FromJSON PhoneNumberSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON PhoneNumberSID where
+  toJSON = sidToJSON
+
+{- Queue SID -}
+
+newtype QueueSID = QueueSID { getQueueSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID QueueSID where
+  getPrefix = Const ('Q', 'U')
+
+instance FromJSON QueueSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON QueueSID where
   toJSON = sidToJSON
 
 {- Recording SID -}
