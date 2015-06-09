@@ -16,6 +16,7 @@ module Twilio.Types.SID
   , AddressSID
   , ApplicationSID
   , CallSID
+  , ConferenceSID
   , ConnectAppSID
   , FeedbackSummarySID
   , MediaSID
@@ -89,6 +90,20 @@ instance FromJSON CallSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON CallSID where
+  toJSON = sidToJSON
+
+{- Conference SID -}
+
+newtype ConferenceSID = ConferenceSID { getConferenceSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID ConferenceSID where
+  getPrefix = Const ('C', 'O')
+
+instance FromJSON ConferenceSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON ConferenceSID where
   toJSON = sidToJSON
 
 {- Connect App SID -}

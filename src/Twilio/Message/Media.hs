@@ -13,7 +13,6 @@ import Control.Applicative
 import Control.Monad
 import Data.Aeson
 import Data.Data
-import Data.Maybe
 import Data.Monoid
 import Data.Text (Text)
 import Data.Time.Clock
