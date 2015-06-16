@@ -14,6 +14,8 @@ module Twilio.Types
   , makeTwilioRequest'
   , makeTwilioPOSTRequest
   , makeTwilioPOSTRequest'
+  , makeTwilioDELETERequest
+  , makeTwilioDELETERequest'
   ) where
 
 import Control.Monad
@@ -82,3 +84,15 @@ makeTwilioPOSTRequest :: Monad m
                       -> TwilioT m Request
 makeTwilioPOSTRequest resourceURL params =
   makeTwilioRequest resourceURL <&> urlEncodedBody params
+
+makeTwilioDELETERequest' :: Monad m
+                         => Text
+                         -> TwilioT m Request
+makeTwilioDELETERequest' resourceURL =
+  makeTwilioRequest' resourceURL <&> (\req -> req {method="DELETE"})
+
+makeTwilioDELETERequest :: Monad m
+                        => Text
+                        -> TwilioT m Request
+makeTwilioDELETERequest resourceURL =
+  makeTwilioRequest resourceURL <&> (\req -> req {method="DELETE"})

@@ -14,6 +14,8 @@ module Twilio.Internal.Resource
   , Post1(..)
   , Post2(..)
   , Post3(..)
+  , Delete(..)
+  , Delete1(..)
   , parseJSONFromResponse
   ) where
 
@@ -90,6 +92,18 @@ instance (MonadThrow m, Post2 a b r) => Post (a -> b -> TwilioT m r) where
 
 instance (MonadThrow m, Post3 a b c r) => Post (a -> b -> c -> TwilioT m r) where
   post = post3
+
+-- | 'Delete1' represents REST resources that support HTTP POST requests with 1 argument.
+class Delete1 a where
+  delete1 :: MonadThrow m => a -> TwilioT m ()
+
+-- | 'Delete' represents REST resources that support HTTP DELETE requests with any number of arguments.
+class Delete r where
+  delete :: r
+
+-- | Instances of 'Delete1' are instances of 'Delete'.
+instance (MonadThrow m, Delete1 a) => Delete (a -> TwilioT m ()) where
+  delete = delete1
 
 parseJSONFromResponse :: (FromJSON a, MonadThrow m) => Response LBS.ByteString -> m a
 parseJSONFromResponse response =

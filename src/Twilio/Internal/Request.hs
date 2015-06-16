@@ -11,6 +11,7 @@
 module Twilio.Internal.Request where
 
 import Control.Applicative
+import Control.Exception.Base
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Free
@@ -20,6 +21,8 @@ import Data.Typeable
 import GHC.Generics
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
+import Network.HTTP.Types.Status
+import Network.HTTP.Types.Header
 import Prelude hiding (head)
 
 -- | 'RequestF' represents an HTTP request and stores a continuaton for the
@@ -59,6 +62,11 @@ runRequest' credentials (RequestT (FreeT m)) = m >>= \case
     run (RequestF (request, go)) = do
       manager <- liftIO (newManager tlsManagerSettings)
       liftIO $ withResponse request manager $ \response -> do
-        let body = responseBody response
-        body' <- LBS.fromChunks <$> brConsume body
-        go $ const body' <$> response
+        let status = responseStatus response
+        if statusCode status == 204
+          then
+            go $ const "" <$> response
+          else do
+            let body = responseBody response
+            body' <- LBS.fromChunks <$> brConsume body
+            go $ const body' <$> response
