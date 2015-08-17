@@ -128,7 +128,7 @@ testPOSTCalls = do
   liftIO $ putStrLn "POST /Calls"
   let Just url = parseAbsoluteURI "https://demo.twilio.com/welcome/voice/"
   (call :: Call) <- Twilio.Internal.Resource.post
-    ("+14153001516" :: Text) ("+14153001516" :: Text) url
+    ("+14158059869" :: Text) ("+14158059869" :: Text) url
   liftIO $ print call
   return call
 
@@ -160,7 +160,7 @@ testGETMessages = do
 testPOSTMessages :: Twilio Message
 testPOSTMessages = do
   liftIO $ putStrLn "POST /Messages"
-  let body = PostMessage "+14153001516" "+14153001516" "Hello"
+  let body = PostMessage "+14158059869" "+14158059869" "Hello"
   message <- Messages.post body
   liftIO $ print message
   return message
