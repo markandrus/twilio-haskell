@@ -126,7 +126,7 @@ testGETAccount accountSID = do
 testPOSTCalls :: Twilio Call
 testPOSTCalls = do
   liftIO $ putStrLn "POST /Calls"
-  let Just url = parseAbsoluteURI "https://quicktwiml.herokuapp.com/TwiML/w0_TVu9Q"
+  let Just url = parseAbsoluteURI "https://demo.twilio.com/welcome/voice/"
   (call :: Call) <- Twilio.Internal.Resource.post
     ("+14153001516" :: Text) ("+14153001516" :: Text) url
   liftIO $ print call
