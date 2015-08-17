@@ -18,6 +18,7 @@ module Twilio.Types
   , makeTwilioDELETERequest'
   ) where
 
+import Control.Exception
 import Control.Monad
 import Control.Monad.Reader.Class
 import Data.Aeson
@@ -26,6 +27,7 @@ import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import Network.HTTP.Client
+import Network.HTTP.Types
 
 import Control.Monad.Twilio
 import Twilio.Types.AddressRequirement as X
@@ -89,10 +91,20 @@ makeTwilioDELETERequest' :: Monad m
                          => Text
                          -> TwilioT m Request
 makeTwilioDELETERequest' resourceURL =
-  makeTwilioRequest' resourceURL <&> (\req -> req {method="DELETE"})
+  makeTwilioRequest' resourceURL <&> (\req -> req {
+    method = "DELETE",
+    checkStatus = \status responseHeaders cookieJar -> case status of
+      Status 204 _ -> Nothing
+      _            -> Just . SomeException $ StatusCodeException status responseHeaders cookieJar
+  })
 
 makeTwilioDELETERequest :: Monad m
                         => Text
                         -> TwilioT m Request
 makeTwilioDELETERequest resourceURL =
-  makeTwilioRequest resourceURL <&> (\req -> req {method="DELETE"})
+  makeTwilioRequest resourceURL <&> (\req -> req {
+    method = "DELETE",
+    checkStatus = \status responseHeaders cookieJar -> case status of
+      Status 204 _ -> Nothing
+      _            -> Just . SomeException $ StatusCodeException status responseHeaders cookieJar
+  })

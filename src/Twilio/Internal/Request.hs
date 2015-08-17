@@ -65,7 +65,7 @@ runRequest' credentials (RequestT (FreeT m)) = m >>= \case
         let status = responseStatus response
         if statusCode status == 204
           then
-            go $ const "" <$> response
+            go $ const "[]" <$> response
           else do
             let body = responseBody response
             body' <- LBS.fromChunks <$> brConsume body

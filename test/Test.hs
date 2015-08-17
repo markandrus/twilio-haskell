@@ -3,30 +3,53 @@
 
 module Main where
 
+import Control.Exception.Base
 import Control.Monad
 import Control.Monad.IO.Class
-import Data.Text (Text)
+import Data.Monoid
+import Data.Text (Text, unpack)
 import Network.URI
 import System.Environment
 import Twilio
+import Twilio.Account (Account)
 import Twilio.Account               as Account
+import Twilio.Accounts (Accounts)
 import Twilio.Accounts              as Accounts
+import Twilio.Addresses (Addresses)
 import Twilio.Addresses             as Addresses
+import Twilio.Applications (Applications)
 import Twilio.Applications          as Applications
+import Twilio.AuthorizedConnectApps (AuthorizedConnectApps)
 import Twilio.AuthorizedConnectApps as AuthorizedConnectApps
+import Twilio.AvailablePhoneNumbers (AvailablePhoneNumbers)
 import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
+import Twilio.Calls (Calls)
 import Twilio.Calls                 as Calls
+import Twilio.Call (Call)
 import Twilio.Call                  as Call
+import Twilio.ConnectApps (ConnectApps)
 import Twilio.ConnectApps           as ConnectApps
+import Twilio.IncomingPhoneNumbers (IncomingPhoneNumbers)
 import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
+import Twilio.Messages (Messages)
 import Twilio.Messages              as Messages
+import Twilio.Message (Message)
+import Twilio.Message               as Message
+import Twilio.OutgoingCallerIDs (OutgoingCallerIDs)
 import Twilio.OutgoingCallerIDs     as OutgoingCallerIDs
+import Twilio.Queues (Queues)
 import Twilio.Queues                as Queues
+import Twilio.Queue (Queue)
 import Twilio.Queue                 as Queue
+import Twilio.Recordings (Recordings)
 import Twilio.Recordings            as Recordings
+import Twilio.Tokens (Token)
 import Twilio.Tokens                as Tokens
+import Twilio.Transcriptions (Transcriptions)
 import Twilio.Transcriptions        as Transcriptions
+import Twilio.UsageRecords (UsageRecords)
 import Twilio.UsageRecords          as UsageRecords
+import Twilio.UsageTriggers (UsageTriggers)
 import Twilio.UsageTriggers         as UsageTriggers
 
 import Twilio.Internal.Resource (post)
@@ -52,38 +75,141 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
     , UsageRecords.get             >>= liftIO . print
     , UsageTriggers.get            >>= liftIO . print -} ]
 
-  -- Test POST /Accounts
-  -- subAccount <- Accounts.post Nothing
-  -- liftIO $ print subAccount
+  -- account { sid = accountSID } <- testPOSTAccounts
+  -- accounts <- testGETAccounts
+  -- testGETAccount accountSID
 
-  -- Test POST /Messages
-  {-
-  let body = PostMessage "+14158059869" "+14158059869" "Hello"
+  Call { Call.sid = callSID } <- testPOSTCalls
+  calls <- testGETCalls
+  testGETCall callSID
+
+  Message { Message.sid = messageSID } <- testPOSTMessages
+  messages <- testGETMessages
+  testGETMessage messageSID
+
+  Queue { Queue.sid = queueSID } <- testPOSTQueues
+  queues <- testGETQueues
+  testGETQueue queueSID
+  testDELETEQueue queueSID
+
+  testPOSTTokens
+
+  return ()
+
+{- Accounts -}
+
+testPOSTAccounts :: Twilio Account
+testPOSTAccounts = do
+  liftIO $ putStrLn "POST /Accounts"
+  account <- Accounts.post Nothing
+  liftIO $ print account
+  return account
+
+testGETAccounts :: Twilio Accounts
+testGETAccounts = do
+  liftIO $ putStrLn "GET /Accounts"
+  accounts <- Accounts.get
+  liftIO $ print accounts
+  return accounts
+
+{- Account -}
+
+testGETAccount :: AccountSID -> Twilio Account
+testGETAccount accountSID = do
+  liftIO . putStrLn . unpack $ "GET /Accounts/" <> getSID accountSID
+  account <- Account.get accountSID
+  liftIO $ print account
+  return account
+
+{- Calls -}
+
+testPOSTCalls :: Twilio Call
+testPOSTCalls = do
+  liftIO $ putStrLn "POST /Calls"
+  let Just url = parseAbsoluteURI "https://quicktwiml.herokuapp.com/TwiML/w0_TVu9Q"
+  (call :: Call) <- Twilio.Internal.Resource.post
+    ("+14153001516" :: Text) ("+14153001516" :: Text) url
+  liftIO $ print call
+  return call
+
+testGETCalls :: Twilio Calls
+testGETCalls = do
+  liftIO $ putStrLn "GET /Calls"
+  calls <- Calls.get
+  liftIO $ print calls
+  return calls
+
+{- Call -}
+
+testGETCall :: CallSID -> Twilio Call
+testGETCall callSID = do
+  liftIO . putStrLn . unpack $ "GET /Calls/" <> getSID callSID
+  call <- Call.get callSID
+  liftIO $ print call
+  return call
+
+{- Messages -}
+
+testGETMessages :: Twilio Messages
+testGETMessages = do
+  liftIO $ putStrLn "GET /Messages"
+  messages <- Messages.get
+  liftIO $ print messages
+  return messages
+
+testPOSTMessages :: Twilio Message
+testPOSTMessages = do
+  liftIO $ putStrLn "POST /Messages"
+  let body = PostMessage "+14153001516" "+14153001516" "Hello"
   message <- Messages.post body
   liftIO $ print message
-  -}
+  return message
 
-  -- Test POST /Tokens
-  token <- Tokens.post Nothing
-  liftIO $ print token
+{- Message -}
 
-  -- Test POST /Calls
-  {-
-  let Just url = parseAbsoluteURI "https://quicktwiml.herokuapp.com/TwiML/w0_TVu9Q"
-  (call :: Call) <- Twilio.Internal.Resource.post ("+14158059869" :: Text) ("+14158059869" :: Text) url
-  liftIO $ print call
-  -}
+testGETMessage :: MessageSID -> Twilio Message
+testGETMessage messageSID = do
+  liftIO . putStrLn . unpack $ "GET /Message/" <> getSID messageSID
+  message <- Message.get messageSID
+  liftIO $ print message
+  return message
 
-  -- Test GET /Queues
-  Queues { queueList = queues } <- Queues.get
+{- Queues -}
 
-  -- Test GET /Queue/QU123
-  forM_ queues (Queue.get . Queue.sid)
-
-  -- Test DELETE /Queue/QU123
-  forM_ queues (Queue.delete . Queue.sid)
-
-  -- Test POST /Queues
+testPOSTQueues :: Twilio Queue
+testPOSTQueues = do
+  liftIO $ putStrLn "POST /Queues"
   let body = PostQueues (Just "Some Queue") (Just 3)
   queue <- Queues.post body
   liftIO $ print queue
+  return queue
+
+testGETQueues :: Twilio Queues
+testGETQueues = do
+  liftIO $ putStrLn "GET /Queues"
+  queues <- Queues.get
+  liftIO $ print queues
+  return queues
+
+{- Queue -}
+
+testGETQueue :: QueueSID -> Twilio Queue
+testGETQueue queueSID = do
+  liftIO . putStrLn . unpack $ "GET /Queues/" <> getSID queueSID
+  queue <- Queue.get queueSID
+  liftIO $ print queue
+  return queue
+
+testDELETEQueue :: QueueSID -> Twilio ()
+testDELETEQueue queueSID = do
+  liftIO . putStrLn . unpack $ "DELETE /Queues/" <> getSID queueSID
+  Queue.delete queueSID
+
+{- Tokens -}
+
+testPOSTTokens :: Twilio Token
+testPOSTTokens = do
+  liftIO $ putStrLn "POST /Tokens"
+  token <- Tokens.post Nothing
+  liftIO $ print token
+  return token
