@@ -1,5 +1,5 @@
 name:                twilio
-version:             0.1.3.0
+version:             0.1.3.1
 synopsis:            Twilio REST API library for Haskell
 description:         This package exports bindings to Twilio's REST API (<https://www.twilio.com/docs/api/rest>). While we would like to have a complete binding to Twilio's REST API, this package is being developed on demand. If you need something that has not been implemented yet, please send a pull request or file an issue on GitHub (<https://github.com/markandrus/twilio-haskell>).
 homepage:            https://github.com/markandrus/twilio-haskell
@@ -64,6 +64,7 @@ library
                        Twilio.Types.AddressRequirement,
                        Twilio.Types.Capability,
                        Twilio.Types.ISOCountryCode,
+                       Twilio.Types.Issue,
                        Twilio.Types.List,
                        Twilio.Types.SID,
                        Twilio.Types.PriceUnit,
@@ -71,7 +72,6 @@ library
                        Twilio.UsageRecords,
                        Twilio.UsageTrigger,
                        Twilio.UsageTriggers
-  other-modules:       Twilio.Types.Issue
   hs-source-dirs:      src
   build-depends:       aeson ==0.*,
                        base ==4.*,
