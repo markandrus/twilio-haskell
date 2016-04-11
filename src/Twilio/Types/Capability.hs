@@ -18,7 +18,7 @@ data Capability
   | MMS
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
-instance FromJSON Capabilities where
+instance {-# OVERLAPPING #-} FromJSON Capabilities where
   parseJSON (Object map) 
     = let map' = fmap (\value -> case value of
                         Bool bool     -> bool
