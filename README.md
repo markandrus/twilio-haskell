@@ -38,8 +38,8 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   liftIO $ print calls
 
   -- Send a Message.
-  let receivingPhone = "+14158059869"
-  let sendingPhone = "+14158059869"
+  let fromPhone = "+14158059869"
+  let toPhone = "+14158059869"
   let body = PostMessage receivingPhone sendingPhone "Oh, hai"
   message <- post body
   liftIO $ print message
@@ -54,35 +54,36 @@ You can create a REST API client and send a message as follows:
 {-#LANGUAGE OverloadedStrings #-}
 
 module Main where
-import Twilio.Types.SID
+
 import Control.Monad.IO.Class (liftIO)
+import Data.Text (Text)
 import Twilio
 import Twilio.Messages
-import qualified Data.Text as T
+import Twilio.Types.SID
 
-parseCredentials :: T.Text -> T.Text -> Maybe Credentials
+parseCredentials :: Text -> Text -> Maybe Credentials
 parseCredentials accountSID authToken =
-    case parseAuthToken authToken of
-        Just authToken ->
-            (case parseSID accountSID of
-                Just accountSID ->
-                    Just (accountSID, authToken)
-                Nothing -> Nothing)
-        Nothing -> Nothing
+  case parseAuthToken authToken of
+    Just authToken ->
+      (case parseSID accountSID of
+        Just accountSID ->
+          Just (accountSID, authToken)
+        Nothing -> Nothing)
+    Nothing -> Nothing
 
 main :: IO ()
 main =
-    let accountSID = "youraccountSID"
-        authToken = "yourauthToken"
-    in case parseCredentials accountSID authToken of
-        Just credentialsPassed ->
-            runTwilio ( credentialsPassed ) $ do
-                let receivingPhone = "+14158059869"
-                let sendingPhone = "+14158059869"
-                let body = PostMessage receivingPhone sendingPhone "Oh, hai"
-                message <- post body
-                liftIO $ print message
-        Nothing -> print "Something bad happened, you have poorly formed credentials."
+  let accountSID = "youraccountSID"
+    authToken = "yourauthToken"
+  in case parseCredentials accountSID authToken of
+    Just credentialsPassed ->
+      runTwilio ( credentialsPassed ) $ do
+        let fromPhone = "+14158059869"
+        let toPhone = "+14158059869"
+        let body = PostMessage receivingPhone sendingPhone "Oh, hai"
+        message <- post body
+        liftIO $ print message
+    Nothing -> print "Something bad happened, you have poorly formed credentials."
 ```
 
 Contributing
