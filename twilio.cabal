@@ -75,10 +75,10 @@ library
   hs-source-dirs:      src
   build-depends:       aeson >=0.11,
                        base ==4.*,
-                       bifunctors >= 5 && < 5.1,
+                       bifunctors >= 5 && <5.3,
                        bytestring ==0.10.*,
                        containers ==0.5.*,
-                       errors ==2.0.*,
+                       errors >=2 && <2.3,
                        exceptions ==0.*,
                        free ==4.*,
                        http-client ==0.4.*,
@@ -89,8 +89,8 @@ library
                        old-locale ==1.0.*,
                        scientific ==0.*,
                        text ==1.*,
-                       time ==1.5.*,
-                       transformers ==0.4.*,
+                       time >=1.5 && <1.7,
+                       transformers >=0.4 && <0.6,
                        unordered-containers ==0.2.*
 
 test-suite Tests
@@ -105,5 +105,5 @@ test-suite Tests
                        http-client-tls ==0.2.*,
                        network-uri >=2.6,
                        text ==1.*,
-                       transformers ==0.4.*,
+                       transformers >=0.4 && <0.6,
                        twilio
