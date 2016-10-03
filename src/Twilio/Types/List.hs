@@ -54,11 +54,11 @@ data PagingInformation = PagingInformation
   { -- | The current page number. Zero-indexed, so the first page is 0.
     pageNumber :: !Integer
     -- | The total number of pages.
-  , numberOfPages :: !Integer
+  , numberOfPages :: !(Maybe Integer)
     -- | How many items are in each page.
   , pageSize :: !Integer
     -- | The total number of items in the list.
-  , total :: !Integer
+  , total :: !(Maybe Integer)
     -- | The position in the overall list of the first item in this page.
   , start :: !Integer
     -- | The position in the overall list of the last item in this page.
@@ -79,9 +79,9 @@ instance FromJSON PagingInformation where
   parseJSON (Object v)
     =  PagingInformation
    <$>  v .: "page"
-   <*>  v .: "num_pages"
+   <*>  v .:? "num_pages"
    <*>  v .: "page_size"
-   <*>  v .: "total"
+   <*>  v .:? "total"
    <*>  v .: "start"
    <*>  v .: "end"
    <*> (v .: "uri"               <&> fmap parseRelativeReference
@@ -92,7 +92,7 @@ instance FromJSON PagingInformation where
                                  >>= maybeReturn')
    <*> (v .: "previous_page_uri" <&> fmap parseRelativeReference
                                  >>= maybeReturn')
-   <*> (v .: "last_page_uri"     <&> fmap parseRelativeReference
+   <*> (v .:? "last_page_uri"    <&> fmap parseRelativeReference
                                  >>= maybeReturn')
   parseJSON _ = mzero
 

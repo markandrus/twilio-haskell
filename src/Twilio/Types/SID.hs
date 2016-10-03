@@ -14,6 +14,7 @@ module Twilio.Types.SID
     -- ** Instances
   , AccountSID
   , AddressSID
+  , APIKeySID
   , ApplicationSID
   , CallSID
   , ConferenceSID
@@ -63,6 +64,20 @@ instance FromJSON AddressSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON AddressSID where
+  toJSON = sidToJSON
+
+{- Api Key SID -}
+
+newtype APIKeySID = APIKeySID { getAPIKeySID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID APIKeySID where
+  getPrefix = Const ('S', 'K')
+
+instance FromJSON APIKeySID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON APIKeySID where
   toJSON = sidToJSON
 
 {- Application SID -}

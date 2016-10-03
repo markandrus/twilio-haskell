@@ -69,4 +69,5 @@ runRequest' credentials (RequestT (FreeT m)) = m >>= \case
           else do
             let body = responseBody response
             body' <- LBS.fromChunks <$> brConsume body
+            print body'
             go $ const body' <$> response

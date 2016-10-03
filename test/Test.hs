@@ -6,6 +6,7 @@ module Main where
 import Control.Exception.Base
 import Control.Monad
 import Control.Monad.IO.Class
+import Data.Maybe (fromJust)
 import Data.Monoid
 import Data.Text (Text, unpack)
 import Network.URI
@@ -17,6 +18,10 @@ import Twilio.Accounts (Accounts)
 import Twilio.Accounts              as Accounts
 import Twilio.Addresses (Addresses)
 import Twilio.Addresses             as Addresses
+import Twilio.APIKey (APIKey)
+import Twilio.APIKey                as APIKey
+import Twilio.APIKeys (APIKeys)
+import Twilio.APIKeys               as APIKeys
 import Twilio.Applications (Applications)
 import Twilio.Applications          as Applications
 import Twilio.AuthorizedConnectApps (AuthorizedConnectApps)
@@ -52,6 +57,7 @@ import Twilio.UsageRecords          as UsageRecords
 import Twilio.UsageTriggers (UsageTriggers)
 import Twilio.UsageTriggers         as UsageTriggers
 
+import Twilio.Types.SID (parseSID)
 import Twilio.Internal.Resource (post)
 
 main :: IO ()
@@ -76,8 +82,10 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
     , UsageTriggers.get            >>= liftIO . print -} ]
 
   -- account { sid = accountSID } <- testPOSTAccounts
-  -- accounts <- testGETAccounts
+  accounts <- testGETAccounts
   -- testGETAccount accountSID
+
+  apiKeys <- testGETAPIKeys
 
   Call { Call.sid = callSID } <- testPOSTCalls
   calls <- testGETCalls
@@ -120,6 +128,24 @@ testGETAccount accountSID = do
   account <- Account.get accountSID
   liftIO $ print account
   return account
+
+{- Api Keys -}
+
+testGETAPIKeys :: Twilio APIKeys
+testGETAPIKeys = do
+  liftIO $ putStrLn "GET /Keys"
+  apiKeys <- APIKeys.get
+  liftIO $ print apiKeys
+  return apiKeys
+
+{- Api Key -}
+
+testGETAPIKey :: APIKeySID -> Twilio APIKey
+testGETAPIKey apiKeySID = do
+  liftIO . putStrLn . unpack $ "GET /Keys/" <> getSID apiKeySID
+  apiKey <- APIKey.get apiKeySID
+  liftIO $ print apiKey
+  return apiKey
 
 {- Calls -}
 

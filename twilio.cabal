@@ -23,6 +23,8 @@ library
                        Twilio.Accounts,
                        Twilio.Address,
                        Twilio.Addresses,
+                       Twilio.APIKey,
+                       Twilio.APIKeys,
                        Twilio.Application,
                        Twilio.Applications,
                        Twilio.AuthorizedConnectApp,
