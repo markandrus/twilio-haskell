@@ -48,6 +48,10 @@ import Twilio.Queue (Queue)
 import Twilio.Queue                 as Queue
 import Twilio.Recordings (Recordings)
 import Twilio.Recordings            as Recordings
+import Twilio.ShortCode (ShortCode)
+import Twilio.ShortCode             as ShortCode
+import Twilio.ShortCodes (ShortCodes)
+import Twilio.ShortCodes            as ShortCodes
 import Twilio.Tokens (Token)
 import Twilio.Tokens                as Tokens
 import Twilio.Transcriptions (Transcriptions)
@@ -99,6 +103,8 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   queues <- testGETQueues
   testGETQueue queueSID
   testDELETEQueue queueSID
+
+  shortCodes <- testGETShortCodes
 
   testPOSTTokens
 
@@ -230,6 +236,24 @@ testDELETEQueue :: QueueSID -> Twilio ()
 testDELETEQueue queueSID = do
   liftIO . putStrLn . unpack $ "DELETE /Queues/" <> getSID queueSID
   Queue.delete queueSID
+
+{- Short Codes -}
+
+testGETShortCodes :: Twilio ShortCodes
+testGETShortCodes = do
+  liftIO $ putStrLn "GET /ShortCodes"
+  queues <- ShortCodes.get
+  liftIO $ print queues
+  return queues
+
+{- Short Code -}
+
+testGETShortCode :: ShortCodeSID -> Twilio ShortCode
+testGETShortCode shortCodeSID = do
+  liftIO . putStrLn . unpack $ "GET /ShortCodes/" <> getSID shortCodeSID
+  queue <- ShortCode.get shortCodeSID
+  liftIO $ print queue
+  return queue
 
 {- Tokens -}
 

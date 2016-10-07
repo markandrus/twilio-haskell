@@ -25,6 +25,7 @@ module Twilio.Types.SID
   , PhoneNumberSID
   , QueueSID
   , RecordingSID
+  , ShortCodeSID
   , TranscriptionSID
   , UsageTriggerSID
   ) where
@@ -218,6 +219,20 @@ instance FromJSON RecordingSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON RecordingSID where
+  toJSON = sidToJSON
+
+{- Short Code SID -}
+
+newtype ShortCodeSID = ShortCodeSID { getShortCodeSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID ShortCodeSID where
+  getPrefix = Const ('R', 'E')
+
+instance FromJSON ShortCodeSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON ShortCodeSID where
   toJSON = sidToJSON
 
 {- Transcription SID -}

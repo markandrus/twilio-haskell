@@ -60,6 +60,8 @@ library
                        Twilio.Queues,
                        Twilio.Recording,
                        Twilio.Recordings,
+                       Twilio.ShortCode,
+                       Twilio.ShortCodes,
                        Twilio.Tokens
                        Twilio.Transcription,
                        Twilio.Transcriptions,
