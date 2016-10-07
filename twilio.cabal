@@ -48,6 +48,7 @@ library
                        Twilio.Internal.Request,
                        Twilio.Internal.Resource,
                        Twilio.Message,
+                       Twilio.Message.Feedback,
                        Twilio.Message.Media,
                        Twilio.Message.MediaList,
                        Twilio.Messages,
