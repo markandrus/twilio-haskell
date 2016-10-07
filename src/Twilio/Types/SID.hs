@@ -19,6 +19,8 @@ module Twilio.Types.SID
   , CallSID
   , ConferenceSID
   , ConnectAppSID
+  , CredentialSID
+  , CredentialListSID
   , FeedbackSummarySID
   , MediaSID
   , MessageSID
@@ -135,6 +137,34 @@ instance FromJSON ConnectAppSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON ConnectAppSID where
+  toJSON = sidToJSON
+
+{- Credential SID -}
+
+newtype CredentialSID = CredentialSID { getCredentialSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID CredentialSID where
+  getPrefix = Const ('S', 'C')
+
+instance FromJSON CredentialSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON CredentialSID where
+  toJSON = sidToJSON
+
+{- Credential List SID -}
+
+newtype CredentialListSID = CredentialListSID { getCredentialListSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID CredentialListSID where
+  getPrefix = Const ('C', 'L')
+
+instance FromJSON CredentialListSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON CredentialListSID where
   toJSON = sidToJSON
 
 {- Feedback Summary SID -}
