@@ -21,6 +21,7 @@ module Twilio.Types.SID
   , ConnectAppSID
   , CredentialSID
   , CredentialListSID
+  , DomainSID
   , FeedbackSummarySID
   , MediaSID
   , MessageSID
@@ -165,6 +166,20 @@ instance FromJSON CredentialListSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON CredentialListSID where
+  toJSON = sidToJSON
+
+{- Domain SID -}
+
+newtype DomainSID = DomainSID { getDomainSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID DomainSID where
+  getPrefix = Const ('S', 'D')
+
+instance FromJSON DomainSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON DomainSID where
   toJSON = sidToJSON
 
 {- Feedback Summary SID -}
