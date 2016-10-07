@@ -227,7 +227,7 @@ newtype ShortCodeSID = ShortCodeSID { getShortCodeSID :: Text }
   deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
 
 instance SID ShortCodeSID where
-  getPrefix = Const ('R', 'E')
+  getPrefix = Const ('S', 'C')
 
 instance FromJSON ShortCodeSID where
   parseJSON = parseSIDFromJSON
