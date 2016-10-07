@@ -24,6 +24,7 @@ module Twilio.Types.SID
   , DomainSID
   , FeedbackSummarySID
   , IPAccessControlListSID
+  , IPAddressSID
   , MediaSID
   , MessageSID
   , PhoneNumberSID
@@ -209,6 +210,20 @@ instance FromJSON IPAccessControlListSID where
   parseJSON = parseSIDFromJSON
 
 instance ToJSON IPAccessControlListSID where
+  toJSON = sidToJSON
+
+{- IP Address -}
+
+newtype IPAddressSID = IPAddressSID { getIPAddressSID :: Text }
+  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
+
+instance SID IPAddressSID where
+  getPrefix = Const ('I', 'P')
+
+instance FromJSON IPAddressSID where
+  parseJSON = parseSIDFromJSON
+
+instance ToJSON IPAddressSID where
   toJSON = sidToJSON
 
 {- Media SID -}
