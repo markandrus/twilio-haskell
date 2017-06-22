@@ -26,7 +26,9 @@ import qualified Data.ByteString.Char8 as C
 import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.ByteString.Lazy as L
 import Network.HTTP.Client
+import Network.HTTP.Client.Internal (throwHttp)
 import Network.HTTP.Types
 
 import Control.Monad.Twilio
@@ -93,9 +95,7 @@ makeTwilioDELETERequest' :: Monad m
 makeTwilioDELETERequest' resourceURL =
   makeTwilioRequest' resourceURL <&> (\req -> req {
     method = "DELETE",
-    checkStatus = \status responseHeaders cookieJar -> case status of
-      Status 204 _ -> Nothing
-      _            -> Just . SomeException $ StatusCodeException status responseHeaders cookieJar
+    checkResponse = throwForNon204
   })
 
 makeTwilioDELETERequest :: Monad m
@@ -104,7 +104,14 @@ makeTwilioDELETERequest :: Monad m
 makeTwilioDELETERequest resourceURL =
   makeTwilioRequest resourceURL <&> (\req -> req {
     method = "DELETE",
-    checkStatus = \status responseHeaders cookieJar -> case status of
-      Status 204 _ -> Nothing
-      _            -> Just . SomeException $ StatusCodeException status responseHeaders cookieJar
+    checkResponse = throwForNon204
   })
+
+
+throwForNon204 :: Request -> Response BodyReader -> IO ()
+throwForNon204 _ resp =
+  case responseStatus resp of
+    Status 204 _ -> return ()
+    status       -> do
+      chunk <- brReadSome (responseBody resp) 1024
+      throwHttp $ StatusCodeException (fmap (const ()) resp) (L.toStrict chunk)
