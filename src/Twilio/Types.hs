@@ -111,7 +111,7 @@ makeTwilioDELETERequest resourceURL =
 throwForNon204 :: Request -> Response BodyReader -> IO ()
 throwForNon204 _ resp =
   case responseStatus resp of
-    Status 204 _ -> return ()
-    status       -> do
+    Status 204 _ -> pure ()
+    _ -> do
       chunk <- brReadSome (responseBody resp) 1024
       throwHttp $ StatusCodeException (fmap (const ()) resp) (L.toStrict chunk)
