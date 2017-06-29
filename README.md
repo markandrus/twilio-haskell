@@ -4,7 +4,7 @@ twilio
 [![twilio on Hackage](https://img.shields.io/hackage/v/twilio.svg)](https://hackage.haskell.org/package/twilio) [![twilio-haskell on Travis CI](https://travis-ci.org/markandrus/twilio-haskell.svg)](https://travis-ci.org/markandrus/twilio-haskell)
 
 This package provides a library for interacting with
-[Twilio's API](www.twilio.com/docs/api). Install using
+[Twilio's API](https://www.twilio.com/docs/api). Install using
 
 ```
 $ cabal install twilio
@@ -46,8 +46,4 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
 Contributing
 ------------
 
-Feel free to contribute to any of the open [issues]
-(https://github.com/markandrus/twilio-haskell/issues), bugfixes, etc. When you
-think you're ready to merge, ensure the tests are passing and open a pull
-request. If you are adding new functionality, please include new tests as well.
-Finally, add yourself to the `AUTHORS` file.
+Feel free to contribute to any of the open [issues](https://github.com/markandrus/twilio-haskell/issues), bugfixes, etc. When you think you're ready to merge, ensure the tests are passing and open a pull request. If you are adding new functionality, please include new tests as well. Finally, add yourself to the `AUTHORS` file.
