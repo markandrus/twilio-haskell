@@ -10,7 +10,9 @@ maintainer:          markandrusroberts@gmail.com
 category:            Network APIs, Web
 build-type:          Simple
 cabal-version:       >=1.8
-tested-with:         GHC == 7.8.4, GHC == 7.10.1, GHC == 7.10.2, GHC == 8.0.1
+-- NOTE(mroberts): See https://github.com/markandrus/twilio-haskell/issues/44
+-- tested-with:         GHC == 7.8.4, GHC == 7.10.1, GHC == 7.10.2, GHC == 8.0.1
+tested-with:         GHC == 7.10.1, GHC == 7.10.2, GHC == 8.0.1
 
 source-repository head
   type: git
