@@ -11,7 +11,6 @@ module Twilio.Queue
   , Twilio.Queue.delete
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson

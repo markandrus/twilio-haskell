@@ -13,7 +13,6 @@ module Twilio.Call
   , CallStatus(..)
   ) where
 
-import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch

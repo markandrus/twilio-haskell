@@ -8,7 +8,6 @@ module Twilio.IncomingPhoneNumber
   , Twilio.IncomingPhoneNumber.get
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson

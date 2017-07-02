@@ -10,7 +10,6 @@ module Twilio.Tokens
   , Twilio.Tokens.post
   ) where
 
-import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch

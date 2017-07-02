@@ -9,7 +9,6 @@ module Twilio.AuthorizedConnectApp
   , Twilio.AuthorizedConnectApp.get
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson

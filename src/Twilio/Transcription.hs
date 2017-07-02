@@ -11,7 +11,6 @@ module Twilio.Transcription
   , TranscriptionStatus(..)
   ) where
 
-import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch

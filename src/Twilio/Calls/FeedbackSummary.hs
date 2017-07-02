@@ -11,7 +11,6 @@ module Twilio.Calls.FeedbackSummary
   , Issue(..)
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Data.Aeson
 import Data.Data

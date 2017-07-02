@@ -13,7 +13,6 @@ module Twilio.Call.Feedback
   , Issue(..)
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson

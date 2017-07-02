@@ -1,12 +1,10 @@
+{-#OPTIONS_GHC -w #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
-import Control.Exception.Base
-import Control.Monad
 import Control.Monad.IO.Class
-import Data.Maybe (fromJust)
 import Data.Monoid
 import Data.Text (Text, unpack)
 import Network.URI
@@ -16,37 +14,29 @@ import Twilio.Account (Account)
 import Twilio.Account               as Account
 import Twilio.Accounts (Accounts)
 import Twilio.Accounts              as Accounts
-import Twilio.Addresses (Addresses)
 import Twilio.Addresses             as Addresses
 import Twilio.APIKey (APIKey)
 import Twilio.APIKey                as APIKey
 import Twilio.APIKeys (APIKeys)
 import Twilio.APIKeys               as APIKeys
-import Twilio.Applications (Applications)
 import Twilio.Applications          as Applications
-import Twilio.AuthorizedConnectApps (AuthorizedConnectApps)
 import Twilio.AuthorizedConnectApps as AuthorizedConnectApps
-import Twilio.AvailablePhoneNumbers (AvailablePhoneNumbers)
 import Twilio.AvailablePhoneNumbers as AvailablePhoneNumbers
 import Twilio.Calls (Calls)
 import Twilio.Calls                 as Calls
 import Twilio.Call (Call)
 import Twilio.Call                  as Call
-import Twilio.ConnectApps (ConnectApps)
 import Twilio.ConnectApps           as ConnectApps
-import Twilio.IncomingPhoneNumbers (IncomingPhoneNumbers)
 import Twilio.IncomingPhoneNumbers  as IncomingPhoneNumbers
 import Twilio.Messages (Messages)
 import Twilio.Messages              as Messages
 import Twilio.Message (Message)
 import Twilio.Message               as Message
-import Twilio.OutgoingCallerIDs (OutgoingCallerIDs)
 import Twilio.OutgoingCallerIDs     as OutgoingCallerIDs
 import Twilio.Queues (Queues)
 import Twilio.Queues                as Queues
 import Twilio.Queue (Queue)
 import Twilio.Queue                 as Queue
-import Twilio.Recordings (Recordings)
 import Twilio.Recordings            as Recordings
 import Twilio.ShortCode (ShortCode)
 import Twilio.ShortCode             as ShortCode
@@ -54,14 +44,10 @@ import Twilio.ShortCodes (ShortCodes)
 import Twilio.ShortCodes            as ShortCodes
 import Twilio.Tokens (Token)
 import Twilio.Tokens                as Tokens
-import Twilio.Transcriptions (Transcriptions)
 import Twilio.Transcriptions        as Transcriptions
-import Twilio.UsageRecords (UsageRecords)
 import Twilio.UsageRecords          as UsageRecords
-import Twilio.UsageTriggers (UsageTriggers)
 import Twilio.UsageTriggers         as UsageTriggers
 
-import Twilio.Types.SID (parseSID)
 import Twilio.Internal.Resource (post)
 
 main :: IO ()
@@ -69,7 +55,7 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
                   (getEnv "AUTH_TOKEN") $ do
   -- Test GET
   sequence_
-    [ {- Accounts.get                 >>= liftIO . print
+    [ Accounts.get                 >>= liftIO . print
     , Addresses.get                >>= liftIO . print
     , Applications.get             >>= liftIO . print
     , AuthorizedConnectApps.get    >>= liftIO . print
@@ -79,32 +65,32 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
     , IncomingPhoneNumbers.get     >>= liftIO . print
     , Messages.get                 >>= liftIO . print
     , OutgoingCallerIDs.get        >>= liftIO . print
-    , -} Queues.get                   >>= liftIO . print
-    {- , Recordings.get               >>= liftIO . print
+    , Queues.get                   >>= liftIO . print
+    , Recordings.get               >>= liftIO . print
     , Transcriptions.get           >>= liftIO . print
     , UsageRecords.get             >>= liftIO . print
-    , UsageTriggers.get            >>= liftIO . print -} ]
+    , UsageTriggers.get            >>= liftIO . print ]
 
   -- account { sid = accountSID } <- testPOSTAccounts
-  accounts <- testGETAccounts
+  testGETAccounts
   -- testGETAccount accountSID
 
-  apiKeys <- testGETAPIKeys
+  testGETAPIKeys
 
   Call { Call.sid = callSID } <- testPOSTCalls
-  calls <- testGETCalls
+  testGETCalls
   testGETCall callSID
 
   Message { Message.sid = messageSID } <- testPOSTMessages
-  messages <- testGETMessages
+  testGETMessages
   testGETMessage messageSID
 
   Queue { Queue.sid = queueSID } <- testPOSTQueues
-  queues <- testGETQueues
+  testGETQueues
   testGETQueue queueSID
   testDELETEQueue queueSID
 
-  shortCodes <- testGETShortCodes
+  testGETShortCodes
 
   testPOSTTokens
 

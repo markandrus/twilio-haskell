@@ -1,6 +1,5 @@
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
-{-#LANGUAGE OverlappingInstances #-}
 {-#LANGUAGE RankNTypes #-}
 
 module Twilio.Internal.Resource

@@ -7,6 +7,11 @@ user='markandrus'
 repo='twilio-haskell'
 package='twilio'
 
+if [[ "$BUILD" == "stack" ]]
+then
+  exit 0
+fi
+
 if [[ "${TRAVIS_REPO_SLUG}"  == "${user}/${repo}" \
    && "${TRAVIS_PULL_REQUEST}" == 'false' \
    && "${TRAVIS_BRANCH}" == 'master' ]]

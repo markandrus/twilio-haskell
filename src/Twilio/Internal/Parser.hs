@@ -2,7 +2,6 @@
 
 module Twilio.Internal.Parser where
 
-import Control.Applicative
 import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
@@ -29,19 +28,19 @@ filterEmpty :: Text -> Maybe Text
 filterEmpty "" = Nothing
 filterEmpty t = Just t
 
-parseDate :: (Monad m, MonadPlus m) => Text -> m UTCTime
+parseDate :: MonadPlus m => Text -> m UTCTime
 parseDate s =
   case parseTimeM True defaultTimeLocale "%F" (T.unpack s) of
     Just date -> return date
     Nothing   -> mzero
 
-parseDateTime :: (Monad m, MonadPlus m) => Text -> m UTCTime
+parseDateTime :: MonadPlus m => Text -> m UTCTime
 parseDateTime s =
   case parseTimeM True defaultTimeLocale "%a, %d %b %Y %T %z" (T.unpack s) of
     Just dateTime -> return dateTime
     Nothing       -> mzero
 
-maybeReturn :: (Monad m, MonadPlus m) => Maybe a -> m a
+maybeReturn :: MonadPlus m => Maybe a -> m a
 maybeReturn (Just a) = return a
 maybeReturn Nothing  = mzero
 
