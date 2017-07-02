@@ -11,7 +11,6 @@
 module Twilio.Internal.Request where
 
 import Control.Applicative
-import Control.Exception.Base
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Free
@@ -22,7 +21,6 @@ import GHC.Generics
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
 import Network.HTTP.Types.Status
-import Network.HTTP.Types.Header
 import Prelude hiding (head)
 
 -- | 'RequestF' represents an HTTP request and stores a continuaton for the
@@ -54,7 +52,7 @@ runRequest (RequestT (FreeT m)) = m >>= \case
 baseURL :: Text
 baseURL = "https://api.twilio.com/2010-04-01"
 
-runRequest' :: (Monad m, MonadIO m) => (Text, Text) -> RequestT m a -> m a
+runRequest' :: MonadIO m => (Text, Text) -> RequestT m a -> m a
 runRequest' credentials (RequestT (FreeT m)) = m >>= \case
     Free f -> runRequest' credentials . RequestT =<< run (return <$> f)
     Pure a -> return a

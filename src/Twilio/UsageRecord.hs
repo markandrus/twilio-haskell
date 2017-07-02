@@ -6,7 +6,6 @@ module Twilio.UsageRecord
     UsageRecord(..)
   ) where
 
-import Control.Applicative
 import Control.Error.Safe
 import Control.Monad
 import Data.Aeson

@@ -10,14 +10,12 @@ module Twilio.APIKey
   , Twilio.APIKey.get
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
 import Data.Monoid
 import Data.Text (Text)
 import Data.Time.Clock
-import Network.URI
 
 import Control.Monad.Twilio
 import Twilio.Internal.Parser

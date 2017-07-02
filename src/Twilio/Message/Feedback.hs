@@ -10,21 +10,10 @@ module Twilio.Message.Feedback
   , Outcome(..)
   ) where
 
-import Control.Applicative
 import Control.Monad
-import Control.Monad.Catch
 import Data.Aeson
 import Data.Data
-import Data.Monoid
-import Data.Scientific
-import Data.Time.Clock
 import GHC.Generics
-
-import Control.Monad.Twilio
-import Twilio.Internal.Parser
-import Twilio.Internal.Request
-import Twilio.Internal.Resource as Resource
-import Twilio.Types
 
 {- Resource -}
 

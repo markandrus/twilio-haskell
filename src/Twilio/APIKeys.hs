@@ -13,8 +13,6 @@ import Control.Applicative
 import Control.Monad.Catch
 import Data.Aeson
 import Data.Maybe
-import Data.Text (Text)
-import Data.Text.Encoding
 
 import Control.Monad.Twilio
 import Twilio.APIKey

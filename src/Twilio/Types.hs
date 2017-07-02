@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE FlexibleContexts #-}
 {-#LANGUAGE LambdaCase #-}
@@ -18,7 +19,10 @@ module Twilio.Types
   , makeTwilioDELETERequest'
   ) where
 
+#if MIN_VERSION_http_client(0,5,0)
+#else
 import Control.Exception
+#endif
 import Control.Monad
 import Control.Monad.Reader.Class
 import Data.Aeson
@@ -26,9 +30,13 @@ import qualified Data.ByteString.Char8 as C
 import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
+#if MIN_VERSION_http_client(0,5,0)
 import qualified Data.ByteString.Lazy as L
+#endif
 import Network.HTTP.Client
+#if MIN_VERSION_http_client(0,5,0)
 import Network.HTTP.Client.Internal (throwHttp)
+#endif
 import Network.HTTP.Types
 
 import Control.Monad.Twilio
@@ -66,7 +74,11 @@ instance FromJSON APIVersion where
 makeTwilioRequest' :: Monad m => Text -> TwilioT m Request
 makeTwilioRequest' suffix = do
   ((accountSID, authToken), _) <- ask
+#if MIN_VERSION_http_client(0,4,30)
+  let Just request = parseUrlThrow . T.unpack $ baseURL <> suffix
+#else
   let Just request = parseUrl . T.unpack $ baseURL <> suffix
+#endif
   return $ applyBasicAuth (C.pack . T.unpack $ getSID accountSID)
                           (C.pack . T.unpack $ getAuthToken authToken) request
 
@@ -95,7 +107,11 @@ makeTwilioDELETERequest' :: Monad m
 makeTwilioDELETERequest' resourceURL =
   makeTwilioRequest' resourceURL <&> (\req -> req {
     method = "DELETE",
+#if MIN_VERSION_http_client(0,5,0)
     checkResponse = throwForNon204
+#else
+    checkStatus = throwForNon204
+#endif
   })
 
 makeTwilioDELETERequest :: Monad m
@@ -104,10 +120,15 @@ makeTwilioDELETERequest :: Monad m
 makeTwilioDELETERequest resourceURL =
   makeTwilioRequest resourceURL <&> (\req -> req {
     method = "DELETE",
+#if MIN_VERSION_http_client(0,5,0)
     checkResponse = throwForNon204
+#else
+    checkStatus = throwForNon204
+#endif
   })
 
 
+#if MIN_VERSION_http_client(0,5,0)
 throwForNon204 :: Request -> Response BodyReader -> IO ()
 throwForNon204 _ resp =
   case responseStatus resp of
@@ -115,3 +136,9 @@ throwForNon204 _ resp =
     _ -> do
       chunk <- brReadSome (responseBody resp) 1024
       throwHttp $ StatusCodeException (fmap (const ()) resp) (L.toStrict chunk)
+#else
+throwForNon204 :: Status -> ResponseHeaders -> CookieJar -> Maybe SomeException
+throwForNon204 (Status 204 _) _ _ = Nothing
+throwForNon204 status responseHeaders cookieJar = Just . SomeException
+  $ StatusCodeException status responseHeaders cookieJar
+#endif

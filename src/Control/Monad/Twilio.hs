@@ -17,7 +17,6 @@ module Control.Monad.Twilio
   , TwilioException(..)
   ) where
 
-import Control.Applicative
 import Control.Exception
 import Control.Monad
 import Control.Monad.Catch
@@ -93,7 +92,7 @@ runTwilioT credentials@(accountSID, authToken) (TwilioT go) = do
 
 -- | Parse an 'AccountSID' and 'AuthToken' before running zero or more REST API
 -- requests to Twilio, unwrapping the inner monad @m@.
-runTwilioT' :: (Functor m, MonadThrow m, MonadIO m)
+runTwilioT' :: (MonadThrow m, MonadIO m)
             => m String     -- ^ Account SID
             -> m String     -- ^ Authentication Token
             -> TwilioT m a
