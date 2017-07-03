@@ -79,7 +79,7 @@ script:
    set -ex
    case "$BUILD" in
      stack)
-       stack --install-ghc --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps --ghc-options="-Wall -Werror -fno-warn-name-shadowing -fno-warn-orphans -fno-warn-unused-do-bind"
+       stack --install-ghc --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps --ghc-options="-Wall -Werror -fno-warn-name-shadowing -fno-warn-orphans -fno-warn-unticked-promoted-constructors -fno-warn-unused-do-bind"
        ;;
      cabal)
        cabal --version
