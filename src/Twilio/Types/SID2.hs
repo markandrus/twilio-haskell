@@ -37,8 +37,7 @@ import Numeric (readHex, showHex)
 import Text.ParserCombinators.ReadP (char, count, get, skipSpaces)
 import Text.Read (ReadPrec, parens, readP_to_Prec)
 
-import Twilio.Types.Alpha (Alpha(..))
-import Twilio.Types.Sing (Sing, SingI(..), SingKind(..))
+import Twilio.Types.Alpha (Alpha(..), SAlpha, IsAlpha(..))
 
 -- SID
 -------------------------------------------------------------------------------
@@ -55,17 +54,17 @@ instance Hashable (SID a b)
 
 instance NFData (SID a b)
 
-instance (SingI a, SingI b) => IsString (SID a b) where
+instance (IsAlpha a, IsAlpha b) => IsString (SID a b) where
   fromString = read
 
-instance (SingI a, SingI b) => Read (SID a b) where
+instance (IsAlpha a, IsAlpha b) => Read (SID a b) where
   readPrec = readSID
 
-readSID :: forall a b. (SingI a, SingI b) => ReadPrec (SID a b)
+readSID :: forall a b. (IsAlpha a, IsAlpha b) => ReadPrec (SID a b)
 readSID = parens . readP_to_Prec . const $ do
     skipSpaces
-    char . head . show $ fromSing sa
-    char . head . show $ fromSing sb
+    char . head . show $ demote sa
+    char . head . show $ demote sb
     chars <- count 16 get
     case readHex chars of
       [(word1, _)] -> do
@@ -75,15 +74,15 @@ readSID = parens . readP_to_Prec . const $ do
           _            -> mzero
       _            -> mzero
   where
-    sa :: Sing a
-    sa = sing :: Sing a
+    sa :: SAlpha a
+    sa = promote :: SAlpha a
 
-    sb :: Sing b
-    sb = sing :: Sing b
+    sb :: SAlpha b
+    sb = promote :: SAlpha b
 
-instance (SingI a, SingI b) => Show (SID a b) where
-  show (SID word1 word2) = show (fromSing (sing :: Sing a))
-                        <> show (fromSing (sing :: Sing b))
+instance (IsAlpha a, IsAlpha b) => Show (SID a b) where
+  show (SID word1 word2) = show (demote (promote :: SAlpha a))
+                        <> show (demote (promote :: SAlpha b))
                         <> showHex64 word1
                         <> showHex64 word2
     where

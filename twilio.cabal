@@ -79,7 +79,6 @@ library
                        Twilio.Types.SID2,
                        Twilio.Types.SIDs,
                        Twilio.Types.SID.TH,
-                       Twilio.Types.Sing,
                        Twilio.Types.PriceUnit,
                        Twilio.UsageRecord,
                        Twilio.UsageRecords,
