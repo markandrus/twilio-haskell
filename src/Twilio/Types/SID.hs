@@ -1,375 +1,121 @@
-{-#OPTIONS_GHC -fno-warn-unused-binds #-}
-{-#LANGUAGE DefaultSignatures #-}
-{-#LANGUAGE DeriveGeneric #-}
+{-#LANGUAGE DataKinds #-}
 {-#LANGUAGE DeriveDataTypeable #-}
-{-#LANGUAGE FlexibleContexts #-}
-{-#LANGUAGE FlexibleInstances #-}
+{-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE GeneralizedNewtypeDeriving #-}
+{-#LANGUAGE KindSignatures #-}
 {-#LANGUAGE ScopedTypeVariables #-}
-{-#LANGUAGE TypeSynonymInstances #-}
+{-#LANGUAGE StandaloneDeriving #-}
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.Types.SID
+-- Copyright   :  (C) 2016- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+--
+-- This module defines all of the SIDs (string identifiers) for Twilio resources
+-- in a single place.
+-------------------------------------------------------------------------------
+module Twilio.Types.SID where
 
-module Twilio.Types.SID
-  ( -- * String Identifier (SID)
-    SID(getSID, parseSID)
-    -- ** Instances
-  , AccountSID
-  , AddressSID
-  , APIKeySID
-  , ApplicationSID
-  , CallSID
-  , ConferenceSID
-  , ConnectAppSID
-  , CredentialSID
-  , CredentialListSID
-  , DomainSID
-  , FeedbackSummarySID
-  , IPAccessControlListSID
-  , IPAddressSID
-  , MediaSID
-  , MessageSID
-  , PhoneNumberSID
-  , QueueSID
-  , RecordingSID
-  , ShortCodeSID
-  , TranscriptionSID
-  , UsageTriggerSID
-  ) where
-
-import Control.Monad
-import Control.Applicative
+import Control.DeepSeq (NFData)
+import Control.Monad (MonadPlus, mzero)
 import Data.Aeson
-import Data.Data
-import Data.Bifunctor.Flip
+import Data.Binary (Binary)
+import Data.Bits (countLeadingZeros)
+import Data.Data (Data, Typeable)
+import Data.Hashable (Hashable)
+import Data.Ix (Ix)
+import Data.Monoid ((<>))
+import Data.String (IsString(fromString))
 import Data.Text (Text)
 import qualified Data.Text as T
-import GHC.Generics
-
-{- Account SID -}
-
-newtype AccountSID = AccountSID { getAccountSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID AccountSID where
-  getPrefix = Const ('A', 'C')
-
-instance FromJSON AccountSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON AccountSID where
-  toJSON = sidToJSON
-
-{- Address SID -}
-
-newtype AddressSID = AddressSID { getAddressSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID AddressSID where
-  getPrefix = Const ('A', 'D')
-
-instance FromJSON AddressSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON AddressSID where
-  toJSON = sidToJSON
-
-{- Api Key SID -}
-
-newtype APIKeySID = APIKeySID { getAPIKeySID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID APIKeySID where
-  getPrefix = Const ('S', 'K')
-
-instance FromJSON APIKeySID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON APIKeySID where
-  toJSON = sidToJSON
-
-{- Application SID -}
-
-newtype ApplicationSID = ApplicationSID { getApplicationSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID ApplicationSID where
-  getPrefix = Const ('A', 'P')
-
-instance FromJSON ApplicationSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON ApplicationSID where
-  toJSON = sidToJSON
-
-{- Call SID -}
-
-newtype CallSID = CallSID { getCallSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID CallSID where
-  getPrefix = Const ('C', 'A')
-
-instance FromJSON CallSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON CallSID where
-  toJSON = sidToJSON
-
-{- Conference SID -}
-
-newtype ConferenceSID = ConferenceSID { getConferenceSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID ConferenceSID where
-  getPrefix = Const ('C', 'O')
-
-instance FromJSON ConferenceSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON ConferenceSID where
-  toJSON = sidToJSON
-
-{- Connect App SID -}
-
-newtype ConnectAppSID = ConnectAppSID { getConnectAppSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID ConnectAppSID where
-  getPrefix = Const ('C', 'N')
-
-instance FromJSON ConnectAppSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON ConnectAppSID where
-  toJSON = sidToJSON
-
-{- Credential SID -}
-
-newtype CredentialSID = CredentialSID { getCredentialSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID CredentialSID where
-  getPrefix = Const ('S', 'C')
-
-instance FromJSON CredentialSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON CredentialSID where
-  toJSON = sidToJSON
-
-{- Credential List SID -}
-
-newtype CredentialListSID = CredentialListSID { getCredentialListSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID CredentialListSID where
-  getPrefix = Const ('C', 'L')
-
-instance FromJSON CredentialListSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON CredentialListSID where
-  toJSON = sidToJSON
-
-{- Domain SID -}
-
-newtype DomainSID = DomainSID { getDomainSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID DomainSID where
-  getPrefix = Const ('S', 'D')
-
-instance FromJSON DomainSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON DomainSID where
-  toJSON = sidToJSON
-
-{- Feedback Summary SID -}
-
-newtype FeedbackSummarySID = FeedbackSummarySID { getFeedbackSummarySID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID FeedbackSummarySID where
-  getPrefix = Const ('F', 'S')
-
-instance FromJSON FeedbackSummarySID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON FeedbackSummarySID where
-  toJSON = sidToJSON
-
-{- IP Access Control List -}
-
-newtype IPAccessControlListSID = IPAccessControlListSID { getIPAccessControlListSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID IPAccessControlListSID where
-  getPrefix = Const ('A', 'L')
-
-instance FromJSON IPAccessControlListSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON IPAccessControlListSID where
-  toJSON = sidToJSON
-
-{- IP Address -}
-
-newtype IPAddressSID = IPAddressSID { getIPAddressSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID IPAddressSID where
-  getPrefix = Const ('I', 'P')
-
-instance FromJSON IPAddressSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON IPAddressSID where
-  toJSON = sidToJSON
-
-{- Media SID -}
-
-newtype MediaSID = MediaSID { getMediaSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID MediaSID where
-  getPrefix = Const ('M', 'E')
-
-instance FromJSON MediaSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON MediaSID where
-  toJSON = sidToJSON
-
-{- Message SID -}
-
-newtype MessageSID = MessageSID { getMessageSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID MessageSID where
-  getPrefix = Const ('S', 'M')
-
-instance FromJSON MessageSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON MessageSID where
-  toJSON = sidToJSON
-
-{- Phone Number SID -}
-
-newtype PhoneNumberSID = PhoneNumberSID { getPhoneNumberSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID PhoneNumberSID where
-  getPrefix = Const ('P', 'N')
-
-instance FromJSON PhoneNumberSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON PhoneNumberSID where
-  toJSON = sidToJSON
-
-{- Queue SID -}
-
-newtype QueueSID = QueueSID { getQueueSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID QueueSID where
-  getPrefix = Const ('Q', 'U')
-
-instance FromJSON QueueSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON QueueSID where
-  toJSON = sidToJSON
-
-{- Recording SID -}
-
-newtype RecordingSID = RecordingSID { getRecordingSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID RecordingSID where
-  getPrefix = Const ('R', 'E')
-
-instance FromJSON RecordingSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON RecordingSID where
-  toJSON = sidToJSON
-
-{- Short Code SID -}
-
-newtype ShortCodeSID = ShortCodeSID { getShortCodeSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID ShortCodeSID where
-  getPrefix = Const ('S', 'C')
-
-instance FromJSON ShortCodeSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON ShortCodeSID where
-  toJSON = sidToJSON
-
-{- Transcription SID -}
-
-newtype TranscriptionSID = TranscriptionSID { getTranscriptionSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID TranscriptionSID where
-  getPrefix = Const ('T', 'R')
-
-instance FromJSON TranscriptionSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON TranscriptionSID where
-  toJSON = sidToJSON
-
-{- Usage Trigger SID -}
-
-newtype UsageTriggerSID = UsageTriggerSID { getUsageTriggerSID :: Text }
-  deriving (Data, Eq, Generic, Ord, Read, Show, Typeable)
-
-instance SID UsageTriggerSID where
-  getPrefix = Const ('U', 'T')
-
-instance FromJSON UsageTriggerSID where
-  parseJSON = parseSIDFromJSON
-
-instance ToJSON UsageTriggerSID where
-  toJSON = sidToJSON
-
-parseSID' :: (MonadPlus m, SID s) => Text -> Const (m s) s
-parseSID' sid =
-  case T.unpack sid of
-    a:b:_ -> runFlip $ (\ab' -> if (a, b) == ab' then return (makeSID sid) else mzero)
-               <$> Flip getPrefix
-    _     -> Const mzero
-
-parseSIDFromJSON :: (MonadPlus m, SID s) => Value -> m s
-parseSIDFromJSON (String v) = getConst $ parseSID' v
+import Data.Word (Word64)
+import GHC.Generics (Generic)
+import GHC.Read (readPrec)
+import Numeric (readHex, showHex)
+import Text.ParserCombinators.ReadP (char, count, get, skipSpaces)
+import Text.Read (ReadPrec, parens, readP_to_Prec, readPrec_to_S)
+
+import Twilio.Types.Alpha
+
+-- SID
+-------------------------------------------------------------------------------
+
+-- | A SID (string identifier) is a 34-character string. The first two
+-- characters are capital letters A through Z; the remaining 32 characters
+-- represent a 128-bit natural number in hexadecimal.
+data SID (a :: Alpha) (b :: Alpha) = SID !Word64 !Word64
+  deriving (Bounded, Data, Eq, Generic, Ix, Ord, Typeable)
+
+class IsSID sid where
+  getSID :: sid -> Text
+  parseSID :: Text -> Maybe sid
+
+instance (IsAlpha a, IsAlpha b) => IsSID (SID a b) where
+  getSID = sidToText
+  parseSID = parseSIDFromText
+
+instance Binary (SID a b)
+
+instance Hashable (SID a b)
+
+instance NFData (SID a b)
+
+instance (IsAlpha a, IsAlpha b) => IsString (SID a b) where
+  fromString = read
+
+instance (IsAlpha a, IsAlpha b) => Read (SID a b) where
+  readPrec = readSID
+
+readSID :: forall a b. (IsAlpha a, IsAlpha b) => ReadPrec (SID a b)
+readSID = parens . readP_to_Prec . const $ do
+    skipSpaces
+    char $ salphaToChar sa
+    char $ salphaToChar sb
+    chars <- count 16 get
+    case readHex chars of
+      [(word1, _)] -> do
+        chars <- count 16 get
+        case readHex chars of
+          [(word2, _)] -> pure $ SID word1 word2
+          _            -> mzero
+      _            -> mzero
+  where
+    sa :: SAlpha a
+    sa = promote :: SAlpha a
+
+    sb :: SAlpha b
+    sb = promote :: SAlpha b
+
+instance (IsAlpha a, IsAlpha b) => Show (SID a b) where
+  show (SID word1 word2) = show (demote (promote :: SAlpha a))
+                        <> show (demote (promote :: SAlpha b))
+                        <> showHex64 word1
+                        <> showHex64 word2
+    where
+      showHex64 :: Word64 -> String
+      showHex64 word64 = replicate padding '0' <> showHex word64 ""
+        where
+          padding = (countLeadingZeros word64 - 1) `quot` 4
+
+parseSIDFromText :: forall m a b. (MonadPlus m, IsAlpha a, IsAlpha b) => Text -> m (SID a b)
+parseSIDFromText text = case readPrec_to_S readSID 0 $ T.unpack (T.take 32 text) of
+  [(sid, [])] -> pure sid
+  _ -> mzero
+
+parseSIDFromJSON :: (MonadPlus m, IsAlpha a, IsAlpha b) => Value -> m (SID a b)
+parseSIDFromJSON (String text) = parseSIDFromText text
 parseSIDFromJSON _ = mzero
 
-sidToJSON :: SID s => s -> Value
-sidToJSON = String . getSID
+sidToJSON :: (IsAlpha a, IsAlpha b) => SID a b -> Value
+sidToJSON = String . sidToText
 
-class SID s where
-  getPrefix :: Const (Char, Char) s
+sidToText :: (IsAlpha a, IsAlpha b) => SID a b -> Text
+sidToText = T.pack . show
 
-  getSID :: s -> Text
-  default getSID :: (Generic s, GSID (Rep s ())) => s -> Text
-  getSID = (gGetSID :: Rep s () -> Text) . from
+instance (IsAlpha a, IsAlpha b) => FromJSON (SID a b) where
+  parseJSON = parseSIDFromJSON
 
-  makeSID :: Text -> s
-  default makeSID :: (Generic s, GSID (Rep s ())) => Text -> s
-  makeSID = to . (gMakeSID :: Text -> Rep s ())
-
-  parseSID :: Text -> Maybe s
-  parseSID = getConst . parseSID'
-
-class GSID s where
-  gGetSID :: s -> Text
-  gMakeSID :: Text -> s
-
-instance GSID (D1 a (C1 b (S1 c (Rec0 Text))) ()) where
-  gGetSID (M1 (M1 (M1 (K1 s)))) = s
-  gMakeSID = M1 . M1 . M1 . K1
+instance (IsAlpha a, IsAlpha b) => ToJSON (SID a b) where
+  toJSON = sidToJSON

@@ -48,6 +48,7 @@ createSID a b resource = pure
       , "FromJSON"
       , "Generic"
       , "Hashable"
+      , "IsSID"
       , "IsString"
       , "Ix"
       , "NFData"
