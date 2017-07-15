@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Twilio.Types.SID.TH
@@ -14,9 +15,24 @@ module Twilio.Types.SID.TH
   ) where
 
 import Data.Monoid ((<>))
-import Language.Haskell.TH (Bang(..), Body(..), Clause(..), Con(..), Dec(..),
-                            DecsQ, Exp(..), Pat(..), SourceStrictness(..),
-                            SourceUnpackedness(..), Type(..), mkName)
+import Language.Haskell.TH
+#if MIN_VERSION_template_haskell(2,11,0)
+  ( Bang(..)
+  , SourceStrictness(..)
+  , SourceUnpackedness(..)
+#else
+  ( Strict(..)
+#endif
+  , Body(..)
+  , Clause(..)
+  , Con(..)
+  , Dec(..)
+  , DecsQ
+  , Exp(..)
+  , Pat(..)
+  , Type(..)
+  , mkName
+  )
 
 import Twilio.Types.Alpha (Alpha)
 
@@ -41,7 +57,11 @@ createSID a b resource = pure
      <> smartConstructor
     )
   where
+#if MIN_VERSION_template_haskell(2,11,0)
     derivedClasses = map (ConT . mkName)
+#else
+    derivedClasses = map mkName
+#endif
       [ "Bounded"
       , "Data"
       , "Eq"
@@ -63,10 +83,17 @@ createSID a b resource = pure
 
     makeSID = mkName $ resource <> "SID"
 
-    newtypeDeclaration = NewtypeD [] makeSID [] Nothing
+    newtypeDeclaration = NewtypeD [] makeSID []
+#if MIN_VERSION_template_haskell(2,11,0)
+      Nothing
+#endif
       (RecC makeSID
         [ ( getSID
+#if MIN_VERSION_template_haskell(2,11,0)
           , Bang NoSourceUnpackedness NoSourceStrictness
+#else
+          , NotStrict
+#endif
           , sidType
           )
         ]
