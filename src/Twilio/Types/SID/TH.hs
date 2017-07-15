@@ -37,7 +37,6 @@ createSID
 createSID a b resource = pure
     (
       [ newtypeDeclaration
-      , isStringDeclaration
       ]
      <> smartConstructor
     )
@@ -46,33 +45,20 @@ createSID a b resource = pure
       [ "Bounded"
       , "Data"
       , "Eq"
+      , "FromJSON"
       , "Generic"
       , "Hashable"
+      , "IsString"
       , "Ix"
       , "NFData"
       , "Ord"
       , "Read"
       , "Show"
+      , "ToJSON"
       , "Typeable"
       ]
 
     getSID = mkName $ "get" <> resource <> "SID"
-
-    isStringDeclaration = InstanceD Nothing []
-      (AppT (ConT $ mkName "IsString") (ConT makeSID))
-      [
-        FunD (mkName "fromString")
-          [ Clause []
-              (NormalB
-                (InfixE
-                  (Just $ ConE makeSID)
-                  (VarE $ mkName ".")
-                  (Just . VarE $ mkName "read")
-                )
-              )
-              []
-          ]
-      ]
 
     makeSID = mkName $ resource <> "SID"
 

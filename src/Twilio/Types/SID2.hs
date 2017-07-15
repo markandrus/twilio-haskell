@@ -22,7 +22,8 @@ module Twilio.Types.SID2
   where
 
 import Control.DeepSeq (NFData)
-import Control.Monad (mzero)
+import Control.Monad (MonadPlus, mzero)
+import Data.Aeson
 import Data.Binary (Binary)
 import Data.Bits (countLeadingZeros)
 import Data.Data (Data, Typeable)
@@ -30,14 +31,16 @@ import Data.Hashable (Hashable)
 import Data.Ix (Ix)
 import Data.Monoid ((<>))
 import Data.String (IsString(fromString))
+import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Word (Word64)
 import GHC.Generics (Generic)
 import GHC.Read (readPrec)
 import Numeric (readHex, showHex)
 import Text.ParserCombinators.ReadP (char, count, get, skipSpaces)
-import Text.Read (ReadPrec, parens, readP_to_Prec)
+import Text.Read (ReadPrec, parens, readP_to_Prec, readPrec_to_S)
 
-import Twilio.Types.Alpha (Alpha(..), SAlpha, IsAlpha(..))
+import Twilio.Types.Alpha
 
 -- SID
 -------------------------------------------------------------------------------
@@ -63,8 +66,8 @@ instance (IsAlpha a, IsAlpha b) => Read (SID a b) where
 readSID :: forall a b. (IsAlpha a, IsAlpha b) => ReadPrec (SID a b)
 readSID = parens . readP_to_Prec . const $ do
     skipSpaces
-    char . head . show $ demote sa
-    char . head . show $ demote sb
+    char $ salphaToChar sa
+    char $ salphaToChar sb
     chars <- count 16 get
     case readHex chars of
       [(word1, _)] -> do
@@ -90,3 +93,24 @@ instance (IsAlpha a, IsAlpha b) => Show (SID a b) where
       showHex64 word64 = replicate padding '0' <> showHex word64 ""
         where
           padding = (countLeadingZeros word64 - 1) `quot` 4
+
+parseSID :: forall m a b. (MonadPlus m, IsAlpha a, IsAlpha b) => Text -> m (SID a b)
+parseSID text = case readPrec_to_S readSID 0 $ T.unpack (T.take 32 text) of
+  [(sid, [])] -> pure sid
+  _ -> mzero
+
+parseSIDFromJSON :: (MonadPlus m, IsAlpha a, IsAlpha b) => Value -> m (SID a b)
+parseSIDFromJSON (String text) = parseSID text
+parseSIDFromJSON _ = mzero
+
+sidToJSON :: (IsAlpha a, IsAlpha b) => SID a b -> Value
+sidToJSON = String . sidToText
+
+sidToText :: (IsAlpha a, IsAlpha b) => SID a b -> Text
+sidToText = T.pack . show
+
+instance (IsAlpha a, IsAlpha b) => FromJSON (SID a b) where
+  parseJSON = parseSIDFromJSON
+
+instance (IsAlpha a, IsAlpha b) => ToJSON (SID a b) where
+  toJSON = sidToJSON
