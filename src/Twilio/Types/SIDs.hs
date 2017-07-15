@@ -61,10 +61,11 @@ module Twilio.Types.SIDs
   ) where
 
 import Control.DeepSeq (NFData)
-import Data.String (IsString(fromString))
+import Data.Aeson.Types (FromJSON, ToJSON)
 import Data.Data (Data, Typeable)
 import Data.Hashable (Hashable)
 import Data.Ix (Ix)
+import Data.String (IsString)
 import Data.Word (Word64)
 import GHC.Generics (Generic)
 

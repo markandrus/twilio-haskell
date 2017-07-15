@@ -18,6 +18,8 @@
 -------------------------------------------------------------------------------
 module Twilio.Types.Alpha
   ( Alpha(..)
+  , alphaToChar
+  , salphaToChar
   , SAlpha(..)
   , IsAlpha(..)
   ) where
@@ -41,6 +43,12 @@ data Alpha = A | B | C | D | E | F | G | H | I | J | K | L | M
 instance Hashable Alpha
 
 instance NFData Alpha
+
+alphaToChar :: Alpha -> Char
+alphaToChar = head . show
+
+salphaToChar :: IsAlpha a => SAlpha a -> Char
+salphaToChar = alphaToChar . demote
 
 data SAlpha (a :: Alpha) where
   SA :: SAlpha A
