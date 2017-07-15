@@ -47,7 +47,7 @@ import Twilio.Types.Issue as X
 import Twilio.Types.ISOCountryCode as X
 import Twilio.Types.List as X
 import Twilio.Types.PriceUnit as X
-import Twilio.Types.SID as X
+import Twilio.Types.SIDs as X
 import Twilio.Internal.Parser
 import Twilio.Internal.Request
 

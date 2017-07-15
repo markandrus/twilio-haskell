@@ -32,7 +32,7 @@ import Network.HTTP.Client
 
 import Twilio.Internal.Request
 import Twilio.Types.AuthToken
-import Twilio.Types.SID
+import Twilio.Types.SIDs
 
 {- The Twilio monad -}
 

@@ -58,6 +58,7 @@ module Twilio.Types.SIDs
   , mkShortCodeSID
   , mkTranscriptionSID
   , mkUsageTriggerSID
+  , module Twilio.Types.SID
   ) where
 
 import Control.DeepSeq (NFData)
@@ -70,7 +71,7 @@ import Data.Word (Word64)
 import GHC.Generics (Generic)
 
 import Twilio.Types.Alpha (Alpha(..))
-import Twilio.Types.SID2 (SID(..))
+import Twilio.Types.SID (IsSID(..), SID(..))
 import Twilio.Types.SID.TH (createSID)
 
 -- SIDs

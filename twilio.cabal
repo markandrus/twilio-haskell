@@ -76,7 +76,6 @@ library
                        Twilio.Types.Issue,
                        Twilio.Types.List,
                        Twilio.Types.SID,
-                       Twilio.Types.SID2,
                        Twilio.Types.SIDs,
                        Twilio.Types.SID.TH,
                        Twilio.Types.PriceUnit,
@@ -87,7 +86,6 @@ library
   hs-source-dirs:      src
   build-depends:       aeson >=0.8 && <0.10 || >=0.11,
                        base ==4.*,
-                       bifunctors >=4,
                        binary >=0.7,
                        bytestring ==0.10.*,
                        containers ==0.5.*,
