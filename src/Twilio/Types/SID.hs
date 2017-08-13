@@ -73,11 +73,11 @@ readSID = parens . readP_to_Prec . const $ do
     skipSpaces
     char $ salphaToChar sa
     char $ salphaToChar sb
-    chars <- count 16 get
-    case readHex chars of
+    chars1 <- count 16 get
+    chars2 <- count 16 get
+    case readHex chars1 of
       [(word1, _)] -> do
-        chars <- count 16 get
-        case readHex chars of
+        case readHex chars2 of
           [(word2, _)] -> pure $ SID word1 word2
           _            -> mzero
       _            -> mzero
@@ -100,7 +100,7 @@ instance (IsAlpha a, IsAlpha b) => Show (SID a b) where
           padding = (countLeadingZeros word64 - 1) `quot` 4
 
 parseSIDFromText :: forall m a b. (MonadPlus m, IsAlpha a, IsAlpha b) => Text -> m (SID a b)
-parseSIDFromText text = case readPrec_to_S readSID 0 $ T.unpack (T.take 32 text) of
+parseSIDFromText text = case readPrec_to_S readSID 0 $ T.unpack (T.take 34 text) of
   [(sid, [])] -> pure sid
   _ -> mzero
 
