@@ -19,7 +19,7 @@ source-repository head
   location: https://github.com/markandrus/twilio-haskell
 
 library
-  ghc-options:         -Wall -Werror -fno-warn-name-shadowing -fno-warn-orphans -fno-warn-unticked-promoted-constructors -fno-warn-unused-do-bind
+  ghc-options:         -Wall -fno-warn-name-shadowing -fno-warn-orphans -fno-warn-unticked-promoted-constructors -fno-warn-unused-do-bind
   exposed-modules:     Control.Monad.Twilio,
                        Twilio,
                        Twilio.Account,
