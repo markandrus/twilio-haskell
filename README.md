@@ -10,9 +10,11 @@ This package provides a library for interacting with
 $ cabal install twilio
 ```
 
-Documentation soon to be available on Hackage. For now, see [markandrus.github.io/twilio-haskell](http://markandrus.github.io/twilio-haskell).
+Documentation is available through [GitHub](https://markandrus.github.io/twilio-haskell)
+(for HEAD) or [Hackage](https://hackage.haskell.org/package/twilio) for the
+current and preceding releases.
 
-For TwiML, see [twiml-haskell](http://github.com/markandrus/twiml-haskell).
+For TwiML, see [twiml-haskell](https://github.com/markandrus/twiml-haskell).
 
 Example
 -------
