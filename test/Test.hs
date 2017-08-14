@@ -178,7 +178,7 @@ testGETMessages = do
 testPOSTMessages :: Twilio Message
 testPOSTMessages = do
   liftIO $ putStrLn "POST /Messages"
-  let body = PostMessage "+14158059869" "+14158059869" "Hello"
+  let body = PostMessage "+14157671887" "+14158059869" "Hello"
   message <- Messages.post body
   liftIO $ print message
   return message
