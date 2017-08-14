@@ -16,10 +16,10 @@ current and preceding releases.
 
 For TwiML, see [twiml-haskell](https://github.com/markandrus/twiml-haskell).
 
-Example
+Example 1 - using environment variables
 -------
 
-You can create a REST API client and fetch the calls resources as follows
+You can create a REST API client, fetch the calls, or send a message as follows:
 
 ```hs
 {-#LANGUAGE OverloadedStrings #-}
@@ -40,9 +40,52 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   liftIO $ print calls
 
   -- Send a Message.
-  let body = PostMessage "+14158059869" "+14158059869" "Oh, hai"
+  let fromPhone = "+14158059869"
+  let toPhone = "+14158059869"
+  let body = PostMessage receivingPhone sendingPhone "Oh, hai"
   message <- post body
   liftIO $ print message
+```
+
+Example 2 - using SID and secret embedded in the code
+-------
+
+You can create a REST API client and send a message as follows:
+
+```hs
+{-#LANGUAGE OverloadedStrings #-}
+
+module Main where
+
+import Control.Monad.IO.Class (liftIO)
+import Data.Text (Text)
+import Twilio
+import Twilio.Messages
+import Twilio.Types.SID
+
+parseCredentials :: Text -> Text -> Maybe Credentials
+parseCredentials accountSID authToken =
+  case parseAuthToken authToken of
+    Just authToken ->
+      (case parseSID accountSID of
+        Just accountSID ->
+          Just (accountSID, authToken)
+        Nothing -> Nothing)
+    Nothing -> Nothing
+
+main :: IO ()
+main =
+  let accountSID = "youraccountSID"
+    authToken = "yourauthToken"
+  in case parseCredentials accountSID authToken of
+    Just credentialsPassed ->
+      runTwilio ( credentialsPassed ) $ do
+        let fromPhone = "+14158059869"
+        let toPhone = "+14158059869"
+        let body = PostMessage receivingPhone sendingPhone "Oh, hai"
+        message <- post body
+        liftIO $ print message
+    Nothing -> print "Something bad happened, you have poorly formed credentials."
 ```
 
 Contributing
