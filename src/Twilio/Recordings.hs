@@ -1,6 +1,13 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
-
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.Recordings
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+-------------------------------------------------------------------------------
 module Twilio.Recordings
   ( -- * Resource
     Recordings(..)

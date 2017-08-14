@@ -1,6 +1,13 @@
 {-#LANGUAGE LambdaCase #-}
 {-#LANGUAGE OverloadedStrings #-}
-
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.AddressRequirement
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+-------------------------------------------------------------------------------
 module Twilio.Types.AddressRequirement where
 
 import Control.Monad

@@ -1,6 +1,13 @@
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE TypeSynonymInstances #-}
-
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.Capability
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+-------------------------------------------------------------------------------
 module Twilio.Types.Capability where
 
 import Control.Monad

@@ -6,7 +6,14 @@
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE Rank2Types #-}
 {-#LANGUAGE ScopedTypeVariables #-}
-
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.Types
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+-------------------------------------------------------------------------------
 module Twilio.Types
   ( APIVersion(..)
   , module X

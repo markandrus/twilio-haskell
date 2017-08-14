@@ -3,7 +3,14 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ViewPatterns #-}
-
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.Conference.Participant
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+-------------------------------------------------------------------------------
 module Twilio.Conference.Participant
   ( -- * Resource
     Participant(..)
