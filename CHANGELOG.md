@@ -10,8 +10,8 @@ as calling `createSID`. Each SID is a newtype wrapper around a base data type,
 Bug Fixes
 ---------
 
-- 'MessageSID' only handled "SM"-prefixed SIDs (#48); however, there are
-  "MM"-prefixed Message SIDs, too. So, now we have two data types,
-  `SMSMessageSID` and `MMSMessageSID` corresponding to the "SM"- and
-  "MM"-prefixed variants, and `MessageSID` becomes a newtype wrapper around
+- `MessageSID` only handled "SM"-prefixed SIDs; however, there are "MM"-prefixed
+  Message SIDs, too. So, now we have two data types, `SMSMessageSID` and
+  `MMSMessageSID` corresponding to the "SM"- and "MM"-prefixed variants, and
+  `MessageSID` becomes a newtype wrapper around
   `Either SMSMessageSID MMSMessageSID`.
