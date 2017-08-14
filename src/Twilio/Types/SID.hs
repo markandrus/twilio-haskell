@@ -97,7 +97,7 @@ instance (IsAlpha a, IsAlpha b) => Show (SID a b) where
       showHex64 :: Word64 -> String
       showHex64 word64 = replicate padding '0' <> showHex word64 ""
         where
-          padding = (countLeadingZeros word64 - 1) `quot` 4
+          padding = countLeadingZeros word64 `quot` 4
 
 parseSIDFromText :: forall m a b. (MonadPlus m, IsAlpha a, IsAlpha b) => Text -> m (SID a b)
 parseSIDFromText text = case readPrec_to_S readSID 0 $ T.unpack (T.take 34 text) of
