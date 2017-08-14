@@ -30,10 +30,12 @@ module Twilio.Types.SIDs
   , IPAddressSID(..)
   , MediaSID(..)
   , MessageSID(..)
+  , MMSMessageSID(..)
   , PhoneNumberSID(..)
   , QueueSID(..)
   , RecordingSID(..)
   , ShortCodeSID(..)
+  , SMSMessageSID(..)
   , TranscriptionSID(..)
   , UsageTriggerSID(..)
     -- * Smart Constructors
@@ -51,18 +53,20 @@ module Twilio.Types.SIDs
   , mkIPAccessControlListSID
   , mkIPAddressSID
   , mkMediaSID
-  , mkMessageSID
+  , mkMMSMessageSID
   , mkPhoneNumberSID
   , mkQueueSID
   , mkRecordingSID
   , mkShortCodeSID
+  , mkSMSMessageSID
   , mkTranscriptionSID
   , mkUsageTriggerSID
   , module Twilio.Types.SID
   ) where
 
+import Control.Applicative ((<|>))
 import Control.DeepSeq (NFData)
-import Data.Aeson.Types (FromJSON, ToJSON)
+import Data.Aeson.Types (FromJSON(..), ToJSON(..))
 import Data.Data (Data, Typeable)
 import Data.Hashable (Hashable)
 import Data.Ix (Ix)
@@ -91,10 +95,29 @@ createSID F S "FeedbackSummary"
 createSID A L "IPAccessControlList"
 createSID I P "IPAddress"
 createSID M E "Media"
-createSID S M "Message"
+createSID M M "MMSMessage"
 createSID P N "PhoneNumber"
 createSID Q U "Queue"
 createSID R E "Recording"
 createSID S C "ShortCode"
+createSID S M "SMSMessage"
 createSID T R "Transcription"
 createSID U T "UsageTrigger"
+
+newtype MessageSID = MessageSID {
+  getMessageSID :: Either SMSMessageSID MMSMessageSID
+} deriving (Data, Eq, Generic, Hashable, NFData, Ord, Read, Show, Typeable)
+
+instance IsSID MessageSID where
+  getSID = (either getSID getSID) . getMessageSID
+  parseSID text =  MessageSID
+               <$> ((Left  <$> parseSID text)
+               <|>  (Right <$> parseSID text))
+
+instance ToJSON MessageSID where
+  toJSON = (either toJSON toJSON) . getMessageSID
+
+instance FromJSON MessageSID where
+  parseJSON value =  MessageSID
+                 <$> ((Left  <$> parseJSON value)
+                 <|>  (Right <$> parseJSON value))
