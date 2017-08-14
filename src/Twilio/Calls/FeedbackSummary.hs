@@ -1,7 +1,14 @@
 {-#LANGUAGE DeriveDataTypeable #-}
 {-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE OverloadedStrings #-}
-
+-------------------------------------------------------------------------------
+-- |
+-- Module      :  Twilio.Calls.FeedbackSummary
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
+-- License     :  BSD-style (see the file LICENSE)
+-- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
+-- Stability   :  provisional
+-------------------------------------------------------------------------------
 module Twilio.Calls.FeedbackSummary
   ( -- * Resource
     FeedbackSummary(..)

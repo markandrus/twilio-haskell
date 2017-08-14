@@ -6,7 +6,7 @@
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Twilio.Types.SIDs
--- Copyright   :  (C) 2016- Mark Andrus Roberts
+-- Copyright   :  (C) 2017- Mark Andrus Roberts
 -- License     :  BSD-style (see the file LICENSE)
 -- Maintainer  :  Mark Andrus Roberts <markandrusroberts@gmail.com>
 -- Stability   :  provisional
