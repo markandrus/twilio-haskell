@@ -13,6 +13,7 @@ module Twilio.Recording
   ( -- * Resource
     Recording(..)
   , Twilio.Recording.get
+  , Twilio.Recording.delete
   ) where
 
 import Control.Error.Safe
@@ -63,3 +64,10 @@ instance Get1 RecordingSID Recording where
 -- | Get a 'Recording' by 'RecordingSID'.
 get :: MonadThrow m => RecordingSID -> TwilioT m Recording
 get = Resource.get
+
+instance Delete1 RecordingSID where
+  delete1 (getSID -> sid) = request parseJSONFromResponse =<< makeTwilioDELETERequest
+    ("/Recordings/" <> sid <> ".json")
+
+delete :: MonadThrow m => RecordingSID -> TwilioT m ()
+delete = Resource.delete
