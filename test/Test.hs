@@ -37,6 +37,7 @@ import Twilio.Queues (Queues)
 import Twilio.Queues                as Queues
 import Twilio.Queue (Queue)
 import Twilio.Queue                 as Queue
+import Twilio.Recording             as Recording
 import Twilio.Recordings            as Recordings
 import Twilio.ShortCode (ShortCode)
 import Twilio.ShortCode             as ShortCode
@@ -222,6 +223,12 @@ testDELETEQueue :: QueueSID -> Twilio ()
 testDELETEQueue queueSID = do
   liftIO . putStrLn . unpack $ "DELETE /Queues/" <> getSID queueSID
   Queue.delete queueSID
+
+{- Recording -}
+testDELETERecording :: RecordingSID -> Twilio ()
+testDELETERecording recordingSID = do
+  liftIO . putStrLn . unpack $ "DELETE /Recordings/" <> getSID recordingSID
+  Recording.delete recordingSID
 
 {- Short Codes -}
 
