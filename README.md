@@ -45,6 +45,21 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   liftIO $ print message
 ```
 
+Testing
+------------
+Currently, our test suite makes calls to Twilio's API. This means that you will
+be unable to test without a Twilio account.
+
+To test on your local machine, set the environment variables `ACCOUNT_SID`,
+`AUTH_TOKEN`, and `TEST_PHONE`. Twilio provides both test credentials and
+non-test credentials. Make sure to use your **non-test credentials**.
+Furthermore, the phone number must be able to make / receive calls, and be SMS
+enabled.
+
+The easiest way to provision a compatible phone number is to use the [Twilio
+Website](https://www.twilio.com/console/phone-numbers/search) to buy a number,
+with Voice / SMS / MMS capabilities.
+
 Contributing
 ------------
 

@@ -6,7 +6,8 @@ module Main where
 
 import Control.Monad.IO.Class
 import Data.Monoid
-import Data.Text (Text, unpack)
+import Data.Maybe (fromMaybe)
+import Data.Text (Text, unpack, pack)
 import Network.URI
 import System.Environment
 import Twilio
@@ -145,8 +146,9 @@ testPOSTCalls :: Twilio Call
 testPOSTCalls = do
   liftIO $ putStrLn "POST /Calls"
   let Just url = parseAbsoluteURI "https://demo.twilio.com/welcome/voice/"
+  testPhone <- liftIO $ getTestPhoneWithDefault "+14157671887"
   (call :: Call) <- Twilio.Internal.Resource.post
-    ("+14158059869" :: Text) ("+14158059869" :: Text) url
+    (testPhone :: Text) (testPhone :: Text) url
   liftIO $ print call
   return call
 
@@ -178,7 +180,8 @@ testGETMessages = do
 testPOSTMessages :: Twilio Message
 testPOSTMessages = do
   liftIO $ putStrLn "POST /Messages"
-  let body = PostMessage "+14157671887" "+14158059869" "Hello"
+  testPhone <- liftIO $ getTestPhoneWithDefault "+14157671887"
+  let body = PostMessage testPhone testPhone "Hello"
   message <- Messages.post body
   liftIO $ print message
   return message
@@ -249,3 +252,7 @@ testPOSTTokens = do
   token <- Tokens.post Nothing
   liftIO $ print token
   return token
+
+getTestPhoneWithDefault defaultPhone = do
+  maybeTestPhone <- lookupEnv "TEST_PHONE"
+  return (pack $ fromMaybe defaultPhone maybeTestPhone)
