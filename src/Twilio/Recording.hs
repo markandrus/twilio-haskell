@@ -12,6 +12,7 @@
 module Twilio.Recording
   ( -- * Resource
     Recording(..)
+  , Twilio.Recording.delete
   , Twilio.Recording.get
   ) where
 
