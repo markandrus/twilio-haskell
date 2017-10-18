@@ -1,3 +1,6 @@
+# NOTE(mroberts): https://github.com/travis-ci/travis-ci/issues/4704
+filter_secrets: false
+
 sudo: false
 
 language: generic
@@ -84,6 +87,7 @@ script:
      cabal)
        cabal --version
        travis_retry cabal update
+       sed -i 's/^jobs:/-- jobs:/' ${HOME}/.cabal/config
        cabal install --dependencies-only
        cabal configure --enable-tests --enable-benchmarks -v2
        cabal build
