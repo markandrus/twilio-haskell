@@ -129,3 +129,4 @@ test-suite integrationtests
   other-modules:       DoesItWorkSpec
   build-depends:       base
                      , hspec >=2.4
+                     , QuickCheck >= 2.9
