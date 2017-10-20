@@ -30,5 +30,5 @@ spec = do
 instance Arbitrary Text where
   arbitrary :: Gen Text
   arbitrary = do
-      string <- arbitrary :: Gen String -- generate arbitrary string
-      return $ pack string -- turn it into a text
+      string <- arbitrary :: Gen String
+      return $ pack string
