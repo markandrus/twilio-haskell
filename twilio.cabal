@@ -107,8 +107,8 @@ library
                        transformers >=0.3,
                        unordered-containers ==0.2.*
 
-test-suite Tests
-  hs-source-dirs:      test
+test-suite apitests
+  hs-source-dirs:      test/api
   main-is:             Test.hs
   Type:                exitcode-stdio-1.0
   build-depends:       aeson,
@@ -121,3 +121,11 @@ test-suite Tests
                        text,
                        transformers,
                        twilio
+
+test-suite integrationtests
+  hs-source-dirs:      test/unit
+  main-is:             Spec.hs
+  Type:                exitcode-stdio-1.0
+  other-modules:       DoesItWorkSpec
+  build-depends:       base
+                     , hspec == 2.4.3
