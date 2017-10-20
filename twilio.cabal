@@ -128,4 +128,4 @@ test-suite integrationtests
   Type:                exitcode-stdio-1.0
   other-modules:       DoesItWorkSpec
   build-depends:       base
-                     , hspec == 2.4.3
+                     , hspec >=2.4
