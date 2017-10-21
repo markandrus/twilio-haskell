@@ -128,8 +128,8 @@ test-suite integrationtests
   Type:                exitcode-stdio-1.0
   other-modules:       Twilio.Types.PriceUnitSpec
   build-depends:       base
-                     , hspec >=2.4
-                     , QuickCheck >= 2.9
+                     , hspec == 2.*
+                     , QuickCheck == 2.*
                      , text
                      , aeson
                      , twilio
