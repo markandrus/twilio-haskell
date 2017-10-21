@@ -133,3 +133,4 @@ test-suite integrationtests
                      , text
                      , aeson
                      , twilio
+                     , quickcheck-instances
