@@ -6,7 +6,8 @@ import Test.Hspec
 import Twilio.Types.PriceUnit
 import Data.Aeson
 import Test.QuickCheck hiding (Success)
-import Data.Text (Text, pack)
+import Data.Text (Text)
+import Test.QuickCheck.Instances ()
 
 main :: IO ()
 main = hspec spec
@@ -24,11 +25,9 @@ spec = do
       it "should work for BTC" $ do
         let expectedResults = (Success $ OtherPriceUnit "BTC")
         fromJSON (String "BTC") `shouldBe` expectedResults
-      it "should work for arbitrary strings" $ property $
+      it "should work for arbitrary strings" $ property $ forAll notPriceUnitEnum $
         \code -> fromJSON (String code) == (Success $ OtherPriceUnit code)
 
-instance Arbitrary Text where
-  arbitrary :: Gen Text
-  arbitrary = do
-      string <- arbitrary :: Gen String
-      return $ pack string
+notPriceUnitEnum :: Gen Text
+notPriceUnitEnum = suchThat arbitrary $
+    \code -> not $ code `elem` ["USD", "EUR", "JPY"]
