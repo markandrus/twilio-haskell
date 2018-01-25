@@ -15,3 +15,9 @@ Bug Fixes
   `MMSMessageSID` corresponding to the "SM"- and "MM"-prefixed variants, and
   `MessageSID` becomes a newtype wrapper around
   `Either SMSMessageSID MMSMessageSID`.
+
+Features
+----------
+
+- Add copilot feature: https://www.twilio.com/copilot . Add new
+  function named `postCopilot` for the functionality.
