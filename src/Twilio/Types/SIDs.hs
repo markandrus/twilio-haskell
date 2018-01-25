@@ -38,6 +38,7 @@ module Twilio.Types.SIDs
   , SMSMessageSID(..)
   , TranscriptionSID(..)
   , UsageTriggerSID(..)
+  , MessagingServiceSID(..)
     -- * Smart Constructors
   , mkAccountSID
   , mkAddressSID
@@ -61,6 +62,7 @@ module Twilio.Types.SIDs
   , mkSMSMessageSID
   , mkTranscriptionSID
   , mkUsageTriggerSID
+  , mkMessagingServiceSID
   , module Twilio.Types.SID
   ) where
 
@@ -96,6 +98,7 @@ createSID A L "IPAccessControlList"
 createSID I P "IPAddress"
 createSID M E "Media"
 createSID M M "MMSMessage"
+createSID M G "MessagingService"
 createSID P N "PhoneNumber"
 createSID Q U "Queue"
 createSID R E "Recording"

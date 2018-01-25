@@ -12,8 +12,10 @@ module Twilio.Messages
   ( -- * Resource
     Messages(..)
   , PostMessage(..)
+  , PostCopilotMessage(..)
   , Twilio.Messages.get
   , Twilio.Messages.post
+  , Twilio.Messages.postCopilot
   ) where
 
 import Control.Applicative
@@ -28,6 +30,7 @@ import Twilio.Internal.Request
 import Twilio.Internal.Resource as Resource
 import Twilio.Message
 import Twilio.Types
+import Twilio.Types.SID (sidToText)
 
 {- Resource -}
 
@@ -41,6 +44,23 @@ data PostMessage = PostMessage
   , sendFrom :: !Text
   , sendBody :: !Text
   } deriving (Show, Eq)
+
+data PostCopilotMessage = PostCopilotMessage
+  { coSendTo :: !Text
+  , coMsgId :: !MessagingServiceSID
+  , coBody :: !Text
+  } deriving (Show, Eq)
+
+instance Post1 PostCopilotMessage Message where
+  post1 msg =
+    request parseJSONFromResponse =<<
+    makeTwilioPOSTRequest
+      "/Messages.json"
+      [ ("To", encodeUtf8 $ coSendTo msg)
+      , ("Body", encodeUtf8 $ coBody msg)
+      , ( "MessagingServiceSid"
+        , encodeUtf8 . sidToText . getMessagingServiceSID $ coMsgId msg)
+      ]
 
 instance List Messages Message where
   getListWrapper = wrap (Messages . fromJust)
@@ -69,3 +89,9 @@ get = Resource.get
 -- | Send a text message.
 post :: MonadThrow m => PostMessage -> TwilioT m Message
 post = Resource.post
+
+-- | Send a text message using Copilot
+postCopilot
+  :: MonadThrow m
+  => PostCopilotMessage -> TwilioT m Message
+postCopilot = Resource.post
