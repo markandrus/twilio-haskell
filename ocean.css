@@ -416,14 +416,6 @@ div#style-menu-holder {
   margin-top: 0.8em;
 }
 
-.clearfix:after {
-  clear: both;
-  content: " ";
-  display: block;
-  height: 0;
-  visibility: hidden;
-}
-
 .subs dl {
   margin: 0;
 }
@@ -461,11 +453,6 @@ div#style-menu-holder {
 .inst, .inst li {
   list-style: none;
   margin-left: 1em;
-}
-
-/* Workaround for bug in Firefox (issue #384) */
-.inst-left {
-  float: left;
 }
 
 .top p.src {
