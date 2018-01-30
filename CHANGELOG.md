@@ -1,5 +1,5 @@
-0.2.0.0 (in progess)
-====================
+0.2.0.0 (January 29, 2018)
+==========================
 
 This release mainly refactors the way SIDs are handled internally. Previously,
 adding a SID required copying a bunch of boilerplate. Now we use Template
@@ -19,5 +19,5 @@ Bug Fixes
 Features
 ----------
 
-- Add copilot feature: https://www.twilio.com/copilot . Add new
-  function named `postCopilot` for the functionality.
+- Add [Messaging Copilot](https://www.twilio.com/copilot) support via a new
+  function, `postCopilot`.
