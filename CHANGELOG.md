@@ -19,5 +19,6 @@ Bug Fixes
 Features
 ----------
 
+- Add support for deleting recordings.
 - Add [Messaging Copilot](https://www.twilio.com/copilot) support via a new
   function, `postCopilot`.
