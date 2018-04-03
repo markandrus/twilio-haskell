@@ -92,7 +92,7 @@ library
                        deepseq >=1,
                        errors >=1,
                        exceptions ==0.*,
-                       free ==4.*,
+                       free ==4.* || ==5.*,
                        hashable >=1,
                        http-client >=0.4,
                        http-client-tls >=0.2,
