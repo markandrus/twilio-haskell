@@ -23,6 +23,9 @@ import Language.Haskell.TH
 #else
   ( Strict(..)
 #endif
+#if MIN_VERSION_template_haskell(2,12,0)
+  , DerivClause(..)
+#endif
   , Body(..)
   , Clause(..)
   , Con(..)
@@ -98,7 +101,11 @@ createSID a b resource = pure
           )
         ]
       )
+#if MIN_VERSION_template_haskell(2,12,0)
+      [DerivClause Nothing derivedClasses]
+#else
       derivedClasses
+#endif
 
     sidType = AppT
       (AppT (ConT $ mkName "SID")
