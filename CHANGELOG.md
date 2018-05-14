@@ -1,3 +1,8 @@
+0.2.0.1 (May 14, 2018)
+======================
+
+- Support template-haskell >=2.12, relax upper bound on free (#61)
+
 0.2.0.0 (January 29, 2018)
 ==========================
 
