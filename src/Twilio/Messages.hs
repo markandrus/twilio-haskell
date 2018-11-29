@@ -24,6 +24,7 @@ import Data.Aeson
 import Data.Text (Text)
 import Data.Text.Encoding
 import Data.Maybe
+import qualified Data.ByteString.Char8 as C
 
 import Control.Monad.Twilio
 import Twilio.Internal.Request
@@ -43,6 +44,7 @@ data PostMessage = PostMessage
   { sendTo   :: !Text
   , sendFrom :: !Text
   , sendBody :: !Text
+  , statusCallback :: !(Maybe Text)
   } deriving (Show, Eq)
 
 data PostCopilotMessage = PostCopilotMessage
@@ -76,11 +78,21 @@ instance Get0 Messages where
 
 instance Post1 PostMessage Message where
   post1 msg = request parseJSONFromResponse =<<
-    makeTwilioPOSTRequest "/Messages.json"
-      [ ("To", encodeUtf8 $ sendTo msg)
-      , ("From", encodeUtf8 $ sendFrom msg)
-      , ("Body", encodeUtf8 $ sendBody msg)
-      ]
+    makeTwilioPOSTRequest "/Messages.json" (requiredParams ++ optionalParams)
+    where requiredParams = [ ("To",   encodeUtf8 $ sendTo msg)
+                           , ("From", encodeUtf8 $ sendFrom msg)
+                           , ("Body", encodeUtf8 $ sendBody msg)
+                           ]
+          optionalParams = callBack
+          callBack       = toSingleParam "StatusCallback" (statusCallback msg)
+
+type ParamName  = C.ByteString
+type ParamValue = Text
+type ParamPair  = (C.ByteString, C.ByteString)
+
+toSingleParam :: ParamName -> Maybe ParamValue -> [ParamPair]
+toSingleParam name mVal = maybe mempty toParamPair mVal
+    where toParamPair val = [(name, encodeUtf8 val)]
 
 -- | Get 'Messages'.
 get :: MonadThrow m => TwilioT m Messages

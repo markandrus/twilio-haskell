@@ -40,7 +40,7 @@ main = runTwilio' (getEnv "ACCOUNT_SID")
   liftIO $ print calls
 
   -- Send a Message.
-  let body = PostMessage "+14158059869" "+14158059869" "Oh, hai"
+  let body = PostMessage "+14158059869" "+14158059869" "Oh, hai" Nothing
   message <- post body
   liftIO $ print message
 ```
