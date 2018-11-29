@@ -181,7 +181,7 @@ testPOSTMessages :: Twilio Message
 testPOSTMessages = do
   liftIO $ putStrLn "POST /Messages"
   testPhone <- liftIO $ getTestPhoneWithDefault "+14157671887"
-  let body = PostMessage "+12027621401" testPhone "Hello"
+  let body = PostMessage "+12027621401" testPhone "Hello" Nothing
   message <- Messages.post body
   liftIO $ print message
   return message
