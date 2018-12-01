@@ -1,3 +1,9 @@
+0.3.0.0 (December 2, 2018)
+==========================
+ 
+- Added support for specifying a Status Callback URL when POST-ing to the
+  Messages endpoint. (#64)
+
 0.2.0.1 (May 14, 2018)
 ======================
 
