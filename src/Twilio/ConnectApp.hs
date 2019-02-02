@@ -19,7 +19,6 @@ module Twilio.ConnectApp
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
-import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import Network.URI

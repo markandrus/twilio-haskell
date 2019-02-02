@@ -18,7 +18,6 @@ module Twilio.AvailablePhoneNumbers
 import Control.Applicative
 import Control.Monad.Catch
 import Data.Aeson
-import Data.Monoid
 import qualified Data.Text as T
 
 import Control.Monad.Twilio

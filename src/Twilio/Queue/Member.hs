@@ -19,7 +19,6 @@ module Twilio.Queue.Member
 import Control.Monad
 import Data.Aeson
 import Data.Data
-import Data.Monoid
 import Data.Time.Clock
 import GHC.Generics
 import Network.URI

@@ -5,7 +5,6 @@
 module Main where
 
 import Control.Monad.IO.Class
-import Data.Monoid
 import Data.Maybe (fromMaybe)
 import Data.Text (Text, unpack, pack)
 import Network.URI
