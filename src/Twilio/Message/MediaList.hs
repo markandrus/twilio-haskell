@@ -21,7 +21,6 @@ import Control.Applicative
 import Data.Aeson
 import Data.Data
 import Data.Maybe
-import Data.Monoid
 import GHC.Generics
 
 import Twilio.Internal.Request

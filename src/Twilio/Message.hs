@@ -21,7 +21,6 @@ module Twilio.Message
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
-import Data.Monoid
 import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI

@@ -20,7 +20,6 @@ module Twilio.Message.Media
 import Control.Monad
 import Data.Aeson
 import Data.Data
-import Data.Monoid
 import Data.Text (Text)
 import Data.Time.Clock
 import GHC.Generics

@@ -19,7 +19,6 @@ module Twilio.AuthorizedConnectApp
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
-import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Time.Clock

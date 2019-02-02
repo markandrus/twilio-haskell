@@ -26,7 +26,6 @@ import Data.Bits (countLeadingZeros)
 import Data.Data (Data, Typeable)
 import Data.Hashable (Hashable)
 import Data.Ix (Ix)
-import Data.Monoid ((<>))
 import Data.String (IsString(fromString))
 import Data.Text (Text)
 import qualified Data.Text as T

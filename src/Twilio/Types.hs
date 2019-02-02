@@ -34,7 +34,6 @@ import Control.Monad
 import Control.Monad.Reader.Class
 import Data.Aeson
 import qualified Data.ByteString.Char8 as C
-import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 #if MIN_VERSION_http_client(0,5,0)

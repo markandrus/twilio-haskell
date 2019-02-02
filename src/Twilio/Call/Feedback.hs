@@ -24,7 +24,6 @@ import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
 import Data.Data
-import Data.Monoid
 import Data.Scientific
 import Data.Time.Clock
 import GHC.Generics
