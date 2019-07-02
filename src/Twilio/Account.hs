@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
@@ -26,7 +27,9 @@ module Twilio.Account
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import Data.Text (Text)
 import Data.Time.Clock
 import Network.URI

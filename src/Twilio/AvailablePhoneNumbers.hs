@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ViewPatterns #-}
@@ -18,7 +19,9 @@ module Twilio.AvailablePhoneNumbers
 import Control.Applicative
 import Control.Monad.Catch
 import Data.Aeson
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import qualified Data.Text as T
 
 import Control.Monad.Twilio
