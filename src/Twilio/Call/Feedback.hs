@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE DeriveDataTypeable #-}
 {-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
@@ -24,7 +25,9 @@ import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
 import Data.Data
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import Data.Scientific
 import Data.Time.Clock
 import GHC.Generics

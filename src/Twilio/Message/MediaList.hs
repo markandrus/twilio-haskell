@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE DeriveDataTypeable #-}
 {-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
@@ -21,7 +22,9 @@ import Control.Applicative
 import Data.Aeson
 import Data.Data
 import Data.Maybe
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import GHC.Generics
 
 import Twilio.Internal.Request

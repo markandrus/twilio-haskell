@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE DeriveDataTypeable #-}
 {-#LANGUAGE DeriveGeneric #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
@@ -20,7 +21,9 @@ module Twilio.Message.Media
 import Control.Monad
 import Data.Aeson
 import Data.Data
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import Data.Text (Text)
 import Data.Time.Clock
 import GHC.Generics

@@ -1,3 +1,4 @@
+{-#LANGUAGE CPP #-}
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ViewPatterns #-}
@@ -19,7 +20,9 @@ module Twilio.ConnectApp
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import Data.Text (Text)
 import qualified Data.Text as T
 import Network.URI

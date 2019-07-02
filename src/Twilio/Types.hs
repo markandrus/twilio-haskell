@@ -34,7 +34,9 @@ import Control.Monad
 import Control.Monad.Reader.Class
 import Data.Aeson
 import qualified Data.ByteString.Char8 as C
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Monoid
+#endif
 import Data.Text (Text)
 import qualified Data.Text as T
 #if MIN_VERSION_http_client(0,5,0)
