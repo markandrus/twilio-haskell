@@ -88,7 +88,7 @@ library
                        base ==4.*,
                        binary >=0.7,
                        bytestring ==0.10.*,
-                       containers ==0.5.*,
+                       containers >=0.5,
                        deepseq >=1,
                        errors >=1,
                        exceptions ==0.*,
