@@ -21,7 +21,7 @@ import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
-import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Aeson.KeyMap as KeyMap
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -67,13 +67,13 @@ data IceServer
 
 instance FromJSON IceServer where
   parseJSON (Object map) =
-    let url = HashMap.lookup "url" map >>= valueToText >>= parseAbsoluteURI . T.unpack
+    let url = KeyMap.lookup "url" map >>= valueToText >>= parseAbsoluteURI . T.unpack
     in  case url of
       Nothing   -> mzero
       Just url' -> return . fromMaybe (StunServer url') $ TurnServer
         <$> url
-        <*> (HashMap.lookup "credential" map >>= valueToText)
-        <*> (HashMap.lookup "username"   map >>= valueToText)
+        <*> (KeyMap.lookup "credential" map >>= valueToText)
+        <*> (KeyMap.lookup "username"   map >>= valueToText)
   parseJSON _ = mzero
 
 instance Post0 Token where

@@ -23,7 +23,6 @@ import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
 import Data.Data
-import Data.Text (Text)
 import Debug.Trace (trace)
 import GHC.Generics
 import Network.URI
@@ -43,14 +42,14 @@ class FromJSON b => List a b | a -> b where
   getList :: a -> [b]
 
   -- | The plural name for the items in the 'List'.
-  getPlural :: Const Text (a, b)
+  getPlural :: Const Key (a, b)
 
   -- | Parse a 'JSON' 'Value' to an instance of the 'List'.
   parseJSONToList :: Value -> Parser a
   parseJSONToList o@(Object v)
       =  unwrap (getListWrapper :: Wrapper (Maybe PagingInformation -> [b] -> a))
      <$> maybePagingInformation
-     <*> (v .: getConst (getPlural :: Const Text (a, b)) :: Parser [b])
+     <*> (v .: getConst (getPlural :: Const Key (a, b)) :: Parser [b])
     where
       maybePagingInformation = case fromJSON o of
         Success pagingInformation -> return $ Just pagingInformation

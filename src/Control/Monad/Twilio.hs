@@ -169,6 +169,6 @@ data TwilioException
   | InvalidAuthToken   !Text
   | InvalidCredentials
   | UnexpectedResponse !(Response LBS.ByteString)
-  deriving (Show, Eq, Typeable)
+  deriving (Show, Typeable)
 
 instance Exception TwilioException
