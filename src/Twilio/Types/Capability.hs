@@ -1,5 +1,6 @@
 {-#LANGUAGE FlexibleInstances #-}
 {-#LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE CPP #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Twilio.Capability
@@ -12,10 +13,24 @@ module Twilio.Types.Capability where
 
 import Control.Monad
 import Data.Aeson
-import qualified Data.HashMap.Strict as HashMap
+import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
+
+#if MIN_VERSION_aeson(2,0,0)
+import qualified Data.Aeson.KeyMap as KeyMap
+import qualified Data.Aeson.Key as Key
+
+keyFromString :: String -> Key.Key
+keyFromString = Key.fromString
+
+#else
+import qualified Data.HashMap.Strict as KeyMap
 import qualified Data.Text as T
+
+keyFromString :: String -> T.Text
+keyFromString = T.pack
+#endif
 
 type Capabilities = Set Capability
 
@@ -26,12 +41,12 @@ data Capability
   deriving (Bounded, Enum, Eq, Ord, Read, Show)
 
 instance {-# OVERLAPPING #-} FromJSON Capabilities where
-  parseJSON (Object map) 
+  parseJSON (Object map)
     = let map' = fmap (\value -> case value of
                         Bool bool     -> bool
                         _             -> False) map
       in  return $ foldr (\capability set ->
-            if HashMap.lookupDefault False (T.pack $ show capability) map'
+            if fromMaybe False $ KeyMap.lookup (keyFromString $ show capability) map'
               then Set.insert capability set
               else set
           ) Set.empty [Voice, SMS, MMS]
