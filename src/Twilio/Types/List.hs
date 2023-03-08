@@ -3,6 +3,7 @@
 {-#LANGUAGE FunctionalDependencies #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE CPP #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Twilio.Types.List
@@ -26,6 +27,12 @@ import Data.Data
 import Debug.Trace (trace)
 import GHC.Generics
 import Network.URI
+
+#if MIN_VERSION_aeson(2,0,0)
+#else
+import Data.Text (Text)
+type Key = Text
+#endif
 
 (<&>) :: Functor f => f a -> (a -> b) -> f b
 (<&>) = flip fmap

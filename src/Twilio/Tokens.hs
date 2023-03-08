@@ -2,6 +2,7 @@
 {-#LANGUAGE MultiParamTypeClasses #-}
 {-#LANGUAGE OverloadedStrings #-}
 {-#LANGUAGE ViewPatterns #-}
+{-# LANGUAGE CPP #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module      :  Twilio.Tokens
@@ -21,13 +22,18 @@ import Control.Error.Safe
 import Control.Monad
 import Control.Monad.Catch
 import Data.Aeson
-import qualified Data.Aeson.KeyMap as KeyMap
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Text.Encoding
 import Data.Time.Clock
 import Network.URI
+
+#if MIN_VERSION_aeson(2,0,0)
+import qualified Data.Aeson.KeyMap as KeyMap
+#else
+import qualified Data.HashMap.Strict as KeyMap
+#endif
 
 import Control.Monad.Twilio
 import Twilio.Types
